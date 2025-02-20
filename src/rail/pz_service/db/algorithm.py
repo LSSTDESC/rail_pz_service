@@ -1,11 +1,6 @@
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.schema import ForeignKey, UniqueConstraint
 
 from .base import Base
 from .row import RowMixin
@@ -19,7 +14,7 @@ class Algorithm(Base, RowMixin):
     """Database table to keep track of photo-z algorithms
 
     Each `Algorithm` refers to a particular `CatEstimator`
-    subclass    
+    subclass
     """
 
     __tablename__ = "algorithm"
@@ -28,13 +23,13 @@ class Algorithm(Base, RowMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(index=True)
     class_name: Mapped[str] = mapped_column()
-    
+
     estimators_: Mapped["Estimator"] = relationship(
         "Estimator",
         primaryjoin="Algorithm.id==Estimator.algo_id",
         viewonly=True,
     )
-    models_:  Mapped["Model"] = relationship(
+    models_: Mapped["Model"] = relationship(
         "Model",
         primaryjoin="Algorithm.id==Model.algo_id",
         viewonly=True,

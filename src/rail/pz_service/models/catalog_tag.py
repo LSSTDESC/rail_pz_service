@@ -1,6 +1,4 @@
-"""Pydantic model for the Catalog_tag
-
-"""
+"""Pydantic model for the Catalog_tag"""
 
 from pydantic import BaseModel, ConfigDict
 
@@ -17,15 +15,14 @@ class CatalogTagBase(BaseModel):
 
 class CatalogTagCreate(CatalogTagBase):
     """CatalogTag Parameters that are used to create new rows but not in DB tables"""
+
     pass
 
 
 class CatalogTag(CatalogTagBase):
     """CatalogTag Parameters that are in DB tables and not used to create new rows"""
 
+    model_config = ConfigDict(from_attributes=True)
+
     # primary key
     id: int
-
-
-
-    

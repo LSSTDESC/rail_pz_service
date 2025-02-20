@@ -11,4 +11,6 @@ class TableEnum(enum.Enum):
     catalog_tag = 1
     estimator = 2
     model = 3
-    request = 4
+    dataset = 4
+    request = 5
+    object_ref = 6

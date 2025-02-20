@@ -3,12 +3,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
 from ..enums import (
-    ErrorActionEnum,
-    ErrorFlavorEnum,
-    ErrorSourceEnum,
-    LevelEnum,
-    ScriptMethodEnum,
-    StatusEnum,
+    TableEnum,
 )
 from ..config import config
 
@@ -18,10 +13,7 @@ class Base(DeclarativeBase):
 
     metadata = MetaData(schema=config.db.table_schema)
     type_annotation_map = {
-        ErrorActionEnum: saEnum(ErrorActionEnum, length=20, native_enum=False, create_constraint=False),
-        ErrorFlavorEnum: saEnum(ErrorFlavorEnum, length=20, native_enum=False, create_constraint=False),
-        ErrorSourceEnum: saEnum(ErrorSourceEnum, length=20, native_enum=False, create_constraint=False),
-        LevelEnum: saEnum(LevelEnum, length=20, native_enum=False, create_constraint=False),
-        ScriptMethodEnum: saEnum(ScriptMethodEnum, length=20, native_enum=False, create_constraint=False),
-        StatusEnum: saEnum(StatusEnum, length=20, native_enum=False, create_constraint=False),
+        TableEnum: saEnum(
+            TableEnum, length=20, native_enum=False, create_constraint=False
+        ),
     }

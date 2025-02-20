@@ -9,17 +9,15 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
 from ..errors import (
-    CMBadStateTransitionError,
-    CMIDMismatchError,
-    CMIntegrityError,
-    CMMissingFullnameError,
-    CMMissingIDError,
+    RAILIDMismatchError,
+    RAILIntegrityError,
+    RAILMissingNameError,
+    RAILMissingIDError,
 )
 
 logger = get_logger(__name__)
 
 T = TypeVar("T", bound="RowMixin")
-
 
 
 class RowMixin:
@@ -38,8 +36,8 @@ class RowMixin:
     async def get_rows(
         cls: type[T],
         session: async_scoped_session,
-        skip: int=0,
-        limit: int=100,
+        skip: int = 0,
+        limit: int = 100,
         **kwargs: Any,
     ) -> Sequence[T]:
         """Get rows associated to a particular table
@@ -85,10 +83,15 @@ class RowMixin:
         -------
         T
             The matching row
+
+        Raises
+        ------
+        RAILMissingIDError
+             Row with ID does not exist
         """
         result = await session.get(cls, row_id)
         if result is None:
-            raise CMMissingIDError(f"{cls} {row_id} not found")
+            raise RAILMissingIDError(f"{cls} {row_id} not found")
         return result
 
     @classmethod
@@ -104,19 +107,24 @@ class RowMixin:
         session
             DB session manager
 
-        name        
+        name
             name of the row to return
 
         Returns
         -------
         T
             Matching row
+
+        Raises
+        ------
+        RAILMissingNameError
+             Row with ID does not exist
         """
         query = select(cls).where(cls.name == name)
         rows = await session.scalars(query)
         row = rows.first()
         if row is None:
-            raise CMMissingFullnameError(f"{cls} {name} not found")
+            raise RAILMissingNameError(f"{cls} {name} not found")
         return row
 
     @classmethod
@@ -129,7 +137,7 @@ class RowMixin:
 
         Parameters
         ----------
-        session        
+        session
             DB session manager
 
         row_id
@@ -141,17 +149,19 @@ class RowMixin:
             Row does not exist
 
         CMIntegrityError
-            sqlalchemy.IntegrityError raised 
+            sqlalchemy.IntegrityError raised
         """
         row = await session.get(cls, row_id)
         if row is None:
-            raise CMMissingIDError(f"{cls} {row_id} not found")
+            raise RAILMissingIDError(f"{cls} {row_id} not found")
         try:
             await session.delete(row)
         except IntegrityError as msg:
             if TYPE_CHECKING:
                 assert msg.orig  # for mypy
-            raise CMIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
+            raise RAILIntegrityError(
+                params=msg.params, orig=msg.orig, statement=msg.statement
+            ) from msg
         await cls._delete_hook(session, row_id)
 
     @classmethod
@@ -200,20 +210,20 @@ class RowMixin:
 
         Raises
         ------
-        CMIDMismatchError
+        RAILIDMismatchError
             ID mismatch between row IDs
 
-        CMMissingIDError
+        RAILMissingIDError
             Could not find row
 
-        CMIntegrityError
+        RAILIntegrityError
             catching a IntegrityError
         """
         if kwargs.get("id", row_id) != row_id:
-            raise CMIDMismatchError("ID mismatch between URL and body")
+            raise RAILIDMismatchError("ID mismatch between URL and body")
         row = await session.get(cls, row_id)
         if row is None:
-            raise CMMissingIDError(f"{cls} {row_id} not found")
+            raise RAILMissingIDError(f"{cls} {row_id} not found")
         async with session.begin_nested():
             try:
                 for var, value in kwargs.items():
@@ -229,7 +239,7 @@ class RowMixin:
                 await session.rollback()
                 if TYPE_CHECKING:
                     assert msg.orig  # for mypy
-                raise CMIntegrityError(
+                raise RAILIntegrityError(
                     params=msg.params,
                     orig=msg.orig,
                     statement=msg.statement,
@@ -272,7 +282,9 @@ class RowMixin:
                 await session.rollback()
                 if TYPE_CHECKING:
                     assert msg.orig  # for mypy
-                raise CMIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
+                raise RAILIntegrityError(
+                    params=msg.params, orig=msg.orig, statement=msg.statement
+                ) from msg
         await session.refresh(row)
         return row
 
@@ -337,5 +349,7 @@ class RowMixin:
             await session.rollback()
             if TYPE_CHECKING:
                 assert msg.orig
-            raise CMIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
+            raise RAILIntegrityError(
+                params=msg.params, orig=msg.orig, statement=msg.statement
+            ) from msg
         return self

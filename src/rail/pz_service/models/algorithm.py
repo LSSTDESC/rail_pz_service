@@ -1,6 +1,4 @@
-"""Pydantic model for the Algorithm
-
-"""
+"""Pydantic model for the Algorithm"""
 
 from pydantic import BaseModel, ConfigDict
 
@@ -17,15 +15,14 @@ class AlgorithmBase(BaseModel):
 
 class AlgorithmCreate(AlgorithmBase):
     """Algorithm Parameters that are used to create new rows but not in DB tables"""
+
     pass
 
 
 class Algorithm(AlgorithmBase):
     """Algorithm Parameters that are in DB tables and not used to create new rows"""
 
+    model_config = ConfigDict(from_attributes=True)
+
     # primary key
     id: int
-
-
-
-    
