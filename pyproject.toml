@@ -39,10 +39,12 @@ dependencies = [
     "sqlalchemy[asyncio]==2.0.*",
     "safir[db]==7.0.*",
     "uvicorn[standard]==0.32.*",
-    "pz-rail[algos]",
+    "pz-rail",
+    "pz-rail-flexzboost",
+    "pz-rail-sklearn",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "aiosqlite>=0.20.0",
     "asgi-lifespan>=2.1.0",
@@ -75,21 +77,17 @@ Source = "https://github.com/LSSTDESC/rail_pz_service"
 
 [tool.uv]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=62", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/rail"]
+[tool.setuptools_scm]
+write_to = "src/rail/projects/_version.py"
 
-[tool.hatch.version]
-path = "src/rail/pz_service/__init__.py"
-fallback-version = "0.0.0"
 
 [tool.coverage.run]
 parallel = true
 branch = true
-source = ["rail.service", "rail.cli.rail_pz_server", "rali.cli.rail_pz_worker", ""rali.cli.rail_pz_client"]
+source = ["rail.service", "rail.cli.rail_pz_server", "rali.cli.rail_pz_worker", "rali.cli.rail_pz_client"]
 concurrency = ['greenlet', 'thread']
 
 [tool.coverage.paths]
