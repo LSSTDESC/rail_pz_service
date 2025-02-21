@@ -3,6 +3,7 @@
 import click
 
 from rail.pz_service import db
+
 from . import admin_options, wrappers
 
 
@@ -17,7 +18,7 @@ cli_group = dataset_group
 DbClass = db.Dataset
 # Specify the options for the create command
 create_options = [
-    options.db(),
+    admin_options.db_session(),
     admin_options.name(),
     admin_options.class_name(),
     admin_options.path(),
@@ -40,12 +41,12 @@ get_command = get.command
 
 
 # Add functions to the router
-get_rows = wrappers.get_list_command(group_command, sub_client, DbClass)
+get_rows = wrappers.get_list_command(group_command, DbClass)
 
-create = wrappers.get_create_command(group_command, sub_client, DbClass, create_options)
+create = wrappers.get_create_command(group_command, DbClass, create_options)
 
-delete = wrappers.get_delete_command(group_command, sub_client)
+delete = wrappers.get_delete_command(group_command, DbClass)
 
-get_row = wrappers.get_row_command(get_command, sub_client, DbClass)
+get_row = wrappers.get_row_command(get_command, DbClass)
 
-get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, DbClass)
+get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)

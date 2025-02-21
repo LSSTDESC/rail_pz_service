@@ -18,7 +18,7 @@ cli_group = object_ref_group
 DbClass = db.ObjectRef
 # Specify the options for the create command
 create_options = [
-    options.db(),
+    admin_options.db_session(),
     admin_options.name(),
     admin_options.dataset_name(),
     admin_options.index(),
@@ -26,7 +26,6 @@ create_options = [
 
 # Construct derived templates
 group_command = cli_group.command
-sub_client = DbClass.class_string
 
 
 @cli_group.group()
@@ -38,12 +37,12 @@ get_command = get.command
 
 
 # Add functions to the router
-get_rows = wrappers.get_list_command(group_command, sub_client, DbClass)
+get_rows = wrappers.get_list_command(group_command, DbClass)
 
-create = wrappers.get_create_command(group_command, sub_client, DbClass, create_options)
+create = wrappers.get_create_command(group_command, DbClass, create_options)
 
-delete = wrappers.get_delete_command(group_command, sub_client)
+delete = wrappers.get_delete_command(group_command, DbClass)
 
-get_row = wrappers.get_row_command(get_command, sub_client, DbClass)
+get_row = wrappers.get_row_command(get_command, DbClass)
 
-get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, DbClass)
+get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)

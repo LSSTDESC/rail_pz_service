@@ -3,6 +3,7 @@
 import click
 
 from rail.pz_service import db
+
 from . import admin_options, wrappers
 
 
@@ -17,10 +18,10 @@ cli_group = algorithm_group
 DbClass = db.Algorithm
 # Specify the options for the create command
 create_options = [
-    options.db(),
+    admin_options.db_session(),
     admin_options.name(),
     admin_options.class_name(),
-    options.output(),
+    admin_options.output(),
 ]
 
 # Construct derived templates
@@ -40,12 +41,12 @@ get_rows = wrappers.get_list_command(group_command, DbClass)
 
 create = wrappers.get_create_command(group_command, DbClass, create_options)
 
-delete = wrappers.get_delete_command(group_command)
+delete = wrappers.get_delete_command(group_command, DbClass)
 
 get_row = wrappers.get_row_command(get_command, DbClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
-get_estimators = wrappers.get_estimators_command(get_command, DbClass)
+get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "_estimators", db.Estimator)
 
-get_models = wrappers.get_models_command(get_command, DbClass)
+get_models = wrappers.get_row_attribute_list_command(get_command, DbClass, "_models", db.Model)

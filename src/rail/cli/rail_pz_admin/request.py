@@ -1,6 +1,7 @@
 """CLI to manage Job table"""
 
 import click
+from sqlalchemy.ext.asyncio import async_scoped_session
 
 from rail.pz_service import db
 
@@ -18,7 +19,7 @@ cli_group = request_group
 DbClass = db.Request
 # Specify the options for the create command
 create_options = [
-    options.db(),
+    admin_options.db_session(),
     admin_options.name(),
     admin_options.estimator_name(),
     admin_options.dataset_name(),
@@ -27,7 +28,6 @@ create_options = [
 
 # Construct derived templates
 group_command = cli_group.command
-sub_client = DbClass.class_string
 
 
 @cli_group.group()
@@ -39,29 +39,27 @@ get_command = get.command
 
 
 # Add functions to the router
-get_rows = wrappers.get_list_command(group_command, sub_client, DbClass)
+get_rows = wrappers.get_list_command(group_command, DbClass)
 
-create = wrappers.get_create_command(group_command, sub_client, DbClass, create_options)
+create = wrappers.get_create_command(group_command, DbClass, create_options)
 
-delete = wrappers.get_delete_command(group_command, sub_client)
+delete = wrappers.get_delete_command(group_command, DbClass)
 
-get_row = wrappers.get_row_command(get_command, sub_client, DbClass)
+get_row = wrappers.get_row_command(get_command, DbClass)
 
-get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, DbClass)
+get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
 
 @group_command(name="run")
-@options.db()
-@options.row_id()
-@options.output()
-def run(
+@admin_options.db_session()
+@admin_options.row_id()
+@admin_options.output()
+async def run(
+    db_session: async_scoped_session,
     row_id: int,
-    output: options.OutputEnum | None,
+    output: admin_options.OutputEnum | None,
 ) -> None:
-
     the_cache = db.Cache()
-    qp_file = the_cache.get_qp_file(session, row_id)
-
-    
-    
-    
+    qp_file = the_cache.get_qp_file(db_session, row_id)
+    await db_session.close()
+    print(f"Wrote {qp_file}")

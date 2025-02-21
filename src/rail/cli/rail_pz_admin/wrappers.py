@@ -1,7 +1,26 @@
+"""Wrappers to create functions for the various parts of the CLI
+
+These wrappers create functions that invoke interface
+functions that are defined in the db.row.RowMixin.
+
+"""
+
+# import json
+from collections.abc import Callable, Sequence
+from typing import Any, TypeAlias
+
+import click
+import yaml
+from sqlalchemy.ext.asyncio import async_scoped_session
+from tabulate import tabulate
+
+from rail.pz_service import db
+
+from . import admin_options
 
 
-def output_pydantic_object(
-    model: BaseModel,
+def output_db_object(
+    db_obj: db.RowMixin,
     output: admin_options.OutputEnum | None,
     col_names: list[str],
 ) -> None:
@@ -9,7 +28,7 @@ def output_pydantic_object(
 
     Parameters
     ----------
-    model:
+    db_obj:
         Object in question
 
     output:
@@ -19,25 +38,25 @@ def output_pydantic_object(
         Names for columns in tabular representation
     """
     match output:
-        case options.OutputEnum.json:
-            click.echo(json.dumps(model.model_dump(), cls=CustomJSONEncoder, indent=4))
-        case options.OutputEnum.yaml:
-            click.echo(yaml.dump(model.model_dump()))
+        case admin_options.OutputEnum.json:
+            pass
+        case admin_options.OutputEnum.yaml:
+            pass
         case _:
-            the_table = [[getattr(model, col_) for col_ in col_names]]
+            the_table = [[getattr(db_obj, col_) for col_ in col_names]]
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
 
 
-def output_pydantic_list(
-    models: Sequence[BaseModel],
-    output: options.OutputEnum | None,
+def output_db_obj_list(
+    db_objs: Sequence[db.RowMixin],
+    output: admin_options.OutputEnum | None,
     col_names: list[str],
 ) -> None:
     """Render a sequences of objects as requested
 
     Parameters
     ----------
-    models:
+    db_objs:
         Objects in question
 
     output:
@@ -46,29 +65,29 @@ def output_pydantic_list(
     col_names:
         Names for columns in tabular representation
     """
-    json_list = []
-    yaml_list = []
+    _json_list: list = []
+    _yaml_list: list = []
     the_table = []
-    for model_ in models:
+    for db_obj_ in db_objs:
         match output:
-            case options.OutputEnum.json:
-                json_list.append(model_.model_dump())
-            case options.OutputEnum.yaml:
-                yaml_list.append(model_.model_dump())
+            case admin_options.OutputEnum.json:
+                pass
+            case admin_options.OutputEnum.yaml:
+                pass
             case _:
-                the_table.append([str(getattr(model_, col_)) for col_ in col_names])
+                the_table.append([str(getattr(db_obj_, col_)) for col_ in col_names])
     match output:
-        case options.OutputEnum.json:
-            click.echo(json.dumps(json_list, cls=CustomJSONEncoder, indent=4))
-        case options.OutputEnum.yaml:
-            click.echo(yaml.dump(yaml_list))
+        case admin_options.OutputEnum.json:
+            pass
+        case admin_options.OutputEnum.yaml:
+            pass
         case _:
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
 
-            
+
 def output_dict(
     the_dict: dict,
-    output: options.OutputEnum | None,
+    output: admin_options.OutputEnum | None,
 ) -> None:
     """Render a python dict as requested
 
@@ -81,13 +100,14 @@ def output_dict(
         Output format
     """
     match output:
-        case options.OutputEnum.json:
-            click.echo(json.dumps(the_dict, cls=CustomJSONEncoder, indent=4))
-        case options.OutputEnum.yaml:
+        case admin_options.OutputEnum.json:
+            pass
+        case admin_options.OutputEnum.yaml:
             click.echo(yaml.dump(the_dict))
         case _:
             for key, val in the_dict.items():
                 click.echo(f"{key}: {val}")
+
 
 def get_list_command(
     group_command: Callable,
@@ -114,15 +134,19 @@ def get_list_command(
     """
 
     @group_command(name="list", help="list rows in table")
-    @admin_options.db()
+    @admin_options.db_session()
     @admin_options.output()
-    def get_rows(
-        db: db,
-        output: options.OutputEnum | None,
+    async def get_rows(
+        db_session: async_scoped_session,
+        output: admin_options.OutputEnum | None,
     ) -> None:
         """List the existing rows"""
         result = db_class.get_rows(db.session())
-        output_pydantic_list(result, output, db_class.col_names_for_table)
+        output_db_obj_list(result, output, db_class.col_names_for_table)
+        await db_session.close()
+
+    return get_rows
+
 
 def get_row_command(
     group_command: Callable,
@@ -146,18 +170,19 @@ def get_row_command(
     """
 
     @group_command(name="all")
-    @options.db()
-    @options.row_id()
-    @options.output()
-    def get_row(
-        db: db,
+    @admin_options.db_session()
+    @admin_options.row_id()
+    @admin_options.output()
+    async def get_row(
+        db_session: async_scoped_session,
         row_id: int,
-        output: options.OutputEnum | None,
+        output: admin_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
         result = db_class.get_row(db.session(), row_id)
-        output_pydantic_object(result, output, db_class.col_names_for_table)
-        
+        output_db_object(result, output, db_class.col_names_for_table)
+        await db_session.close()
+
     return get_row
 
 
@@ -183,19 +208,65 @@ def get_row_by_name_command(
     """
 
     @group_command(name="by_name")
-    @options.db()
-    @options.name()
-    @options.output()
-    def get_row_by_name(
-        db: db,
+    @admin_options.db_session()
+    @admin_options.name()
+    @admin_options.output()
+    async def get_row_by_name(
+        db_session: async_scoped_session,
         name: str,
-        output: options.OutputEnum | None,
+        output: admin_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
         result = db_class.get_row_by_name(db.session(), name)
-        output_pydantic_object(result, output, db_class.col_names_for_table)
-        
+        output_db_object(result, output, db_class.col_names_for_table)
+        await db_session.close()
+
     return get_row_by_name
+
+
+def get_row_attribute_list_command(
+    group_command: Callable,
+    db_class: TypeAlias,
+    attribute: str,
+    output_db_class: TypeAlias,
+) -> Callable:
+    """Return a function that gets a row from a table
+    and attaches that function to the cli.
+
+    Parameters
+    ----------
+    group_command:
+        CLI decorator from the CLI group to attach to
+
+    db_class:
+        Underlying database class
+
+    attribute:
+        The attribute to get
+
+    Returns
+    -------
+    Callable
+        Function that returns the row for the table in question
+    """
+
+    @group_command(name="by_name")
+    @admin_options.db_session()
+    @admin_options.row_id()
+    @admin_options.output()
+    async def get_row_attribute_list(
+        db_session: async_scoped_session,
+        row_id: int,
+        output: admin_options.OutputEnum | None,
+    ) -> None:
+        """Get a single row"""
+        result = db_class.get_row(db_session, row_id)
+        await db_session.refresh(result, attribute_names=[attribute])
+        the_list = getattr(result, attribute)
+        output_db_obj_list(result, the_list, output_db_class.col_names_for_table)
+        await db_session.close()
+
+    return get_row_attribute_list
 
 
 def get_create_command(
@@ -223,14 +294,15 @@ def get_create_command(
         Function that creates a row in the table
     """
 
-    def create(
-        db: db,
-        output: options.OutputEnum | None,
+    async def create(
+        db_session: async_scoped_session,
+        output: admin_options.OutputEnum | None,
         **kwargs: Any,
     ) -> None:
         """Create a new row"""
         result = db_class.create_row(db.session(), **kwargs)
-        output_pydantic_object(result, output, db_class.col_names_for_table)
+        output_db_object(result, output, db_class.col_names_for_table)
+        await db_session.close()
 
     for option_ in create_options:
         create = option_(create)
@@ -241,6 +313,7 @@ def get_create_command(
 
 def get_delete_command(
     group_command: Callable,
+    db_class: TypeAlias,
 ) -> Callable:
     """Return a function that delets a row in the table
     and attaches that function to the cli.
@@ -250,6 +323,9 @@ def get_delete_command(
     group_command: Callable
         CLI decorator from the CLI group to attach to
 
+    db_class: TypeAlias = db.RowMixin
+        Underlying database class
+
     Returns
     -------
     Callable
@@ -257,13 +333,14 @@ def get_delete_command(
     """
 
     @group_command(name="delete")
-    @options.db()
-    @options.row_id()
-    def delete(
-        db: db,
+    @admin_options.db_session()
+    @admin_options.row_id()
+    async def delete(
+        db_session: async_scoped_session,
         row_id: int,
     ) -> None:
         """Delete a row"""
-        db_class.delete_row(db.session(), **kwargs)
+        db_class.delete_row(db_session, row_id)
+        await db_session.close()
 
     return delete
