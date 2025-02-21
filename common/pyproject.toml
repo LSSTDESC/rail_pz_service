@@ -1,0 +1,169 @@
+[project]
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+name = "pz-rail-service-common"
+description = "RAIL service to generate photometric redshifts: common files"
+license = { file = "LICENSE" }
+readme = "README.md"
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Typing :: Typed",
+]
+requires-python = ">=3.11,<3.13"
+dynamic = ["version"]
+
+dependencies = [
+    "numpy==2.1.*",
+    "pydantic==2.10.*",
+    "pydantic-settings==2.7.*",
+    "pz-rail",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage[toml]>=7.6.7",
+    "greenlet>=3.1.1",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "types-pyyaml>=6.0.12.20240917",
+    "types-tabulate>=0.9.0.20240106",
+]
+
+[project.urls]
+Source = "https://github.com/LSSTDESC/rail_pz_service"
+
+[tool.uv]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rail_pz_service/common"]
+
+[tool.hatch.version]
+path = "src/rail_pz_service/common/__init__.py"
+fallback-version = "0.0.0"
+
+[tool.coverage.run]
+parallel = true
+branch = true
+source = ["rail_pz_service.common"]
+concurrency = ['greenlet', 'thread']
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "except Exception as msg",
+    "except KeyError as msg",
+    "except IntegrityError as msg",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+exclude = [
+    "__init__.py",
+]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+ignore = [
+    "COM812",  # missing-trailing-comma
+    "N802",  # invalid-function-name
+    "N803",  # invalid-argument-name
+    "N806",  # non-lowercase-variable-in-function
+    "N812",  # lowercase-imported-as-non-lowercase
+    "N813",  # camelcase-imported-as-constant
+    "N815",  # mixed-case-variable-in-class-scope
+    "N816",  # mixed-case-variable-in-global-scope
+]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "N",  # pep8-naming
+    "W",  # pycodestyle
+    "COM", # pyflakes-commas
+    "FBT", # flake8-boolean-trap
+    "UP", # pyupgrade
+    "ASYNC", # flake8-async
+]
+extend-select = [
+    "RUF100", # Warn about unused noqa
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rail_pz_service", "tests"]
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 115
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope="function"
+# The python_files setting is not for test detection (pytest will pick up any
+# test files named *_test.py without this setting) but to enable special
+# assert processing in any non-test supporting files under tests.  We
+# conventionally put test support functions under tests.support and may
+# sometimes use assert in test fixtures in conftest.py, and pytest only
+# enables magical assert processing (showing a full diff on assert failures
+# with complex data structures rather than only the assert message) in files
+# listed in python_files.
+python_files = ["tests/*.py", "tests/*/*.py"]
+
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
+local_partial_types = true
+no_implicit_reexport = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
+plugins = ["sqlalchemy.ext.mypy.plugin", "pydantic.mypy"]
+
+[tool.pydocstyle]
+convention = "numpy"
+add_select = [
+    "D212" # Multi-line docstring summary should start at the first line
+]
+add-ignore = [
+    "D105", # Missing docstring in magic method
+    "D102", # Missing docstring in public method (needed for docstring inheritance)
+    "D100", # Missing docstring in public module
+    # Below are required to allow multi-line summaries.
+    "D200", # One-line docstring should fit on one line with quotes
+    "D205", # 1 blank line required between summary line and description
+    "D400", # First line should end with a period
+    # Properties shouldn't be written in imperative mode. This will be fixed
+    # post 6.1.1, see https://github.com/PyCQA/pydocstyle/pull/546
+    "D401",
+    # To avoid all the pydantic config class giving errors
+    "D106",
+]

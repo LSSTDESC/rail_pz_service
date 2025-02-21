@@ -148,6 +148,7 @@ def get_list_command(
     return get_rows
 
 
+
 def get_row_command(
     group_command: Callable,
     db_class: TypeAlias,

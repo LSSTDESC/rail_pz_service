@@ -1,5 +1,7 @@
 """Database table definitions and utility functions"""
 
+__version__ = "0.0.0"
+
 from .algorithm import Algorithm
 from .base import Base
 from .catalog_tag import CatalogTag
@@ -10,6 +12,7 @@ from .object_ref import ObjectRef
 from .request import Request
 
 __all__ = [
+    "__version__",
     "Algorithm",
     "Base",
     "CatalogTag",
