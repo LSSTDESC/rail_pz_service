@@ -84,7 +84,7 @@ class DictParamType(click.ParamType):
                 ctx,
             )
 
-            
+
 class EnumChoice(click.Choice):
     """A version of click.Choice specialized for enum types."""
 
@@ -101,7 +101,7 @@ class EnumChoice(click.Choice):
         converted_str = super().convert(value, param, ctx)
         return self._enum.__members__[converted_str]
 
-    
+
 class OutputEnum(Enum):
     """Options for output format"""
 
@@ -109,7 +109,7 @@ class OutputEnum(Enum):
     json = auto()  # pylint: disable=invalid-name
 
 
-    
+
 class PartialOption:
     """Wrap partially specified click.option decorator for convenient reuse."""
 
@@ -126,13 +126,13 @@ config = PartialOption(
     help="Esimator configuration parameters",
 )
 
-    
+
 data = PartialOption(
     "--data",
     type=DictParamType(),
     help="Dict of magnitudes",
 )
-    
+
 
 row_id = PartialOption(
     "--row_id",
@@ -149,7 +149,7 @@ output = PartialOption(
     help="Output format.  Summary table if not specified.",
 )
 
-    
+
 name = PartialOption(
     "--name",
     type=str,
@@ -226,4 +226,3 @@ def db_session() -> Callable[[FC], FC]:
         return cast(FC, wrapper)
 
     return decorator
-

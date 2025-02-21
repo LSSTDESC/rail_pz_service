@@ -1,17 +1,11 @@
 """pz-rail-service specific error types"""
 
-from typing import TypeVar
-
-from sqlalchemy.exc import IntegrityError
-
-T = TypeVar("T")
-
 
 class RAILIDMismatchError(ValueError):
     """Raised when there is an ID mismatch between row IDs"""
 
 
-class RAILIntegrityError(IntegrityError):
+class RAILIntegrityError(RuntimeError):
     """Raise when catching a sqlalchemy.exc.IntegrityError"""
 
 

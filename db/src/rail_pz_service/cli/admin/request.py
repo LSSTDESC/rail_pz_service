@@ -63,4 +63,3 @@ async def run(
     qp_file = the_cache.get_qp_file(db_session, row_id)
     await db_session.close()
     print(f"Wrote {qp_file}")
-

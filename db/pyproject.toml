@@ -63,7 +63,7 @@ dev = [
 ]
 
 [project.scripts]
-pz-rail-admin = "rail_pz_service.cli.
+pz-rail-admin = "rail_pz_service.cli.admin.admin.main"
 
 
 [project.urls]
