@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from ..errors import RAILMissingRowCreateInputError
-
 from .base import Base
 from .row import RowMixin
 
@@ -77,9 +76,7 @@ class Estimator(Base, RowMixin):
             catalog_tag_name = kwargs["catalog_tag_name"]
             model_name = kwargs["model_name"]
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(
-                f"Missing input to create Group: {e}"
-            ) from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
         algo_ = await Algorithm.get_row_by_name(session, algo_name)
         catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)

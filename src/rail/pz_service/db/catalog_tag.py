@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .dataset import Dataset
+from .model import Model
 from .row import RowMixin
 
 if TYPE_CHECKING:
@@ -25,6 +27,16 @@ class CatalogTag(Base, RowMixin):
     estimators_: Mapped["Estimator"] = relationship(
         "Estimator",
         primaryjoin="CatalogTag.id==Estimator.catalog_tag_id",
+        viewonly=True,
+    )
+    models_: Mapped["Model"] = relationship(
+        "Model",
+        primaryjoin="CatalogTag.id==Model.catalog_tag_id",
+        viewonly=True,
+    )
+    datasets_: Mapped["Dataset"] = relationship(
+        "Dataset",
+        primaryjoin="CatalogTag.id==Dataset.catalog_tag_id",
         viewonly=True,
     )
 

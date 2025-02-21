@@ -1,17 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import async_scoped_session
-
-from ceci.stage import Stage
 from ceci.errors import StageNotFound
+from ceci.stage import Stage
+from sqlalchemy.ext.asyncio import async_scoped_session
 
 from rail.core.estimator import CatEstimator
 from rail.interfaces.pz_factory import PZFactory
 from rail.utils.catalog_utils import CatalogConfigBase
 
-
 from ..errors import RAILImportError, RAILRequestError
-
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
 from .dataset import Dataset
@@ -21,9 +18,7 @@ from .request import Request
 
 
 class Cache:
-
     def __init__(self) -> None:
-
         self._algorithms: dict[int, type[CatEstimator] | None] = {}
         self._catalog_tags: dict[int, type[CatalogConfigBase] | None] = {}
         self._estimators: dict[int, CatEstimator | None] = {}
@@ -90,7 +85,7 @@ class Cache:
         """
         tokens = catalog_tag.class_name.split(".")
         module_name = ".".join(tokens[0:-1])
-        class_name = tokens[-1]
+        _class_name = tokens[-1]
 
         try:
             return CatalogConfigBase.get_class(catalog_tag.name, module_name)
@@ -104,11 +99,9 @@ class Cache:
         session: async_scoped_session,
         estimator: Estimator,
     ) -> CatEstimator:
-
         algo_class = await self.get_algo_class(session, estimator.algo_id)
-        catalog_tag_class = await self.get_catalog_tag_class(
-            session, estimator.catalog_tag_id
-        )
+        catalog_tag_class = await self.get_catalog_tag_class(session, estimator.catalog_tag_id)
+        CatalogConfigBase.apply_class(catalog_tag_class)
         model = await Model.get_row(session, estimator.model_id)
         estimator_instance = PZFactory.build_stage_instance(
             estimator.name,
@@ -116,13 +109,13 @@ class Cache:
             model.path,
             **estimator.config,
         )
+        return estimator_instance
 
     async def _process_request(
         self,
         session: async_scoped_session,
         request: Request,
     ) -> str:
-
         estimator = await self.get_estimator(session, request.estimator_id)
         dataset = await Dataset.get_row(session, request.dataset_id)
 
@@ -132,7 +125,6 @@ class Cache:
             now = datetime.now()
 
         else:
-
             _data_out = PZFactory.estimate_single_pz(
                 estimator,
                 dataset.data,
@@ -190,9 +182,7 @@ class Cache:
             algo_class = self._load_algorithm_class(algo_)
         except RAILImportError as failed_import:
             self._algorithms[key] = None
-            raise RAILImportError(
-                f"Import of Algorithm failed because {failed_import}"
-            ) from failed_import
+            raise RAILImportError(f"Import of Algorithm failed because {failed_import}") from failed_import
 
         return algo_class
 
@@ -236,9 +226,7 @@ class Cache:
             catalog_tag_class = self._load_catalog_tag_class(catalog_tag_)
         except RAILImportError as failed_import:
             self._catalog_tags[key] = None
-            raise RAILImportError(
-                f"Import of CatalogTag failed because {failed_import}"
-            ) from failed_import
+            raise RAILImportError(f"Import of CatalogTag failed because {failed_import}") from failed_import
         return catalog_tag_class
 
     async def get_estimator(
@@ -282,9 +270,7 @@ class Cache:
             estimator = self._build_estimator(session, estimator_)
         except RAILImportError as failed_import:
             self._estimators[key] = None
-            raise RAILImportError(
-                f"Import of Estimator failed because {failed_import}"
-            ) from failed_import
+            raise RAILImportError(f"Import of Estimator failed because {failed_import}") from failed_import
 
         return estimator
 
@@ -293,7 +279,6 @@ class Cache:
         session: async_scoped_session,
         key: int,
     ) -> str:
-
         if key in self._qp_files:
             qp_file = self._qp_files[key]
             if qp_file is None:
@@ -306,8 +291,6 @@ class Cache:
             qp_file = await self._process_request(session, request_)
         except RAILRequestError as failed_request:
             self._qp_files[key] = None
-            raise RAILRequestError(
-                f"Request failed because {failed_request}"
-            ) from failed_request
+            raise RAILRequestError(f"Request failed because {failed_request}") from failed_request
 
         return qp_file

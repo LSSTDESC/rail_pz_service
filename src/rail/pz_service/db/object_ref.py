@@ -1,13 +1,10 @@
 from typing import TYPE_CHECKING, Any
 
-from datetime import datetime
-
 from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from ..errors import RAILMissingRowCreateInputError
-
 from .base import Base
 from .dataset import Dataset
 from .row import RowMixin
@@ -57,13 +54,9 @@ class ObjectRef(Base, RowMixin):
             dataset_name = kwargs["dataset_name"]
 
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(
-                f"Missing input to create Group: {e}"
-            ) from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
         dataset_ = await Dataset.get_row_by_name(session, dataset_name)
-
-        time_created = datetime.now()
 
         return dict(
             name=name,

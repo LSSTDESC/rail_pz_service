@@ -7,12 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from ..errors import RAILMissingRowCreateInputError
-
 from .algorithm import Algorithm
 from .base import Base
 from .catalog_tag import CatalogTag
 from .row import RowMixin
-
 
 if TYPE_CHECKING:
     from .estimator import Estimator
@@ -75,9 +73,7 @@ class Model(Base, RowMixin):
             catalog_tag_name = kwargs["catalog_tag_name"]
 
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(
-                f"Missing input to create Model: {e}"
-            ) from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Model: {e}") from e
 
         algo_ = await Algorithm.get_row_by_name(session, algo_name)
         catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)

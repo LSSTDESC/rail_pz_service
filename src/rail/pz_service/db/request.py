@@ -1,6 +1,6 @@
-from typing import Any
-
+import os
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import DateTime
 from sqlalchemy.ext.asyncio import async_scoped_session
@@ -8,7 +8,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from ..errors import RAILMissingRowCreateInputError
-
 from .base import Base
 from .dataset import Dataset
 from .estimator import Estimator
@@ -67,11 +66,10 @@ class Request(Base, RowMixin):
             name = kwargs["name"]
             estimator_name = kwargs["estimator_name"]
             dataset_name = kwargs["dataset_name"]
-
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(
-                f"Missing input to create Group: {e}"
-            ) from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+
+        user = kwargs.get("user", os.environ["USER"])
 
         estimator_ = await Estimator.get_row_by_name(session, estimator_name)
         dataset_ = await Dataset.get_row_by_name(session, dataset_name)
@@ -80,6 +78,7 @@ class Request(Base, RowMixin):
 
         return dict(
             name=name,
+            user=user,
             estimator_id=estimator_.id,
             dataset_id=dataset_.id,
             time_created=time_created,

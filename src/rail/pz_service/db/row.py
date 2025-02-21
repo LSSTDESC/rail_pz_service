@@ -11,8 +11,8 @@ from structlog import get_logger
 from ..errors import (
     RAILIDMismatchError,
     RAILIntegrityError,
-    RAILMissingNameError,
     RAILMissingIDError,
+    RAILMissingNameError,
 )
 
 logger = get_logger(__name__)
@@ -159,9 +159,7 @@ class RowMixin:
         except IntegrityError as msg:
             if TYPE_CHECKING:
                 assert msg.orig  # for mypy
-            raise RAILIntegrityError(
-                params=msg.params, orig=msg.orig, statement=msg.statement
-            ) from msg
+            raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
         await cls._delete_hook(session, row_id)
 
     @classmethod
@@ -282,9 +280,7 @@ class RowMixin:
                 await session.rollback()
                 if TYPE_CHECKING:
                     assert msg.orig  # for mypy
-                raise RAILIntegrityError(
-                    params=msg.params, orig=msg.orig, statement=msg.statement
-                ) from msg
+                raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
         await session.refresh(row)
         return row
 
@@ -349,7 +345,5 @@ class RowMixin:
             await session.rollback()
             if TYPE_CHECKING:
                 assert msg.orig
-            raise RAILIntegrityError(
-                params=msg.params, orig=msg.orig, statement=msg.statement
-            ) from msg
+            raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
         return self

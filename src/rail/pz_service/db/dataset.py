@@ -6,10 +6,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from ..errors import RAILMissingRowCreateInputError
-
 from .base import Base
-from .row import RowMixin
 from .catalog_tag import CatalogTag
+from .row import RowMixin
 
 
 class Dataset(Base, RowMixin):
@@ -55,9 +54,7 @@ class Dataset(Base, RowMixin):
             data = kwargs.get("data", None)
             catalog_tag_name = kwargs["catalog_tag_name"]
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(
-                f"Missing input to create Group: {e}"
-            ) from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
         catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
 
@@ -81,7 +78,7 @@ class Dataset(Base, RowMixin):
 
     @classmethod
     def validate_data_for_path(
-        self,
+        cls,
         path: str,
         catalog_tag: CatalogTag,
     ) -> int:
@@ -89,7 +86,7 @@ class Dataset(Base, RowMixin):
 
     @classmethod
     def validate_data(
-        self,
+        cls,
         data: dict,
         catalog_tag: CatalogTag,
     ) -> int:

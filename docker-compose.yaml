@@ -1,0 +1,99 @@
+# Run PostgreSQL for testing with a local development server.
+# This is used by make run, which starts cm-service in the foreground.
+
+name: "${USER}-rail-pz-service"
+services:
+  migratedb:
+    profiles:
+      - full
+      - server
+      - daemon
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: rail_pz_service
+    entrypoint:
+      - alembic
+    command:
+      - upgrade
+      - head
+    environment: &railenv
+      DB__HOST: postgresql
+      DB__ECHO: true
+      DB__URL: postgresql://rail-pz-service@postgresql:5432/cm-service
+      DB__PASSWORD: INSECURE-PASSWORD
+      DB__TABLE_SCHEMA: public
+    networks:
+      - rail_pz_service
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  rail_pz_service:
+    profiles:
+      - full
+      - server
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: rail_pz_service
+    env_file:
+      - path: .env
+        required: false
+    environment: *railenv
+    ports:
+      - "8080:8080"
+    networks:
+      - rail_pz_service
+    depends_on:
+      migratedb:
+        condition: service_completed_successfully
+
+  rail_pz_worker:
+    profiles:
+      - full
+      - daemon
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: rail_pz_service
+    env_file:
+      - path: .env
+        required: false
+    environment: *railenv
+    volumes:
+      - "./prod_area:/prod_area"
+    networks:
+      - rail_pz_service
+    depends_on:
+      migratedb:
+        condition: service_completed_successfully
+
+  postgresql:
+    image: "postgres:16"
+    hostname: "postgresql"
+    environment:
+      POSTGRES_PASSWORD: "INSECURE-PASSWORD"
+      POSTGRES_USER: "rail-pz-service"
+      POSTGRES_DB: "rail-pz-service"
+    ports:
+      - "65432:5432"
+    networks:
+      - cmservice
+    volumes:
+      - "pgsql:/var/lib/postgresql/data"
+    healthcheck:
+      test: >-
+        psql postgresql://rail-pz-service:INSECURE-PASSWORD@127.0.0.1/rail-pz-service
+        --quiet --no-align --tuples-only -1 --command="SELECT 1"
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_period: 1s
+
+volumes:
+  pgsql:
+
+networks:
+  rail_pz_service:
+    driver: bridge

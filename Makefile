@@ -1,3 +1,8 @@
+SHELL := /bin/bash
+GIT_BRANCH := $(shell git branch --show-current)
+PY_VENV := .venv/
+UV_LOCKFILE := uv.lock
+
 #------------------------------------------------------------------------------
 # Default help target (thanks ChatGPT)
 #------------------------------------------------------------------------------
@@ -8,32 +13,44 @@ help:
 
 
 #------------------------------------------------------------------------------
-# The usual dependency/environment management targets for Safir...
+# DX: Use uv to bootstrap project
 #------------------------------------------------------------------------------
+
+$(UV_LOCKFILE):
+	uv lock --build-isolation
+
+$(PY_VENV): $(UV_LOCKFILE)
+	uv sync --frozen
+
+.PHONY: clean
+clean:
+	rm -rf $(PY_VENV)
+	rm -f test_pz_rail_service.db
+	rm -rf ./output
+	find src -type d -name '__pycache__' | xargs rm -rf
+	find tests -type d -name '__pycache__' | xargs rm -rf
 
 .PHONY: update-deps
 update-deps:
-	pip install --upgrade pip-tools pip setuptools
-	pip-compile --upgrade --build-isolation --generate-hashes --output-file requirements/main.txt requirements/main.in
-	pip-compile --upgrade --build-isolation --generate-hashes --output-file requirements/dev.txt requirements/dev.in
-
-# Useful for testing against a Git version of Safir.
-.PHONY: update-deps-no-hashes
-update-deps-no-hashes:
-	pip install --upgrade pip-tools pip setuptools
-	pip-compile --upgrade --build-isolation --allow-unsafe --output-file requirements/main.txt requirements/main.in
-	pip-compile --upgrade --build-isolation --allow-unsafe --output-file requirements/dev.txt requirements/dev.in
+	uv lock --upgrade --build-isolation
 
 .PHONY: init
-init:
-	pip install --editable .
-	pip install --upgrade -r requirements/main.txt -r requirements/dev.txt
-	playwright install
-	pip install --upgrade pre-commit
-	pre-commit install
+init: $(PY_VENV)
+	uv run playwright install
+	uv run pre-commit install
 
 .PHONY: update
 update: update-deps init
+
+.PHONY: build
+build: export BUILDKIT_PROGRESS=plain
+build:
+	docker compose build pz_rail_service
+	docker compose build pz_rail_worker
+
+.PHONY: uv
+uv:
+	script/bootstrap_uv
 
 
 #------------------------------------------------------------------------------
@@ -60,103 +77,80 @@ run-compose:
 	docker compose up --wait
 
 .PHONY: psql
-psql: RAIL_PZ_SERVICE_DATABASE_PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
-psql: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=INSECURE-PASSWORD
+psql: PGPORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+psql: export DB__PASSWORD=INSECURE-PASSWORD
 psql: run-compose
-	psql postgresql://cm-service:${RAIL_PZ_SERVICE_DATABASE_PASSWORD}@localhost:${RAIL_PZ_SERVICE_DATABASE_PORT}/cm-service
+	psql postgresql://pz_rail_service:${DB__PASSWORD}@localhost:${PGPORT}/pz_rail_service
 
 .PHONY: test
-test: RAIL_PZ_SERVICE_DATABASE_PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
-test: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@localhost:${RAIL_PZ_SERVICE_DATABASE_PORT}/cm-service
-test: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=INSECURE-PASSWORD
-test: export RAIL_PZ_SERVICE_DATABASE_SCHEMA=cm_service_test
+test: PGPORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+test: export DB__URL=postgresql://pz_rail_service@localhost:${PGPORT}/pz_rail_service
+test: export DB__PASSWORD=INSECURE-PASSWORD
+test: export DB__TABLE_SCHEMA=pz-rail_service_test
 test: run-compose
-	rail-pz-server init
-	pytest -vvv --asyncio-mode=auto --cov=lsst.cmservice --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
+	alembic upgrade head
+	pytest -vvv --asyncio-mode=auto --cov=lsst.pz-railservice --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
 
 .PHONY: run
-run: RAIL_PZ_SERVICE_DATABASE_PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
-run: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@localhost:${RAIL_PZ_SERVICE_DATABASE_PORT}/cm-service
-run: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=INSECURE-PASSWORD
-run: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
+run: PGPORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+run: export DB__URL=postgresql://pz_rail_service@localhost:${PGPORT}/pz_rail_service
+run: export DB__PASSWORD=INSECURE-PASSWORD
+run: export DB__ECHO=true
 run: run-compose
-	rail-pz-server init
-	rail-pz-server run
+	alembic upgrade head
+	python3 -m rail.cli.rail_pz_server.main
 
 .PHONY: run-worker
-run-worker: RAIL_PZ_SERVICE_DATABASE_PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
-run-worker: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@localhost:${RAIL_PZ_SERVICE_DATABASE_PORT}/cm-service
-run-worker: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=INSECURE-PASSWORD
-run-worker: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
+run-worker: PGPORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+run-worker: export DB__URL=postgresql://pz-rail-service@localhost:${PGPORT}/pz-rail-service
+run-worker: export DB__PASSWORD=INSECURE-PASSWORD
+run-worker: export DB__ECHO=true
 run-worker: run-compose
-	rail-pz-server init
-	rail-pz-worker
+	alembic upgrade head
+	python3 -m rail.cli.rail_pz_worker.main
+
+.PHONY: migrate
+migrate: export PGUSER=pz_rail_service
+migrate: export PGDATABASE=pz_rail_service
+migrate: export PGHOST=localhost
+migrate: export DB__PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+migrate: export DB__PASSWORD=INSECURE-PASSWORD
+migrate: export DB__URL=postgresql://${PGHOST}/${PGDATABASE}
+migrate: run-compose
+	alembic upgrade head
+
+.PHONY: unmigrate
+unmigrate: export PGUSER=pz_rail_service
+unmigrate: export PGDATABASE=pz_rail_service
+unmigrate: export PGHOST=localhost
+unmigrate: export DB__PORT=$(shell docker compose port postgresql 5432 | cut -d: -f2)
+unmigrate: export DB__PASSWORD=INSECURE-PASSWORD
+unmigrate: export DB__URL=postgresql://${PGHOST}/${PGDATABASE}
+unmigrate: run-compose
+	alembic downgrade base
+
 
 #------------------------------------------------------------------------------
-# Targets for develpers to debug running against local sqlite.  Can be used on
-# local machines or USDF dev nodes. FIXME: This should probably be the norm for
-# development/debug, but the pytest suite does not yet run correctly against
-# sqlite...
+# Targets for developers to debug running against local sqlite.  Can be used on
+# local machines or USDF dev nodes.
 #------------------------------------------------------------------------------
 
 .PHONY: test-sqlite
-test-sqlite: export RAIL_PZ_SERVICE_DATABASE_URL=sqlite+aiosqlite://///test_rail_pz_service.db
+test-sqlite: export DB__URL=sqlite+aiosqlite://///test_pz_rail_service.db
 test-sqlite:
-	rail-pz-server init
-	pytest -vvv --asyncio-mode=auto --cov=lsst.cmservice --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
+	alembic -x pz-rail_database_url=sqlite:///test_pz_rail_service.db upgrade head
+	pytest -vvv --asyncio-mode=auto --cov=rail.pz_service --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
 
 .PHONY: run-sqlite
-run-sqlite: export RAIL_PZ_SERVICE_DATABASE_URL=sqlite+aiosqlite://///test_rail_pz_service.db
-run-sqlite: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
+run-sqlite: export DB__URL=sqlite+aiosqlite://///test_pz_rail_service.db
+run-sqlite: export DB__ECHO=true
 run-sqlite:
-	rail-pz-server init
-	rail-pz-server run
+	alembic -x pz-rail_database_url=sqlite:///test_pz_rail_service.db upgrade head
+	python3 -m rail.cli.rail_pz_worker.main
 
 .PHONY: run-worker-sqlite
-run-worker-sqlite: export RAIL_PZ_SERVICE_DATABASE_URL=sqlite+aiosqlite://///test_rail_pz_service.db
-run-worker-sqlite: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
+run-worker-sqlite: export DB__URL=sqlite+aiosqlite://///test_pz_rail_service.db
+run-worker-sqlite: export DB__ECHO=true
 run-worker-sqlite:
-	rail-pz-server init
-	rail-pz-worker
-
-
-#------------------------------------------------------------------------------
-# Targets for running per-developer service instances on USDF Rubin dev nodes,
-# using a single shared backend cnpg Postgres in the usdf-cm-dev k8s vcluster.
-# Currently used by most devs for development/debug, and also by pilots for
-# production runs.
-#
-# FIXME: TO BE DEPRECATED as soon as we can reliably use shared phalanx service
-# for production and sqlite for development/debug.
-#------------------------------------------------------------------------------
-
-.PHONY: psql-usdf-dev
-psql-usdf-dev: RAIL_PZ_SERVICE_DATABASE_HOST=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get svc/cm-pg-lb -o jsonpath='{..ingress[0].ip}')
-psql-usdf-dev: RAIL_PZ_SERVICE_DATABASE_PASSWORD=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get secret/cm-pg-app -o jsonpath='{.data.password}' | base64 --decode)
-psql-usdf-dev: ## Connect psql client to backend Postgres (shared USDF)
-	psql postgresql://cm-service:${RAIL_PZ_SERVICE_DATABASE_PASSWORD}@${RAIL_PZ_SERVICE_DATABASE_HOST}:5432/cm-service
-
-.PHONY: test-usdf-dev
-test-usdf-dev: RAIL_PZ_SERVICE_DATABASE_HOST=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get svc/cm-pg-lb -o jsonpath='{..ingress[0].ip}')
-test-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@${RAIL_PZ_SERVICE_DATABASE_HOST}:5432/cm-service
-test-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get secret/cm-pg-app -o jsonpath='{.data.password}' | base64 --decode)
-test-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_SCHEMA=cm_service_test
-test-usdf-dev:
-	pytest -vvv --cov=lsst.cmservice --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
-
-.PHONY: run-usdf-dev
-run-usdf-dev: RAIL_PZ_SERVICE_DATABASE_HOST=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get svc/cm-pg-lb -o jsonpath='{..ingress[0].ip}')
-run-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@${RAIL_PZ_SERVICE_DATABASE_HOST}:5432/cm-service
-run-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get secret/cm-pg-app -o jsonpath='{.data.password}' | base64 --decode)
-run-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
-run-usdf-dev:
-	rail-pz-server init
-	rail-pz-server run
-
-.PHONY: run-worker-usdf-dev
-run-worker-usdf-dev: RAIL_PZ_SERVICE_DATABASE_HOST=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get svc/cm-pg-lb -o jsonpath='{..ingress[0].ip}')
-run-worker-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_URL=postgresql://cm-service@${RAIL_PZ_SERVICE_DATABASE_HOST}:5432/cm-service
-run-worker-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_PASSWORD=$(shell kubectl --cluster=usdf-cm-dev -n cm-service get secret/cm-pg-app -o jsonpath='{.data.password}' | base64 --decode)
-run-worker-usdf-dev: export RAIL_PZ_SERVICE_DATABASE_ECHO=true
-run-worker-usdf-dev:
-	rail-pz-worker
+	alembic -x pz-rail_database_url=sqlite:///test_pz_rail_service.db upgrade head
+	python3 -m rail.cli.rail_pz_worker.main

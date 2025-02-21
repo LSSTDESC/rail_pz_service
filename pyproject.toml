@@ -72,17 +72,20 @@ pz-rail-client = "rail.cli.rail_pz_client:client"
 
 
 [project.urls]
-Homepage = "https://cm-service.lsst.io"
 Source = "https://github.com/LSSTDESC/rail_pz_service"
 
 [tool.uv]
 
-requires = ["setuptools>=62", "wheel", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
-write_to = "src/rail/projects/_version.py"
+[tool.hatch.build.targets.wheel]
+packages = ["src/lsst"]
 
+[tool.hatch.version]
+path = "src/rail/pz_service/__init__.py"
+fallback-version = "0.0.0"
 
 [tool.coverage.run]
 parallel = true
@@ -146,7 +149,7 @@ extend-select = [
 known-first-party = ["rail", "tests"]
 
 [tool.ruff.lint.pycodestyle]
-max-doc-length = 79
+max-doc-length = 115
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

@@ -2,10 +2,10 @@ from sqlalchemy import Enum as saEnum
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
+from ..config import config
 from ..enums import (
     TableEnum,
 )
-from ..config import config
 
 
 class Base(DeclarativeBase):
@@ -13,7 +13,5 @@ class Base(DeclarativeBase):
 
     metadata = MetaData(schema=config.db.table_schema)
     type_annotation_map = {
-        TableEnum: saEnum(
-            TableEnum, length=20, native_enum=False, create_constraint=False
-        ),
+        TableEnum: saEnum(TableEnum, length=20, native_enum=False, create_constraint=False),
     }
