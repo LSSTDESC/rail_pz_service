@@ -1,3 +1,5 @@
+""" Database model for Dataset table """
+
 from typing import Any
 
 from sqlalchemy import JSON
@@ -5,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from ..errors import RAILMissingRowCreateInputError
+from rail_pz_service.common.errors import RAILMissingRowCreateInputError
 from .base import Base
 from .catalog_tag import CatalogTag
 from .row import RowMixin
@@ -82,7 +84,22 @@ class Dataset(Base, RowMixin):
         path: str,
         catalog_tag: CatalogTag,
     ) -> int:
-        return 0
+        """ Validate that these data are appropriate for the CatalogTag
+
+        Parameters
+        ----------
+        path
+            File with the data
+
+        catalog_tag
+            Catalog tab in question
+
+        Returns
+        -------
+        int
+            Size of the datset
+        """
+        raise NotImplementedError()
 
     @classmethod
     def validate_data(
@@ -90,4 +107,19 @@ class Dataset(Base, RowMixin):
         data: dict,
         catalog_tag: CatalogTag,
     ) -> int:
-        return 0
+        """ Validate that these data are appropriate for the CatalogTag
+
+        Parameters
+        ----------
+        data
+            Data in question
+
+        catalog_tag
+            Catalog tab in question
+
+        Returns
+        -------
+        int
+            Size of the datset
+        """
+        raise NotImplementedError()

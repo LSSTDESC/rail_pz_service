@@ -11,10 +11,11 @@ from typing import Any, TypeAlias
 
 import click
 import yaml
-from sqlalchemy.ext.asyncio import async_scoped_session
+from safir.database import create_async_session
+from sqlalchemy.ext.asyncio import AsyncEngine
 from tabulate import tabulate
 
-from rail.pz_service import db
+from rail_pz_service import db
 
 from . import admin_options
 
@@ -134,19 +135,21 @@ def get_list_command(
     """
 
     @group_command(name="list", help="list rows in table")
-    @admin_options.db_session()
+    @admin_options.db_engine()
     @admin_options.output()
     async def get_rows(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         output: admin_options.OutputEnum | None,
     ) -> None:
         """List the existing rows"""
-        result = db_class.get_rows(db.session())
+        engine = db_engine()
+        session = await create_async_session(engine)
+        result = db_class.get_rows(session)
         output_db_obj_list(result, output, db_class.col_names_for_table)
-        await db_session.close()
+        await session.remove()
+        await engine.dispose()
 
     return get_rows
-
 
 
 def get_row_command(
@@ -171,18 +174,21 @@ def get_row_command(
     """
 
     @group_command(name="all")
-    @admin_options.db_session()
+    @admin_options.db_engine()
     @admin_options.row_id()
     @admin_options.output()
     async def get_row(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         row_id: int,
         output: admin_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
-        result = db_class.get_row(db.session(), row_id)
+        engine = db_engine()
+        session = await create_async_session(engine)
+        result = db_class.get_row(session, row_id)
         output_db_object(result, output, db_class.col_names_for_table)
-        await db_session.close()
+        await session.remove()
+        await engine.dispose()
 
     return get_row
 
@@ -209,18 +215,21 @@ def get_row_by_name_command(
     """
 
     @group_command(name="by_name")
-    @admin_options.db_session()
+    @admin_options.db_engine()
     @admin_options.name()
     @admin_options.output()
     async def get_row_by_name(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         name: str,
         output: admin_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
-        result = db_class.get_row_by_name(db.session(), name)
+        engine = db_engine()
+        session = await create_async_session(engine)
+        result = db_class.get_row_by_name(session, name)
         output_db_object(result, output, db_class.col_names_for_table)
-        await db_session.close()
+        await session.remove()
+        await engine.dispose()
 
     return get_row_by_name
 
@@ -252,20 +261,23 @@ def get_row_attribute_list_command(
     """
 
     @group_command(name="by_name")
-    @admin_options.db_session()
+    @admin_options.db_engine()
     @admin_options.row_id()
     @admin_options.output()
     async def get_row_attribute_list(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         row_id: int,
         output: admin_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
-        result = db_class.get_row(db_session, row_id)
-        await db_session.refresh(result, attribute_names=[attribute])
+        engine = db_engine()
+        session = await create_async_session(engine)
+        result = db_class.get_row(session, row_id)
+        await session.refresh(result, attribute_names=[attribute])
         the_list = getattr(result, attribute)
-        output_db_obj_list(result, the_list, output_db_class.col_names_for_table)
-        await db_session.close()
+        output_db_obj_list(the_list, output, output_db_class.col_names_for_table)
+        await session.remove()
+        await engine.dispose()
 
     return get_row_attribute_list
 
@@ -296,14 +308,17 @@ def get_create_command(
     """
 
     async def create(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         output: admin_options.OutputEnum | None,
         **kwargs: Any,
     ) -> None:
         """Create a new row"""
-        result = db_class.create_row(db.session(), **kwargs)
+        engine = db_engine()
+        session = await create_async_session(engine)
+        result = await db_class.create_row(session, **kwargs)
         output_db_object(result, output, db_class.col_names_for_table)
-        await db_session.close()
+        await session.remove()
+        await engine.dispose()
 
     for option_ in create_options:
         create = option_(create)
@@ -334,14 +349,17 @@ def get_delete_command(
     """
 
     @group_command(name="delete")
-    @admin_options.db_session()
+    @admin_options.db_engine()
     @admin_options.row_id()
     async def delete(
-        db_session: async_scoped_session,
+        db_engine: Callable[[],AsyncEngine],
         row_id: int,
     ) -> None:
         """Delete a row"""
-        db_class.delete_row(db_session, row_id)
-        await db_session.close()
+        engine = db_engine()
+        session = await create_async_session(engine)
+        db_class.delete_row(session, row_id)
+        await session.remove()
+        await engine.dispose()
 
     return delete

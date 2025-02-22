@@ -18,7 +18,7 @@ cli_group = dataset_group
 DbClass = db.Dataset
 # Specify the options for the create command
 create_options = [
-    admin_options.db_session(),
+    admin_options.db_engine(),
     admin_options.name(),
     admin_options.class_name(),
     admin_options.path(),

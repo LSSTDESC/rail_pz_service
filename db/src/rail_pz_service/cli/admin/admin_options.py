@@ -1,3 +1,5 @@
+""" Options for rail_admin CLI """
+
 from collections.abc import Callable
 from enum import Enum, auto
 from functools import partial, wraps
@@ -6,10 +8,10 @@ from typing import Any, cast
 import click
 from click.decorators import FC
 
-from rail.pz_service.enums import (
-    TableEnum
-)
+from sqlalchemy.ext.asyncio import AsyncEngine
+from safir.database import create_database_engine
 
+from rail_pz_service.common.config import config as db_config
 
 
 class DictParamType(click.ParamType):
@@ -88,7 +90,9 @@ class DictParamType(click.ParamType):
 class EnumChoice(click.Choice):
     """A version of click.Choice specialized for enum types."""
 
-    def __init__(self: "EnumChoice", enum: type[Enum], *, case_sensitive: bool = True) -> None:
+    def __init__(
+        self: "EnumChoice", enum: type[Enum], *, case_sensitive: bool = True
+    ) -> None:
         self._enum = enum
         super().__init__(list(enum.__members__.keys()), case_sensitive=case_sensitive)
 
@@ -109,14 +113,15 @@ class OutputEnum(Enum):
     json = auto()  # pylint: disable=invalid-name
 
 
-
 class PartialOption:
     """Wrap partially specified click.option decorator for convenient reuse."""
 
     def __init__(self: "PartialOption", *param_decls: str, **attrs: Any) -> None:
         self._partial = partial(click.option, *param_decls, cls=click.Option, **attrs)
 
-    def __call__(self: "PartialOption", *param_decls: str, **attrs: Any) -> Callable[[FC], FC]:
+    def __call__(
+        self: "PartialOption", *param_decls: str, **attrs: Any
+    ) -> Callable[[FC], FC]:
         return self._partial(*param_decls, **attrs)
 
 
@@ -139,7 +144,6 @@ row_id = PartialOption(
     type=int,
     help="ID of object in database table",
 )
-
 
 
 output = PartialOption(
@@ -213,14 +217,19 @@ path = PartialOption(
 )
 
 
-def db_session() -> Callable[[FC], FC]:
+def _make_engine() -> AsyncEngine:
+    engine = create_database_engine(db_config.database_url, db_config.database_password)
+    return engine
+
+
+def db_engine() -> Callable[[FC], FC]:
     """Pass a freshly constructed DB session to a decorated click Command without
     adding/requiring a corresponding click Option"""
 
     def decorator(f: FC) -> FC:
         @wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            kwargs["db_session"] = None
+            kwargs["db_engine"] = _make_engine
             return f(*args, **kwargs)
 
         return cast(FC, wrapper)

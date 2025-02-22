@@ -16,8 +16,6 @@ class AlgorithmBase(BaseModel):
 class AlgorithmCreate(AlgorithmBase):
     """Algorithm Parameters that are used to create new rows but not in DB tables"""
 
-    pass
-
 
 class Algorithm(AlgorithmBase):
     """Algorithm Parameters that are in DB tables and not used to create new rows"""

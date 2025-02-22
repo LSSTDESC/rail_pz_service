@@ -1,14 +1,16 @@
+""" Database model for CatalogTag table """
+
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .dataset import Dataset
-from .model import Model
 from .row import RowMixin
 
 if TYPE_CHECKING:
+    from .dataset import Dataset
     from .estimator import Estimator
+    from .model import Model
 
 
 class CatalogTag(Base, RowMixin):

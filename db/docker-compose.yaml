@@ -6,8 +6,7 @@ services:
   migratedb:
     profiles:
       - full
-      - server
-      - daemon
+      - admin
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -29,14 +28,14 @@ services:
       postgresql:
         condition: service_healthy
 
-  rail_pz_service:
+  pz-rail-admin:
     profiles:
       - full
-      - server
+      - admin
     build:
       context: .
       dockerfile: docker/Dockerfile
-      target: rail_pz_service
+      target: pz-rail-admin
     env_file:
       - path: .env
         required: false
@@ -44,27 +43,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - rail_pz_service
-    depends_on:
-      migratedb:
-        condition: service_completed_successfully
-
-  rail_pz_worker:
-    profiles:
-      - full
-      - daemon
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-      target: rail_pz_service
-    env_file:
-      - path: .env
-        required: false
-    environment: *railenv
-    volumes:
-      - "./prod_area:/prod_area"
-    networks:
-      - rail_pz_service
+      - pz-rail-service
     depends_on:
       migratedb:
         condition: service_completed_successfully
@@ -79,7 +58,7 @@ services:
     ports:
       - "65432:5432"
     networks:
-      - cmservice
+      - pz-rail-service
     volumes:
       - "pgsql:/var/lib/postgresql/data"
     healthcheck:
@@ -95,5 +74,5 @@ volumes:
   pgsql:
 
 networks:
-  rail_pz_service:
+  pz-rail-service:
     driver: bridge

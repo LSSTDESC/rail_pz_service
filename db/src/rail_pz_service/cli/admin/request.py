@@ -1,9 +1,12 @@
 """CLI to manage Job table"""
 
-import click
-from sqlalchemy.ext.asyncio import async_scoped_session
+from collections.abc import Callable
 
-from rail.pz_service import db
+import click
+from safir.database import create_async_session
+from sqlalchemy.ext.asyncio import AsyncEngine
+
+from rail_pz_service import db
 
 from . import admin_options, wrappers
 
@@ -19,7 +22,7 @@ cli_group = request_group
 DbClass = db.Request
 # Specify the options for the create command
 create_options = [
-    admin_options.db_session(),
+    admin_options.db_engine(),
     admin_options.name(),
     admin_options.estimator_name(),
     admin_options.dataset_name(),
@@ -51,15 +54,20 @@ get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
 
 @group_command(name="run")
-@admin_options.db_session()
+@admin_options.db_engine()
 @admin_options.row_id()
 @admin_options.output()
 async def run(
-    db_session: async_scoped_session,
+    db_engine: Callable[[], AsyncEngine],
     row_id: int,
     output: admin_options.OutputEnum | None,
 ) -> None:
-    the_cache = db.Cache()
-    qp_file = the_cache.get_qp_file(db_session, row_id)
-    await db_session.close()
+    """Run a particular request"""
+    session = await create_async_session(db_engine())
+    the_cache = db.cache.Cache()
+    qp_file = the_cache.get_qp_file(session, row_id)
     print(f"Wrote {qp_file}")
+    wrappers.output_dict({"qp_file":qp_file}, output)
+
+    await session.remove()
+    await db_engine.dispose()

@@ -4,7 +4,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import create_engine, pool, text
 
-import rail.pz_service.db
+import rail_pz_service.db
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -18,7 +18,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-target_metadata = rail.pz_service.db.Base.metadata
+target_metadata = rail_pz_service.db.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

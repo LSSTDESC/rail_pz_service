@@ -1,10 +1,13 @@
+""" Database model for ObjectRef table """
+
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from ..errors import RAILMissingRowCreateInputError
+from rail_pz_service.common.errors import RAILMissingRowCreateInputError
+
 from .base import Base
 from .dataset import Dataset
 from .row import RowMixin

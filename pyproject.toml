@@ -198,3 +198,7 @@ add-ignore = [
     # To avoid all the pydantic config class giving errors
     "D106",
 ]
+
+
+[tool.pylint.format]
+max-line-length = 115

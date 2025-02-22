@@ -1,14 +1,16 @@
+""" Class to cache objects created from specific DB rows """
+
 from datetime import datetime
 
 from ceci.errors import StageNotFound
-from ceci.stage import Stage
+from ceci.stage import PipelineStage
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from rail.core.estimator import CatEstimator
+from rail.estimation.estimator import CatEstimator
 from rail.interfaces.pz_factory import PZFactory
 from rail.utils.catalog_utils import CatalogConfigBase
 
-from ..errors import RAILImportError, RAILRequestError
+from rail_pz_service.common.errors import RAILImportError, RAILRequestError
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
 from .dataset import Dataset
@@ -18,6 +20,8 @@ from .request import Request
 
 
 class Cache:
+    """ Cache for objects created from specific DB rows """
+
     def __init__(self) -> None:
         self._algorithms: dict[int, type[CatEstimator] | None] = {}
         self._catalog_tags: dict[int, type[CatalogConfigBase] | None] = {}
@@ -25,6 +29,7 @@ class Cache:
         self._qp_files: dict[int, str | None] = {}
 
     def clear(self) -> None:
+        """ Clear out the cache """
         self._algorithms = {}
         self._catalog_tags = {}
         self._estimators = {}
@@ -56,7 +61,7 @@ class Cache:
         class_name = tokens[-1]
 
         try:
-            return Stage.get_stage(class_name, module_name)
+            return PipelineStage.get_stage(class_name, module_name)
         except StageNotFound as missing_stage:
             raise RAILImportError(
                 f"Failed to load stage {algorithm.class_name} because {missing_stage}"
@@ -279,6 +284,27 @@ class Cache:
         session: async_scoped_session,
         key: int,
     ) -> str:
+        """Get the output file from a particular request
+
+        Parameters
+        ----------
+        session
+            DB session manager
+
+        key
+            DB id of the requestion in question
+
+        Returns
+        -------
+        str
+            Path to the file in question
+
+        Raises
+        ------
+        RAILRequestError
+            Requsts failed for some reason
+        """
+
         if key in self._qp_files:
             qp_file = self._qp_files[key]
             if qp_file is None:

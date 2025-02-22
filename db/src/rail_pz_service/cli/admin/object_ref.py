@@ -2,7 +2,7 @@
 
 import click
 
-from rail.pz_service import db
+from rail_pz_service import db
 
 from . import admin_options, wrappers
 
@@ -18,7 +18,7 @@ cli_group = object_ref_group
 DbClass = db.ObjectRef
 # Specify the options for the create command
 create_options = [
-    admin_options.db_session(),
+    admin_options.db_engine(),
     admin_options.name(),
     admin_options.dataset_name(),
     admin_options.index(),

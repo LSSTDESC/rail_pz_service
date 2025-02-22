@@ -10,6 +10,7 @@ from .estimator import Estimator
 from .model import Model
 from .object_ref import ObjectRef
 from .request import Request
+from .row import RowMixin
 
 __all__ = [
     "__version__",
@@ -21,4 +22,5 @@ __all__ = [
     "Model",
     "ObjectRef",
     "Request",
+    "RowMixin",
 ]

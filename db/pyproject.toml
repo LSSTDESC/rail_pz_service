@@ -38,7 +38,7 @@ dependencies = [
     "safir[db]==7.0.*",
     "uvicorn[standard]==0.32.*",
     "pz-rail",
-    "pz-rail-service-common",
+     #"pz-rail-service-common",
 ]
 
 [project.optional-dependencies]
@@ -63,7 +63,7 @@ dev = [
 ]
 
 [project.scripts]
-pz-rail-admin = "rail_pz_service.cli.admin.admin.main"
+pz-rail-admin = "rail_pz_service.cli.admin.admin:admin_top"
 
 
 [project.urls]
@@ -76,7 +76,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rail_pz_service/db"]
+packages = ["src/rail_pz_service"]
 
 [tool.hatch.version]
 path = "src/rail_pz_service/db/__init__.py"
@@ -194,3 +194,10 @@ add-ignore = [
     # To avoid all the pydantic config class giving errors
     "D106",
 ]
+
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = "use-dict-literal,too-few-public-methods,R0801"

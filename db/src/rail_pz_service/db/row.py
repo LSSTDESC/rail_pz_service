@@ -1,3 +1,4 @@
+""" Mixin functionality for Database tables """
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -8,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
-from ..errors import (
+from rail_pz_service.common.errors import (
     RAILIDMismatchError,
     RAILIntegrityError,
     RAILMissingIDError,
@@ -38,7 +39,6 @@ class RowMixin:
         session: async_scoped_session,
         skip: int = 0,
         limit: int = 100,
-        **kwargs: Any,
     ) -> Sequence[T]:
         """Get rows associated to a particular table
 
@@ -165,8 +165,8 @@ class RowMixin:
     @classmethod
     async def _delete_hook(
         cls,
-        session: async_scoped_session,
-        row_id: int,
+        session: async_scoped_session,  # pylint: disable=unused-argument
+        row_id: int,  # pylint: disable=unused-argument
     ) -> None:
         """Hook called during delete_row
 
@@ -309,6 +309,7 @@ class RowMixin:
         dict
             Keywords needed to create a new row
         """
+        assert session
         return kwargs
 
     async def update_values(
