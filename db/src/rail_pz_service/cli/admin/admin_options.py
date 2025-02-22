@@ -1,4 +1,4 @@
-""" Options for rail_admin CLI """
+"""Options for rail_admin CLI"""
 
 from collections.abc import Callable
 from enum import Enum, auto
@@ -7,9 +7,8 @@ from typing import Any, cast
 
 import click
 from click.decorators import FC
-
-from sqlalchemy.ext.asyncio import AsyncEngine
 from safir.database import create_database_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from rail_pz_service.common.config import config as db_config
 
@@ -90,9 +89,7 @@ class DictParamType(click.ParamType):
 class EnumChoice(click.Choice):
     """A version of click.Choice specialized for enum types."""
 
-    def __init__(
-        self: "EnumChoice", enum: type[Enum], *, case_sensitive: bool = True
-    ) -> None:
+    def __init__(self: "EnumChoice", enum: type[Enum], *, case_sensitive: bool = True) -> None:
         self._enum = enum
         super().__init__(list(enum.__members__.keys()), case_sensitive=case_sensitive)
 
@@ -119,9 +116,7 @@ class PartialOption:
     def __init__(self: "PartialOption", *param_decls: str, **attrs: Any) -> None:
         self._partial = partial(click.option, *param_decls, cls=click.Option, **attrs)
 
-    def __call__(
-        self: "PartialOption", *param_decls: str, **attrs: Any
-    ) -> Callable[[FC], FC]:
+    def __call__(self: "PartialOption", *param_decls: str, **attrs: Any) -> Callable[[FC], FC]:
         return self._partial(*param_decls, **attrs)
 
 
@@ -218,7 +213,8 @@ path = PartialOption(
 
 
 def _make_engine() -> AsyncEngine:
-    engine = create_database_engine(db_config.database_url, db_config.database_password)
+    # engine = create_database_engine(db_config.database_url, db_config.database_password)
+    engine = create_async_engine(db_config.db.url)
     return engine
 
 

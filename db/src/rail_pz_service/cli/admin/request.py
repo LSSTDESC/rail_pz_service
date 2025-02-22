@@ -11,7 +11,7 @@ from rail_pz_service import db
 from . import admin_options, wrappers
 
 
-@click.group(name="catalog-tag")
+@click.group(name="request")
 def request_group() -> None:
     """Manage Request table"""
 
@@ -67,7 +67,7 @@ async def run(
     the_cache = db.cache.Cache()
     qp_file = the_cache.get_qp_file(session, row_id)
     print(f"Wrote {qp_file}")
-    wrappers.output_dict({"qp_file":qp_file}, output)
+    wrappers.output_dict({"qp_file": qp_file}, output)
 
     await session.remove()
     await db_engine.dispose()

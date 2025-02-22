@@ -7,7 +7,7 @@ from rail_pz_service import db
 from . import admin_options, wrappers
 
 
-@click.group(name="catalog-tag")
+@click.group(name="object-ref")
 def object_ref_group() -> None:
     """Manage ObjectRef table"""
 

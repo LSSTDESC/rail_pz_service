@@ -1,4 +1,4 @@
-""" Database model for ObjectRef table """
+"""Database model for ObjectRef table"""
 
 from typing import TYPE_CHECKING, Any
 
@@ -30,7 +30,7 @@ class ObjectRef(Base, RowMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(index=True)
     dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("Dataset.id", ondelete="CASCADE"),
+        ForeignKey("dataset.id", ondelete="CASCADE"),
         index=True,
     )
     index: Mapped[int] = mapped_column()

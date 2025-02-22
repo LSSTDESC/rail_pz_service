@@ -6,6 +6,7 @@ functions that are defined in the db.row.RowMixin.
 """
 
 # import json
+import asyncio
 from collections.abc import Callable, Sequence
 from typing import Any, TypeAlias
 
@@ -137,17 +138,21 @@ def get_list_command(
     @group_command(name="list", help="list rows in table")
     @admin_options.db_engine()
     @admin_options.output()
-    async def get_rows(
-        db_engine: Callable[[],AsyncEngine],
+    def get_rows(
+        db_engine: Callable[[], AsyncEngine],
         output: admin_options.OutputEnum | None,
     ) -> None:
         """List the existing rows"""
-        engine = db_engine()
-        session = await create_async_session(engine)
-        result = db_class.get_rows(session)
-        output_db_obj_list(result, output, db_class.col_names_for_table)
-        await session.remove()
-        await engine.dispose()
+
+        async def _the_func() -> None:
+            engine = db_engine()
+            session = await create_async_session(engine)
+            result = await db_class.get_rows(session)
+            output_db_obj_list(result, output, db_class.col_names_for_table)
+            await session.remove()
+            await engine.dispose()
+
+        asyncio.run(_the_func())
 
     return get_rows
 
@@ -178,7 +183,7 @@ def get_row_command(
     @admin_options.row_id()
     @admin_options.output()
     async def get_row(
-        db_engine: Callable[[],AsyncEngine],
+        db_engine: Callable[[], AsyncEngine],
         row_id: int,
         output: admin_options.OutputEnum | None,
     ) -> None:
@@ -219,7 +224,7 @@ def get_row_by_name_command(
     @admin_options.name()
     @admin_options.output()
     async def get_row_by_name(
-        db_engine: Callable[[],AsyncEngine],
+        db_engine: Callable[[], AsyncEngine],
         name: str,
         output: admin_options.OutputEnum | None,
     ) -> None:
@@ -265,7 +270,7 @@ def get_row_attribute_list_command(
     @admin_options.row_id()
     @admin_options.output()
     async def get_row_attribute_list(
-        db_engine: Callable[[],AsyncEngine],
+        db_engine: Callable[[], AsyncEngine],
         row_id: int,
         output: admin_options.OutputEnum | None,
     ) -> None:
@@ -308,7 +313,7 @@ def get_create_command(
     """
 
     async def create(
-        db_engine: Callable[[],AsyncEngine],
+        db_engine: Callable[[], AsyncEngine],
         output: admin_options.OutputEnum | None,
         **kwargs: Any,
     ) -> None:
@@ -352,7 +357,7 @@ def get_delete_command(
     @admin_options.db_engine()
     @admin_options.row_id()
     async def delete(
-        db_engine: Callable[[],AsyncEngine],
+        db_engine: Callable[[], AsyncEngine],
         row_id: int,
     ) -> None:
         """Delete a row"""

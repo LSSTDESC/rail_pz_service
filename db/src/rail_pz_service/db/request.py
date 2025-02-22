@@ -1,4 +1,4 @@
-""" Database model for Request table """
+"""Database model for Request table"""
 
 import os
 from datetime import datetime
@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from rail_pz_service.common.errors import RAILMissingRowCreateInputError
+
 from .base import Base
 from .dataset import Dataset
 from .estimator import Estimator
@@ -30,11 +31,11 @@ class Request(Base, RowMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     user: Mapped[str] = mapped_column(index=True)
     estimator_id: Mapped[int] = mapped_column(
-        ForeignKey("Estimator.id", ondelete="CASCADE"),
+        ForeignKey("estimator.id", ondelete="CASCADE"),
         index=True,
     )
     dataset_id: Mapped[int] = mapped_column(
-        ForeignKey("Dataset.id", ondelete="CASCADE"),
+        ForeignKey("dataset.id", ondelete="CASCADE"),
         index=True,
     )
     qp_file_path: Mapped[str | None] = mapped_column(default=None)

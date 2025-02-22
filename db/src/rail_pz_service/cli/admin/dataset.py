@@ -7,7 +7,7 @@ from rail_pz_service import db
 from . import admin_options, wrappers
 
 
-@click.group(name="catalog-tag")
+@click.group(name="dataset")
 def dataset_group() -> None:
     """Manage Dataset table"""
 
