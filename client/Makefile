@@ -45,19 +45,6 @@ build:
 
 
 #------------------------------------------------------------------------------
-# Convenience targets to run pre-commit hooks ("lint") and mypy ("typing")
-#------------------------------------------------------------------------------
-
-.PHONY: lint
-lint:
-	pre-commit run --all-files
-
-.PHONY: typing
-typing:
-	mypy src tests
-
-
-#------------------------------------------------------------------------------
 # Targets for develpers to debug against a local Postgres run under docker
 # compose. Can be used on local machines and in github CI, but not on USDF dev
 # nodes since we can't run docker there.

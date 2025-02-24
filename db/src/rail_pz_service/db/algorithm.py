@@ -8,7 +8,7 @@ from .base import Base
 from .row import RowMixin
 
 if TYPE_CHECKING:
-    from .esimator import Estimator
+    from .estimator import Estimator
     from .model import Model
 
 

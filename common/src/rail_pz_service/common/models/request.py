@@ -1,6 +1,7 @@
 """Pydantic model for the Algorithm"""
 
 from datetime import datetime
+from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -26,6 +27,14 @@ class Request(RequestBase):
     """Request Parameters that are in DB tables and not used to create new rows"""
 
     model_config = ConfigDict(from_attributes=True)
+
+    col_names_for_table: ClassVar[list[str]] = [
+        "id",
+        "user",
+        "estimator_id",
+        "dataset_id",
+        "qp_file_path",
+    ]
 
     # primary key
     id: int

@@ -1,6 +1,13 @@
 """Pydantic model for the Algorithm"""
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+
+
+class NameQuery(BaseModel):
+    """Parameters needed to ask for a row my name"""
+
+    # Name of the row, unique
+    name: str
 
 
 class LoadDatasetQuery(BaseModel):

@@ -1,5 +1,7 @@
 """Pydantic model for the ObjectRef"""
 
+from typing import ClassVar
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -24,6 +26,8 @@ class ObjectRef(ObjectRefBase):
     """Objectref Parameters that are in DB tables and not used to create new rows"""
 
     model_config = ConfigDict(from_attributes=True)
+
+    col_names_for_table: ClassVar[list[str]] = ["id", "name", "dataset_id", "index"]
 
     # primary key
     id: int

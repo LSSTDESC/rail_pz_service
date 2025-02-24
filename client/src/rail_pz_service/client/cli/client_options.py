@@ -1,9 +1,7 @@
 from collections.abc import Callable
-from enum import Enum, auto
-from functools import partial, wraps
+from functools import wraps
 from typing import Any, cast
 
-import click
 from click.decorators import FC
 
 from rail_pz_service.client.client import PZRailClient

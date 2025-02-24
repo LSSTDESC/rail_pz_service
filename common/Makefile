@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 GIT_BRANCH := $(shell git branch --show-current)
+PY_VENV := .venv/
+UV_LOCKFILE := uv.lock
 
 #------------------------------------------------------------------------------
 # Default help target (thanks ChatGPT)
@@ -11,20 +13,28 @@ help:
 
 
 #------------------------------------------------------------------------------
-# CLEAN __pycache__ files
+# DX: Use uv to bootstrap project
 #------------------------------------------------------------------------------
 
+$(UV_LOCKFILE):
+	uv lock --build-isolation
+
+$(PY_VENV): $(UV_LOCKFILE)
+	uv sync --frozen
+
+.PHONY: init
+init: $(PY_VENV)
+	uv run pre-commit install
 
 .PHONY: clean
 clean:
+	rm -rf $(PY_VENV)
 	find src -type d -name '__pycache__' | xargs rm -rf
 	find tests -type d -name '__pycache__' | xargs rm -rf
 
+.PHONY: update-deps
+update-deps: init
+	uv lock --upgrade --build-isolation
 
-#------------------------------------------------------------------------------
-# Convenience targets to run pre-commit hooks ("lint") and mypy ("typing")
-#------------------------------------------------------------------------------
-
-.PHONY: typing
-typing:
-	mypy src tests
+.PHONY: update
+update: update-deps init

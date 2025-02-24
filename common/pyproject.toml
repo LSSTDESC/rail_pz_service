@@ -20,16 +20,15 @@ requires-python = ">=3.11,<3.13"
 dynamic = ["version"]
 
 dependencies = [
+    "click",
     "numpy==2.1.*",
     "pydantic==2.10.*",
     "pydantic-settings==2.7.*",
-    "pz-rail",
 ]
 
 [project.optional-dependencies]
 dev = [
     "coverage[toml]>=7.6.7",
-    "greenlet>=3.1.1",
     "mypy>=1.13.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.3",
@@ -117,7 +116,7 @@ extend-select = [
 known-first-party = ["rail_pz_service", "tests"]
 
 [tool.ruff.lint.pycodestyle]
-max-doc-length = 115
+max-doc-length = 88
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

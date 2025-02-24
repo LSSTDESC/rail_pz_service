@@ -18,10 +18,10 @@ import yaml
 from pydantic import BaseModel
 from tabulate import tabulate
 
-from rail_pz_service.cli.common import common_options
-from . import client_options
+from rail_pz_service.client.client import PZRailClient
+from rail_pz_service.common import common_options
 
-from ..client.client import PZRailClient
+from . import client_options
 
 
 class CustomJSONEncoder(json.JSONEncoder):
@@ -43,10 +43,10 @@ def output_pydantic_object(
 
     Parameters
     ----------
-    model: BaseModel
+    model
         Object in question
 
-    output: options.OutputEnum | None
+    output
         Output format
 
     col_names: list[str]
@@ -74,7 +74,7 @@ def output_pydantic_list(
     models: Sequence[BaseModel]
         Objects in question
 
-    output: options.OutputEnum | None
+    output:
         Output format
 
     col_names: list[str]
@@ -157,10 +157,10 @@ def get_list_command(
     @common_options.output()
     def get_rows(
         pz_client: PZRailClient,
-        output: options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """List the existing rows"""
-        sub_client = getattr(pz_client(), sub_client_name)
+        sub_client = getattr(pz_client, sub_client_name)
         result = sub_client.get_rows()
         output_pydantic_list(result, output, model_class.col_names_for_table)
 
@@ -199,10 +199,10 @@ def get_row_command(
     def get_row(
         pz_client: PZRailClient,
         row_id: int,
-        output: options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
-        sub_client = getattr(pz_client(), sub_client_name)
+        sub_client = getattr(pz_client, sub_client_name)
         result = sub_client.get_row(row_id)
         output_pydantic_object(result, output, model_class.col_names_for_table)
 
@@ -241,10 +241,10 @@ def get_row_by_name_command(
     def get_row_by_name(
         pz_client: PZRailClient,
         name: str,
-        output: options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
-        sub_client = getattr(pz_client(), sub_client_name)
+        sub_client = getattr(pz_client, sub_client_name)
         result = sub_client.get_row_by_name(name)
         output_pydantic_object(result, output, model_class.col_names_for_table)
 
@@ -280,7 +280,7 @@ def get_delete_command(
         row_id: int,
     ) -> None:
         """Delete a row"""
-        sub_client = getattr(pz_client(), sub_client_name)
+        sub_client = getattr(pz_client, sub_client_name)
         sub_client.delete(row_id)
 
     return delete
@@ -316,10 +316,10 @@ def get_row_attribute_list_command(
     def get_row_attribute(
         pz_client: PZRailClient,
         row_id: int,
-        output: options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get the data_dict parameters for a partiuclar node"""
-        sub_client = getattr(pz_client(), sub_client_name)
+        sub_client = getattr(pz_client, sub_client_name)
         result = sub_client.get_row_attribute_list_function(row_id, query)
         output_pydantic_list(result, output, model_class.col_names_for_table)
 

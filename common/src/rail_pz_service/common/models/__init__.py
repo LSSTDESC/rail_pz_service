@@ -7,7 +7,7 @@ from .estimator import Estimator
 from .model import Model
 from .object_ref import ObjectRef
 from .request import Request
-from .load import LoadDatasetQuery, LoadModelQuery, LoadEstimatorQuery
+from .load import LoadDatasetQuery, LoadModelQuery, LoadEstimatorQuery, NameQuery
 
 __all__ = [
     "Algorithm",
@@ -20,4 +20,5 @@ __all__ = [
     "LoadDatasetQuery",
     "LoadModelQuery",
     "LoadEstimatorQuery",
+    "NameQuery",
 ]

@@ -33,20 +33,20 @@ router = APIRouter(
 async def load_dataset(
     query: models.LoadDatasetQuery,
     session: async_scoped_session = Depends(db_session_dependency),
-) -> models.Dataset:
+) -> db.Dataset:
     the_cache = db.Cache.shared_cache()
     try:
         new_dataset = await the_cache.load_dataset_from_file(
             session,
             **query.model_dump(),
         )
+        return new_dataset
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)
         raise HTTPException(status_code=404, detail=str(msg)) from msg
     except Exception as msg:
         logger.error(msg, exc_info=True)
         raise HTTPException(status_code=500, detail=str(msg)) from msg
-    return new_dataset
 
 
 @router.post(
@@ -57,20 +57,20 @@ async def load_dataset(
 async def load_model(
     query: models.LoadModelQuery,
     session: async_scoped_session = Depends(db_session_dependency),
-) -> models.Model:
+) -> db.Model:
     the_cache = db.Cache.shared_cache()
     try:
         new_model = await the_cache.load_model_from_file(
             session,
             **query.model_dump(),
         )
+        return new_model
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)
         raise HTTPException(status_code=404, detail=str(msg)) from msg
     except Exception as msg:
         logger.error(msg, exc_info=True)
         raise HTTPException(status_code=500, detail=str(msg)) from msg
-    return new_model
 
 
 @router.post(
@@ -81,17 +81,17 @@ async def load_model(
 async def load_estimator(
     query: models.LoadEstimatorQuery,
     session: async_scoped_session = Depends(db_session_dependency),
-) -> models.Estimator:
+) -> db.Estimator:
     the_cache = db.Cache.shared_cache()
     try:
         new_estimator = await the_cache.load_estimator(
             session,
             **query.model_dump(),
         )
+        return new_estimator
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)
         raise HTTPException(status_code=404, detail=str(msg)) from msg
     except Exception as msg:
         logger.error(msg, exc_info=True)
         raise HTTPException(status_code=500, detail=str(msg)) from msg
-    return new_estimator

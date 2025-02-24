@@ -15,7 +15,11 @@ from rail.utils.catalog_utils import CatalogConfigBase
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from rail_pz_service.common.config import config
-from rail_pz_service.common.errors import RAILImportError, RAILIntegrityError, RAILRequestError
+from rail_pz_service.common.errors import (
+    RAILImportError,
+    RAILIntegrityError,
+    RAILRequestError,
+)
 
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
@@ -484,7 +488,11 @@ class Cache:
         # File looks ok, move it to the archive area
         suffix = os.path.splitext(file_path)[1]
         output_name = os.path.join(
-            config.storage.archive, "models", algo_name, catalog_tag_name, f"{name}{suffix}"
+            config.storage.archive,
+            "models",
+            algo_name,
+            catalog_tag_name,
+            f"{name}{suffix}",
         )
         output_abspath = os.path.abspath(output_name)
         output_dir = os.path.dirname(output_abspath)

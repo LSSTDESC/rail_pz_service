@@ -47,17 +47,17 @@ get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, 
 async def run_request(
     row_id: int,
     session: async_scoped_session = Depends(db_session_dependency),
-) -> models.Dataset:
+) -> db.Request:
     the_cache = db.Cache.shared_cache()
     try:
         request = await the_cache.run_process_request(
             session,
             request_id=row_id,
         )
+        return request
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)
         raise HTTPException(status_code=404, detail=str(msg)) from msg
     except Exception as msg:
         logger.error(msg, exc_info=True)
         raise HTTPException(status_code=500, detail=str(msg)) from msg
-    return request

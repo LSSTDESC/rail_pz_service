@@ -1,5 +1,7 @@
 """Pydantic model for the Dataset"""
 
+from typing import ClassVar
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -27,6 +29,14 @@ class Dataset(DatasetBase):
     """Dataset Parameters that are in DB tables and not used to create new rows"""
 
     model_config = ConfigDict(from_attributes=True)
+
+    col_names_for_table: ClassVar[list[str]] = [
+        "id",
+        "name",
+        "n_objects",
+        "catalog_tag_id",
+        "path",
+    ]
 
     # primary key
     id: int

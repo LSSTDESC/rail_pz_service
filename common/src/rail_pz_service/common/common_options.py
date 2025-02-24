@@ -2,8 +2,8 @@
 
 from collections.abc import Callable
 from enum import Enum, auto
-from functools import partial, wraps
-from typing import Any, cast
+from functools import partial
+from typing import Any
 
 import click
 from click.decorators import FC
@@ -206,4 +206,3 @@ path = PartialOption(
     type=click.Path(),
     help="Name for a particular DB row",
 )
-

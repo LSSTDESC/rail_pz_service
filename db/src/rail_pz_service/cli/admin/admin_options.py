@@ -1,22 +1,22 @@
 """Options for rail_admin CLI"""
 
-from typing import Any, cast
 from collections.abc import Callable
 from functools import wraps
+from typing import Any, cast
 
-import click
 from click.decorators import FC
-
-from rail_pz_service.common.config import config as db_config
 
 # using safir to set things up
 # from safir.database import create_database_engine
 # setting stuff up directly from sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
+from rail_pz_service.common.config import config as db_config
+
 
 def _make_engine() -> AsyncEngine:
-    # engine = create_database_engine(db_config.database_url, db_config.database_password)
+    # engine = create_database_engine(db_config.database_url,
+    # db_config.database_password)
     engine = create_async_engine(db_config.db.url)
     return engine
 

@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+db/test_pz_rail_service.db
 
 # Translations
 *.mo

@@ -160,7 +160,7 @@ class RowMixin:
         except IntegrityError as msg:
             if TYPE_CHECKING:
                 assert msg.orig  # for mypy
-            raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
+            raise RAILIntegrityError(msg) from msg
         await cls._delete_hook(session, row_id)
 
     @classmethod
@@ -238,11 +238,7 @@ class RowMixin:
                 await session.rollback()
                 if TYPE_CHECKING:
                     assert msg.orig  # for mypy
-                raise RAILIntegrityError(
-                    params=msg.params,
-                    orig=msg.orig,
-                    statement=msg.statement,
-                ) from msg
+                raise RAILIntegrityError(msg) from msg
         await session.refresh(row)
         return row
 
@@ -346,5 +342,5 @@ class RowMixin:
             await session.rollback()
             if TYPE_CHECKING:
                 assert msg.orig
-            raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
+            raise RAILIntegrityError(msg) from msg
         return self

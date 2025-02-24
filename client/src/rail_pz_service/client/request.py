@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import httpx
 from pydantic import TypeAdapter
 
-import httpx
-from rail_pz_server.common import models
+from rail_pz_service.common import models
 
 from . import wrappers
 

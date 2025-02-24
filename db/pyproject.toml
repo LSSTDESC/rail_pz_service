@@ -78,7 +78,7 @@ build-backend = "hatchling.build"
 packages = ["src/rail_pz_service"]
 
 [tool.hatch.version]
-path = "src/rail_pz_service/client/__init__.py"
+path = "src/rail_pz_service/db/__init__.py"
 fallback-version = "0.0.0"
 
 [tool.coverage.run]
@@ -142,12 +142,6 @@ extend-select = [
 [tool.ruff.lint.isort]
 known-first-party = ["rail_pz_service", "tests"]
 
-[tool.ruff.lint.pycodestyle]
-max-doc-length = 115
-
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope="function"
@@ -194,9 +188,14 @@ add-ignore = [
     "D106",
 ]
 
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 88
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.pylint.format]
-max-line-length = 120
+max-line-length = 88
 
 [tool.pylint."MESSAGES CONTROL"]
 disable = "use-dict-literal,too-few-public-methods,R0801"

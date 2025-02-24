@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from pydantic import TypeAdapter
+from typing import TYPE_CHECKING, Any
 
 import httpx
-from rail_pz_server.common import models
+from pydantic import TypeAdapter
+
+from rail_pz_service.common import models
 
 if TYPE_CHECKING:
     from .client import PZRailClient
@@ -24,17 +24,20 @@ class PZRailLoadClient:
         """Return the httpx.Client"""
         return self._client
 
-    def dataset(self) -> models.Dataset:
+    def dataset(self, **kwargs: Any) -> models.Dataset:
         full_query = "load/dataset"
-        results = self.client.post(full_query).raise_for_status().json()
+        content = models.LoadDatasetQuery(**kwargs).model_dump_json()
+        results = self.client.post(full_query, content=content).raise_for_status().json()
         return TypeAdapter(models.Dataset).validate_python(results)
 
-    def model(self) -> models.Model:
+    def model(self, **kwargs: Any) -> models.Model:
         full_query = "load/model"
-        results = self.client.post(full_query).raise_for_status().json()
-        return TypeAdapter(models.Dataset).validate_python(results)
+        content = models.LoadModelQuery(**kwargs).model_dump_json()
+        results = self.client.post(full_query, content=content).raise_for_status().json()
+        return TypeAdapter(models.Model).validate_python(results)
 
-    def estimator(self) -> models.Estimator:
+    def estimator(self, **kwargs: Any) -> models.Estimator:
         full_query = "load/estimator"
-        results = self.client.post(full_query).raise_for_status().json()
+        content = models.LoadEstimatorQuery(**kwargs).model_dump_json()
+        results = self.client.post(full_query, content=content).raise_for_status().json()
         return TypeAdapter(models.Estimator).validate_python(results)
