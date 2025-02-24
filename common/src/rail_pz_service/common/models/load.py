@@ -1,4 +1,3 @@
-
 """Pydantic model for the Algorithm"""
 
 from pydantic import BaseModel, ConfigDict
@@ -19,7 +18,7 @@ class LoadDatasetQuery(BaseModel):
 
 class LoadModelQuery(BaseModel):
     """Parameters needed to laod a model"""
-    
+
     # Name for this Model, unique
     name: str
 
@@ -31,7 +30,6 @@ class LoadModelQuery(BaseModel):
 
     # Associated catalog tag name
     catalog_tag_name: str
-
 
 
 class LoadEstimatorQuery(BaseModel):
