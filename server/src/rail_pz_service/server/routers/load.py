@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 @router.post(
-    "/load_dataset",
+    "/dataset",
     response_model=models.Dataset,
     summary="Load a dataset into the server",
 )
@@ -50,7 +50,7 @@ async def load_dataset(
 
 
 @router.post(
-    "/load_model",
+    "/model",
     response_model=models.Model,
     summary="Load a model into the server",
 )
@@ -74,7 +74,7 @@ async def load_model(
 
 
 @router.post(
-    "/load_estimator",
+    "/estimator",
     response_model=models.Estimator,
     summary="Load a estimator into the server",
 )

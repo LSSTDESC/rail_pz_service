@@ -8,6 +8,7 @@ from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
+from rail_pz_service.common import common_options
 
 from . import admin_options, wrappers
 
@@ -24,10 +25,10 @@ DbClass = db.Request
 # Specify the options for the create command
 create_options = [
     admin_options.db_engine(),
-    admin_options.name(),
-    admin_options.estimator_name(),
-    admin_options.dataset_name(),
-    admin_options.output(),
+    common_options.name(),
+    common_options.estimator_name(),
+    common_options.dataset_name(),
+    common_options.output(),
 ]
 
 # Construct derived templates
@@ -56,12 +57,12 @@ get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
 @group_command(name="run")
 @admin_options.db_engine()
-@admin_options.row_id()
-@admin_options.output()
+@common_options.row_id()
+@common_options.output()
 def run(
     db_engine: Callable[[], AsyncEngine],
     row_id: int,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Run a particular request"""
 

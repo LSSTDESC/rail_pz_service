@@ -7,20 +7,20 @@ from rail_pz_service.common import models
 from . import wrappers
 
 
-@click.group(name="algorithm")
-def algorithm_group() -> None:
-    """Manage Algorithm table"""
+@click.group(name="model")
+def model_group() -> None:
+    """Manage Model table"""
 
 
 # Template specialization
 # Specify the cli path to attach these commands to
-cli_group = algorithm_group
+cli_group = model_group
 # Specify the associated database table
-ModelClass = models.Algorithm
+ModelClass = models.Model
 
 # Construct derived templates
 group_command = cli_group.command
-sub_client = "algorithm"
+sub_client = "model"
 
 
 @cli_group.group()
@@ -39,7 +39,5 @@ get_row = wrappers.get_row_command(get_command, sub_client, ModelClass)
 get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, ModelClass)
 
 get_estimators = wrappers.get_row_attribute_list_command(
-    get_command, sub_client, models.Estimator, "_estimators"
+    get_command, sub_client, models.Estimator, "estimators"
 )
-
-get_models = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Model, "_models")

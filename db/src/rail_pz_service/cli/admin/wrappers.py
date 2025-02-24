@@ -17,13 +17,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from tabulate import tabulate
 
 from rail_pz_service import db
-
+from rail_pz_service.common import common_options
 from . import admin_options
 
 
 def output_db_object(
     db_obj: db.RowMixin,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
     col_names: list[str],
 ) -> None:
     """Render a single object as requested
@@ -40,9 +40,9 @@ def output_db_object(
         Names for columns in tabular representation
     """
     match output:
-        case admin_options.OutputEnum.json:
+        case common_options.OutputEnum.json:
             pass
-        case admin_options.OutputEnum.yaml:
+        case common_options.OutputEnum.yaml:
             pass
         case _:
             the_table = [[getattr(db_obj, col_) for col_ in col_names]]
@@ -51,7 +51,7 @@ def output_db_object(
 
 def output_db_obj_list(
     db_objs: Sequence[db.RowMixin],
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
     col_names: list[str],
 ) -> None:
     """Render a sequences of objects as requested
@@ -72,16 +72,16 @@ def output_db_obj_list(
     the_table = []
     for db_obj_ in db_objs:
         match output:
-            case admin_options.OutputEnum.json:
+            case common_options.OutputEnum.json:
                 pass
-            case admin_options.OutputEnum.yaml:
+            case common_options.OutputEnum.yaml:
                 pass
             case _:
                 the_table.append([str(getattr(db_obj_, col_)) for col_ in col_names])
     match output:
-        case admin_options.OutputEnum.json:
+        case common_options.OutputEnum.json:
             pass
-        case admin_options.OutputEnum.yaml:
+        case common_options.OutputEnum.yaml:
             pass
         case _:
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
@@ -89,7 +89,7 @@ def output_db_obj_list(
 
 def output_dict(
     the_dict: dict,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Render a python dict as requested
 
@@ -102,9 +102,9 @@ def output_dict(
         Output format
     """
     match output:
-        case admin_options.OutputEnum.json:
+        case common_options.OutputEnum.json:
             pass
-        case admin_options.OutputEnum.yaml:
+        case common_options.OutputEnum.yaml:
             click.echo(yaml.dump(the_dict))
         case _:
             for key, val in the_dict.items():
@@ -137,10 +137,10 @@ def get_list_command(
 
     @group_command(name="list", help="list rows in table")
     @admin_options.db_engine()
-    @admin_options.output()
+    @common_options.output()
     def get_rows(
         db_engine: Callable[[], AsyncEngine],
-        output: admin_options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """List the existing rows"""
 
@@ -180,12 +180,12 @@ def get_row_command(
 
     @group_command(name="all")
     @admin_options.db_engine()
-    @admin_options.row_id()
-    @admin_options.output()
+    @common_options.row_id()
+    @common_options.output()
     def get_row(
         db_engine: Callable[[], AsyncEngine],
         row_id: int,
-        output: admin_options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
 
@@ -225,12 +225,12 @@ def get_row_by_name_command(
 
     @group_command(name="by_name")
     @admin_options.db_engine()
-    @admin_options.name()
-    @admin_options.output()
+    @common_options.name()
+    @common_options.output()
     def get_row_by_name(
         db_engine: Callable[[], AsyncEngine],
         name: str,
-        output: admin_options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
 
@@ -275,12 +275,12 @@ def get_row_attribute_list_command(
 
     @group_command(name="by_name")
     @admin_options.db_engine()
-    @admin_options.row_id()
-    @admin_options.output()
+    @common_options.row_id()
+    @common_options.output()
     def get_row_attribute_list(
         db_engine: Callable[[], AsyncEngine],
         row_id: int,
-        output: admin_options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
     ) -> None:
         """Get a single row"""
 
@@ -326,7 +326,7 @@ def get_create_command(
 
     def create(
         db_engine: Callable[[], AsyncEngine],
-        output: admin_options.OutputEnum | None,
+        output: common_options.OutputEnum | None,
         **kwargs: Any,
     ) -> None:
         """Create a new row"""
@@ -371,7 +371,7 @@ def get_delete_command(
 
     @group_command(name="delete")
     @admin_options.db_engine()
-    @admin_options.row_id()
+    @common_options.row_id()
     def delete(
         db_engine: Callable[[], AsyncEngine],
         row_id: int,

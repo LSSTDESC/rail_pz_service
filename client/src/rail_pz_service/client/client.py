@@ -8,16 +8,15 @@ import httpx
 
 from .algorithm import PZRailAlgorithmClient
 from .catalog_tag import PZRailCatalogTagClient
+from .clientconfig import client_config
 from .dataset import PZRailDatasetClient
 from .estimator import PZRailEstimatorClient
-from .model import PZRailModelClient
-from .request import PZRailRequestClient
-from .object_ref import PZRailObjectRefClient
 from .load import PZRailLoadClient
+from .model import PZRailModelClient
+from .object_ref import PZRailObjectRefClient
+from .request import PZRailRequestClient
 
-from .clientconfig import client_config
-
-__all__ = ["CMClient"]
+__all__ = ["PZRailClient"]
 
 
 class PZRailClient:

@@ -8,6 +8,7 @@ from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
+from rail_pz_service.common import common_options
 
 from . import admin_options, wrappers
 
@@ -19,10 +20,10 @@ def load_group() -> None:
 
 @load_group.command(name="algos-from-env")
 @admin_options.db_engine()
-@admin_options.output()
+@common_options.output()
 def algos_from_env_command(
     db_engine: Callable[[], AsyncEngine],
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Load algorithms from RailEnv"""
 
@@ -40,10 +41,10 @@ def algos_from_env_command(
 
 @load_group.command(name="catalog-tags-from-env")
 @admin_options.db_engine()
-@admin_options.output()
+@common_options.output()
 def catalog_tags_from_env_command(
     db_engine: Callable[[], AsyncEngine],
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
 
@@ -61,16 +62,16 @@ def catalog_tags_from_env_command(
 
 @load_group.command(name="dataset")
 @admin_options.db_engine()
-@admin_options.name()
-@admin_options.path()
-@admin_options.catalog_tag_name()
-@admin_options.output()
+@common_options.name()
+@common_options.path()
+@common_options.catalog_tag_name()
+@common_options.output()
 def dataset_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
     path: click.Path(),
     catalog_tag_name: str,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
 
@@ -93,18 +94,18 @@ def dataset_command(
 
 @load_group.command(name="model")
 @admin_options.db_engine()
-@admin_options.name()
-@admin_options.path()
-@admin_options.algo_name()
-@admin_options.catalog_tag_name()
-@admin_options.output()
+@common_options.name()
+@common_options.path()
+@common_options.algo_name()
+@common_options.catalog_tag_name()
+@common_options.output()
 def model_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
     path: click.Path(),
     algo_name: str,
     catalog_tag_name: str,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
 
@@ -128,16 +129,16 @@ def model_command(
 
 @load_group.command(name="estimator")
 @admin_options.db_engine()
-@admin_options.name()
-@admin_options.model_name()
-@admin_options.config()
-@admin_options.output()
+@common_options.name()
+@common_options.model_name()
+@common_options.config()
+@common_options.output()
 def estimator_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
     model_name: str,
     config: dict | None,
-    output: admin_options.OutputEnum | None,
+    output: common_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
 

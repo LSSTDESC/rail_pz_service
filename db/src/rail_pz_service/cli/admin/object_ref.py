@@ -3,6 +3,7 @@
 import click
 
 from rail_pz_service import db
+from rail_pz_service.common import common_options
 
 from . import admin_options, wrappers
 
@@ -19,9 +20,9 @@ DbClass = db.ObjectRef
 # Specify the options for the create command
 create_options = [
     admin_options.db_engine(),
-    admin_options.name(),
-    admin_options.dataset_name(),
-    admin_options.index(),
+    common_options.name(),
+    common_options.dataset_name(),
+    common_options.index(),
 ]
 
 # Construct derived templates

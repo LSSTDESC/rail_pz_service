@@ -4,14 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import httpx
+from pydantic import TypeAdapter
 
+import httpx
 from rail_pz_server.common import models
-from rail_pz_server import db
 
 from . import wrappers
-
-from ..common.enums import StatusEnum
 
 if TYPE_CHECKING:
     from .client import PZRailClient
@@ -25,7 +23,9 @@ router_string = "request"
 
 
 class PZRailRequestClient:
-    """Interface for accessing remote pz-rail-service to manipulate Request Tables"""
+    """Interface for accessing remote pz-rail-service to manipulate
+    Request Tables
+    """
 
     def __init__(self, parent: PZRailClient) -> None:
         self._client = parent.client
@@ -44,7 +44,7 @@ class PZRailRequestClient:
         ResponseModelClass, f"{router_string}/get_row_by_name"
     )
 
-    get_estimators = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/estimators")
-
-    get_models = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/models")
-
+    def run(self, row_id: int) -> models.Request:
+        full_query = f"run/{row_id}"
+        results = self.client.post(full_query).raise_for_status().json()
+        return TypeAdapter(ResponseModelClass).validate_python(results)

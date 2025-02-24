@@ -5,9 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import httpx
-
 from rail_pz_server.common import models
-from rail_pz_server import db
 
 from . import wrappers
 
@@ -23,7 +21,9 @@ router_string = "estimator"
 
 
 class PZRailEstimatorClient:
-    """Interface for accessing remote pz-rail-service to manipulate Estimator Tables"""
+    """Interface for accessing remote pz-rail-service to manipulate
+    Estimator Tables
+    """
 
     def __init__(self, parent: PZRailClient) -> None:
         self._client = parent.client
@@ -41,8 +41,4 @@ class PZRailEstimatorClient:
     get_row_by_name = wrappers.get_row_by_name_function(
         ResponseModelClass, f"{router_string}/get_row_by_name"
     )
-
-    get_estimators = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/estimators")
-
-    get_models = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/models")
 

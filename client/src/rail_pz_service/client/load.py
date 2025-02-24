@@ -4,13 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import TypeAdapter
+
 import httpx
-
 from rail_pz_server.common import models
-from rail_pz_server import db
-
-from . import wrappers
-
 
 if TYPE_CHECKING:
     from .client import PZRailClient
@@ -27,15 +24,17 @@ class PZRailLoadClient:
         """Return the httpx.Client"""
         return self._client
 
-    
     def dataset(self) -> models.Dataset:
-        return
-    
-        
-    def model(self) -> models.Model:
-        return
+        full_query = "load/dataset"
+        results = self.client.post(full_query).raise_for_status().json()
+        return TypeAdapter(models.Dataset).validate_python(results)
 
+    def model(self) -> models.Model:
+        full_query = "load/model"
+        results = self.client.post(full_query).raise_for_status().json()
+        return TypeAdapter(models.Dataset).validate_python(results)
 
     def estimator(self) -> models.Estimator:
-        return
-
+        full_query = "load/estimator"
+        results = self.client.post(full_query).raise_for_status().json()
+        return TypeAdapter(models.Estimator).validate_python(results)

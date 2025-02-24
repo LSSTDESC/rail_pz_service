@@ -7,20 +7,20 @@ from rail_pz_service.common import models
 from . import wrappers
 
 
-@click.group(name="algorithm")
-def algorithm_group() -> None:
-    """Manage Algorithm table"""
+@click.group(name="request")
+def request_group() -> None:
+    """Manage Request table"""
 
 
 # Template specialization
 # Specify the cli path to attach these commands to
-cli_group = algorithm_group
+cli_group = request_group
 # Specify the associated database table
-ModelClass = models.Algorithm
+ModelClass = models.Request
 
 # Construct derived templates
 group_command = cli_group.command
-sub_client = "algorithm"
+sub_client = "request"
 
 
 @cli_group.group()

@@ -5,9 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import httpx
-
 from rail_pz_server.common import models
-from rail_pz_server import db
 
 from . import wrappers
 
@@ -23,7 +21,9 @@ router_string = "dataset"
 
 
 class PZRailDatasetClient:
-    """Interface for accessing remote pz-rail-service to manipulate Dataset Tables"""
+    """Interface for accessing remote pz-rail-service to manipulate
+    Dataset Tables
+    """
 
     def __init__(self, parent: PZRailClient) -> None:
         self._client = parent.client
@@ -42,7 +42,8 @@ class PZRailDatasetClient:
         ResponseModelClass, f"{router_string}/get_row_by_name"
     )
 
-    get_estimators = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/estimators")
+    get_estimators = wrappers.get_row_attribute_list_function(
+        ResponseModelClass, f"{router_string}/get/estimators"
+    )
 
     get_models = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/models")
-

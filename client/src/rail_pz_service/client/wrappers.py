@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from .client import PZRailClient
 
 
-
 def get_rows_function(
     response_model_class: TypeAlias = BaseModel,
     query: str = "",
@@ -117,7 +116,6 @@ def delete_row_function(
     return row_delete
 
 
-
 def get_row_by_name_function(
     response_model_class: TypeAlias = BaseModel,
     query: str = "",
@@ -174,7 +172,7 @@ def get_row_attribute_list_function(
         Function that returns a property of a single row from a table by name
     """
 
-    def get_node_property(
+    def get_row_attribute_list(
         obj: PZRailClient,
         row_id: int,
     ) -> response_model_class:
@@ -182,4 +180,4 @@ def get_row_attribute_list_function(
         results = obj.client.get(full_query).raise_for_status().json()
         return TypeAdapter(response_model_class).validate_python(results)
 
-    return get_node_property
+    return get_row_attribute_list
