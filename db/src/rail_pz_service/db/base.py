@@ -16,5 +16,7 @@ class Base(DeclarativeBase):
 
     metadata = MetaData(schema=config.db.table_schema)
     # type_annotation_map = {
-    #    TableEnum: saEnum(TableEnum, length=20, native_enum=False, create_constraint=False),
+    #    TableEnum: saEnum(
+    #        TableEnum, length=20, native_enum=False, create_constraint=False
+    #    ),
     # }
