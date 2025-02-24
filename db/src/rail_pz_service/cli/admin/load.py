@@ -1,8 +1,8 @@
 """CLI to manage Job table"""
 
+import asyncio
 from collections.abc import Callable
 
-import asyncio
 import click
 from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -25,6 +25,7 @@ def algos_from_env_command(
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Load algorithms from RailEnv"""
+
     async def _the_func() -> None:
         engine = db_engine()
         session = await create_async_session(engine)
@@ -36,7 +37,7 @@ def algos_from_env_command(
 
     asyncio.run(_the_func())
 
-    
+
 @load_group.command(name="catalog-tags-from-env")
 @admin_options.db_engine()
 @admin_options.output()
@@ -45,6 +46,7 @@ def catalog_tags_from_env_command(
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
+
     async def _the_func() -> None:
         engine = db_engine()
         session = await create_async_session(engine)
@@ -56,7 +58,7 @@ def catalog_tags_from_env_command(
 
     asyncio.run(_the_func())
 
-    
+
 @load_group.command(name="dataset")
 @admin_options.db_engine()
 @admin_options.name()
@@ -71,12 +73,16 @@ def dataset_command(
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
+
     async def _the_func() -> None:
         engine = db_engine()
         session = await create_async_session(engine)
         the_cache = db.Cache()
         new_dataset = await the_cache.load_dataset_from_file(
-            session, name, file_path=path, catalog_tag_name=catalog_tag_name,
+            session,
+            name,
+            file_path=path,
+            catalog_tag_name=catalog_tag_name,
         )
         wrappers.output_db_object(new_dataset, output, db.Dataset.col_names_for_table)
         await session.remove()
@@ -84,7 +90,7 @@ def dataset_command(
 
     asyncio.run(_the_func())
 
-    
+
 @load_group.command(name="model")
 @admin_options.db_engine()
 @admin_options.name()
@@ -101,12 +107,17 @@ def model_command(
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
+
     async def _the_func() -> None:
         engine = db_engine()
         session = await create_async_session(engine)
         the_cache = db.Cache()
         new_model = await the_cache.load_model_from_file(
-            session, name, file_path=path, algo_name=algo_name, catalog_tag_name=catalog_tag_name,
+            session,
+            name,
+            file_path=path,
+            algo_name=algo_name,
+            catalog_tag_name=catalog_tag_name,
         )
         wrappers.output_db_object(new_model, output, db.Model.col_names_for_table)
         await session.remove()
@@ -114,7 +125,7 @@ def model_command(
 
     asyncio.run(_the_func())
 
-    
+
 @load_group.command(name="estimator")
 @admin_options.db_engine()
 @admin_options.name()
@@ -125,21 +136,23 @@ def estimator_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
     model_name: str,
-    config: dict|None,
+    config: dict | None,
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Load CatalogTags from RailEnv"""
+
     async def _the_func() -> None:
         engine = db_engine()
         session = await create_async_session(engine)
         the_cache = db.Cache()
         new_estimator = await the_cache.load_estimator(
-            session, name, model_name=model_name, config=config,
+            session,
+            name,
+            model_name=model_name,
+            config=config,
         )
         wrappers.output_db_object(new_estimator, output, db.Estimator.col_names_for_table)
         await session.remove()
         await engine.dispose()
 
     asyncio.run(_the_func())
-
-    
