@@ -131,7 +131,7 @@ data = PartialOption(
 
 
 row_id = PartialOption(
-    "--row_id",
+    "--row-id",
     type=int,
     help="ID of object in database table",
 )
@@ -153,42 +153,42 @@ name = PartialOption(
 
 
 algo_name = PartialOption(
-    "--algo_name",
+    "--algo-name",
     type=str,
     help="Name of associated algorithm",
 )
 
 
 class_name = PartialOption(
-    "--class_name",
+    "--class-name",
     type=str,
     help="Name of python class to associate to a particular DB object",
 )
 
 
 dataset_name = PartialOption(
-    "--dataset_name",
+    "--dataset-name",
     type=str,
     help="Name of associated dataset",
 )
 
 
 estimator_name = PartialOption(
-    "--estimator_name",
+    "--estimator-name",
     type=str,
     help="Name of associated estimator",
 )
 
 
 catalog_tag_name = PartialOption(
-    "--catalog_tag_name",
+    "--catalog-tag-name",
     type=str,
     help="Name of associated catalog tag",
 )
 
 
 model_name = PartialOption(
-    "--model_name",
+    "--model-name",
     type=str,
     help="Name of associated model",
 )
@@ -202,7 +202,7 @@ index = PartialOption(
 
 
 n_objects = PartialOption(
-    "--n_objects",
+    "--n-objects",
     type=int,
     help="Number of object in dataset",
 )
@@ -214,8 +214,8 @@ path = PartialOption(
     help="Name for a particular DB row",
 )
 
-validate = PartialOption(
-    "--validate",
+validate_file = PartialOption(
+    "--validate-file",
     is_flag=True,
     default=False,
     help="Validate files when uploading",

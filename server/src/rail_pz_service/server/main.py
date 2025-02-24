@@ -107,10 +107,14 @@ app.include_router(v1.router, prefix=config.asgi.prefix)
 # app.mount(config.asgi.frontend_prefix, web_app)
 
 
-if __name__ == "__main__":
+def main() -> None:
     uvicorn.run(
         "rail_pz_service.server.main:app",
         host=config.asgi.host,
         port=config.asgi.port,
         reload=config.asgi.reload,
     )
+
+
+if __name__ == "__main__":
+    main()

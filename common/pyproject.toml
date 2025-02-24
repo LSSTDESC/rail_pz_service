@@ -26,18 +26,6 @@ dependencies = [
     "pydantic-settings==2.7.*",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "coverage[toml]>=7.6.7",
-    "mypy>=1.13.0",
-    "pre-commit>=4.0.1",
-    "pytest>=8.3.3",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.8.0",
-    "types-pyyaml>=6.0.12.20240917",
-    "types-tabulate>=0.9.0.20240106",
-]
-
 [project.urls]
 Source = "https://github.com/LSSTDESC/rail_pz_service"
 

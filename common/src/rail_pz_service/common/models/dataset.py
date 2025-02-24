@@ -28,7 +28,7 @@ class DatasetCreate(DatasetBase):
     catalog_tag_name: str
 
     # Validate the files before loading
-    validate: bool = False
+    validate_file: bool = False
 
 
 class Dataset(DatasetBase):
