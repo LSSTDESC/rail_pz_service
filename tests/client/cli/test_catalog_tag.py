@@ -1,21 +1,15 @@
-import os
 import uuid
 
 import pytest
 from click.testing import CliRunner
 from safir.testing.uvicorn import UvicornProcess
-
 from sqlalchemy.ext.asyncio import AsyncEngine
-
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
-from rail_pz_service.common.config import config
 
 from rail_pz_service.cli.admin.admin import admin_top
 from rail_pz_service.client.cli.main import top
-
 from rail_pz_service.client.clientconfig import client_config
+from rail_pz_service.common import models
+from rail_pz_service.common.config import config
 
 from .util_functions import (
     check_and_parse_result,
@@ -43,8 +37,8 @@ def test_catalog_tag_client(uvicorn: UvicornProcess, api_version: str, engine: A
         admin_top,
         f"catalog-tag create --name algo_{uuid_int} --class_name not.really.a.class --output yaml",
     )
-    catalog_tag_ = check_and_parse_result(result, models.CatalogTag)
-    
+    check_and_parse_result(result, models.CatalogTag)
+
     result = runner.invoke(top, "catalog-tag list --output yaml")
     catalog_tags = check_and_parse_result(result, list[models.CatalogTag])
     entry = catalog_tags[0]
@@ -60,7 +54,7 @@ def test_catalog_tag_client(uvicorn: UvicornProcess, api_version: str, engine: A
     assert result.exit_code == 0
 
     result = runner.invoke(top, f"catalog-tag get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

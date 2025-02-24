@@ -1,11 +1,8 @@
-import importlib
 from typing import TypeAlias
 
-import pytest
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from rail_pz_service import db
-from rail_pz_service.common import errors
 
 
 async def delete_all_rows(
@@ -42,4 +39,3 @@ async def cleanup(
     await session.commit()
     await session.close()
     await session.remove()
-

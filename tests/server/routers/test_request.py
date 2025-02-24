@@ -1,12 +1,10 @@
-import os
 import uuid
 
-import structlog
-
 import pytest
+import structlog
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import async_scoped_session, AsyncEngine
 from safir.database import create_async_session
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
 from rail_pz_service.common import models
@@ -28,13 +26,13 @@ async def test_request_routes(
     """Test `/request` API endpoint."""
 
     logger = structlog.get_logger(__name__)
-    
+
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
 
     async with engine.begin():
         session = await create_async_session(engine, logger)
-        
+
         algorithm_ = await db.Algorithm.create_row(
             session,
             name=f"algorithm_{uuid_int}",
@@ -70,25 +68,25 @@ async def test_request_routes(
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,            
+            validate=False,
         )
-        
+
         request_ = await db.Request.create_row(
             session,
             estimator_name=estimator_.name,
             dataset_name=dataset_.name,
         )
-        
+
         response = await client.get(f"{config.asgi.prefix}/{api_version}/request/list")
         requests = check_and_parse_response(response, list[models.Request])
         entry = requests[0]
-        
+
         assert entry.id == request_.id
 
         response = await client.get(f"{config.asgi.prefix}/{api_version}/request/get/{entry.id}")
         check = check_and_parse_response(response, models.Request)
 
         assert check.id == request_.id
-        
+
         # delete everything we just made in the session
         await cleanup(session)

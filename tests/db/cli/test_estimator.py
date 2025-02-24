@@ -1,14 +1,10 @@
-import os
 import uuid
 
-import pytest
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
 from rail_pz_service.cli.admin.admin import admin_top
+from rail_pz_service.common import models
 
 from .util_functions import (
     check_and_parse_result,
@@ -20,7 +16,7 @@ def test_estimator_cli_db(engine: AsyncEngine) -> None:
     """Test `estimator` CLI command"""
 
     assert engine
-    
+
     runner = CliRunner()
 
     # generate a uuid to avoid collisions
@@ -62,8 +58,7 @@ def test_estimator_cli_db(engine: AsyncEngine) -> None:
         f"--model_name {model_.name} "
         "--output yaml",
     )
-    estimator = check_and_parse_result(result, models.Estimator)
-
+    check_and_parse_result(result, models.Estimator)
 
     result = runner.invoke(admin_top, "estimator list --output yaml")
     estimators_ = check_and_parse_result(result, list[models.Estimator])
@@ -80,7 +75,7 @@ def test_estimator_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     result = runner.invoke(admin_top, f"estimator get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

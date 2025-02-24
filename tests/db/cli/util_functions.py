@@ -28,7 +28,6 @@ def expect_failed_result(
         raise ValueError(f"{result} did not fail as expected {result.exit_code}")
 
 
-
 def delete_all_rows(
     runner: CliRunner,
     client_top: BaseCommand,
@@ -64,4 +63,3 @@ def cleanup(
     check_cascade: bool = False,
 ) -> None:
     delete_all_stuff(runner, client_top)
-

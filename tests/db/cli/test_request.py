@@ -1,14 +1,10 @@
-import os
 import uuid
 
-import pytest
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
 from rail_pz_service.cli.admin.admin import admin_top
+from rail_pz_service.common import models
 
 from .util_functions import (
     check_and_parse_result,
@@ -20,7 +16,7 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
     """Test `request` CLI command"""
 
     assert engine
-    
+
     runner = CliRunner()
 
     # generate a uuid to avoid collisions
@@ -75,15 +71,12 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
         "--output yaml",
     )
     dataset_ = check_and_parse_result(result, models.Dataset)
-    
+
     result = runner.invoke(
         admin_top,
-        "request create "
-        f"--estimator_name {estimator_.name} "
-        f"--dataset_name {dataset_.name} "
-        "--output yaml",
+        f"request create --estimator_name {estimator_.name} --dataset_name {dataset_.name} --output yaml",
     )
-    request_ = check_and_parse_result(result, models.Request)
+    check_and_parse_result(result, models.Request)
 
     result = runner.invoke(admin_top, "request list --output yaml")
     requests_ = check_and_parse_result(result, list[models.Request])
@@ -96,11 +89,12 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
     result = runner.invoke(admin_top, "request list")
     assert result.exit_code == 0
 
-    # result = runner.invoke(admin_top, f"request get all --row_id {entry.id} --output json")
+    # result = runner.invoke(admin_top, f"request get all
+    # --row_id {entry.id} --output json")
     # assert result.exit_code == 0
 
     result = runner.invoke(admin_top, f"request get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

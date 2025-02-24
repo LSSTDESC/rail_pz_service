@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, TypeAlias
-from pydantic import BaseModel, TypeAdapter
+from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
 
+from pydantic import BaseModel, TypeAdapter
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_scoped_session
@@ -347,7 +347,7 @@ class RowMixin:
             raise RAILIntegrityError(msg) from msg
         return self
 
-    def to_model(self)  -> BaseModel:
+    def to_model(self) -> BaseModel:
         """Return a reow as a pydantic model"""
         return_obj = TypeAdapter(self.pydantic_mode_class).validate_python(self)
         return return_obj

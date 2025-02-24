@@ -11,7 +11,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from rail_pz_service.common import models
-
 from rail_pz_service.common.errors import (
     RAILBadModelError,
     RAILFileNotFoundError,

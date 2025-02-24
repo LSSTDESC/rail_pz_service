@@ -13,8 +13,8 @@ from safir.testing.uvicorn import UvicornProcess, spawn_uvicorn
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
-from rail_pz_service.server import main
 from rail_pz_service.common.config import config as config_
+from rail_pz_service.server import main
 
 
 @pytest_asyncio.fixture(name="engine")

@@ -1,14 +1,10 @@
-import os
 import uuid
 
-import pytest
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
 from rail_pz_service.cli.admin.admin import admin_top
+from rail_pz_service.common import models
 
 from .util_functions import (
     check_and_parse_result,
@@ -20,7 +16,7 @@ def test_catalog_tag_cli_db(engine: AsyncEngine) -> None:
     """Test `catalog-tag` CLI command"""
 
     assert engine
-    
+
     runner = CliRunner()
 
     # generate a uuid to avoid collisions
@@ -34,8 +30,8 @@ def test_catalog_tag_cli_db(engine: AsyncEngine) -> None:
         admin_top,
         f"catalog-tag create --name algo_{uuid_int} --class_name not.really.a.class --output yaml",
     )
-    catalog_tag_ = check_and_parse_result(result, models.CatalogTag)
-    
+    check_and_parse_result(result, models.CatalogTag)
+
     result = runner.invoke(admin_top, "catalog-tag list --output yaml")
     catalog_tags = check_and_parse_result(result, list[models.CatalogTag])
     entry = catalog_tags[0]
@@ -51,7 +47,7 @@ def test_catalog_tag_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     result = runner.invoke(admin_top, f"catalog-tag get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

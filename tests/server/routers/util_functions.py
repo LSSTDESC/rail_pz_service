@@ -1,13 +1,10 @@
 from typing import TypeAlias, TypeVar
 
-from httpx import AsyncClient, Response
+from httpx import Response
 from pydantic import TypeAdapter
-
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from rail_pz_service import db
-from rail_pz_service.common import models
-from rail_pz_service.common.config import config
 
 T = TypeVar("T")
 

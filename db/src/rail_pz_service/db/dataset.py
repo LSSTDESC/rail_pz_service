@@ -10,7 +10,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from rail_pz_service.common import models
-
 from rail_pz_service.common.errors import (
     RAILBadDatasetError,
     RAILFileNotFoundError,
@@ -52,7 +51,6 @@ class Dataset(Base, RowMixin):
 
     col_names_for_table = pydantic_mode_class.col_names_for_table
 
-
     def __repr__(self) -> str:
         return f"Dataset {self.name} {self.id} {self.n_objects} {self.catalog_tag_id} {self.path}"
 
@@ -69,8 +67,8 @@ class Dataset(Base, RowMixin):
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
-        validate = kwargs.get('validate', True)
-        
+        validate = kwargs.get("validate", True)
+
         catalog_tag_id = kwargs.get("catalog_tag_id", None)
         if catalog_tag_id is None:
             try:
@@ -81,17 +79,17 @@ class Dataset(Base, RowMixin):
             catalog_tag_id = catalog_tag_.id
         else:
             catalog_tag_ = await CatalogTag.get_row(session, catalog_tag_id)
-            
+
         if path is not None:
             if validate:
                 n_objects = cls.validate_data_for_path(path, catalog_tag_)
             else:
-                n_objects = kwargs.get('n_objects', 1)
+                n_objects = kwargs.get("n_objects", 1)
         elif data:
             if validate:
                 n_objects = cls.validate_data(data, catalog_tag_)
             else:
-                n_objects = kwargs.get('n_objects', 1)
+                n_objects = kwargs.get("n_objects", 1)
         else:
             raise RAILMissingRowCreateInputError(
                 "When creating a Dataset either 'path' to a file must be set or "

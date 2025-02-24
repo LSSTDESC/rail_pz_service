@@ -7,12 +7,12 @@ functions that are defined in the db.row.RowMixin.
 
 # import json
 import asyncio
+import json
 from collections.abc import Callable, Sequence
 from typing import Any, TypeAlias
 
 import click
 import yaml
-import json
 from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 from tabulate import tabulate
@@ -46,7 +46,7 @@ def output_db_object(
             model = db_obj.to_model()
             click.echo(json.dumps(model.model_dump(), indent=4))
         case common_options.OutputEnum.yaml:
-            model = db_obj.to_model()        
+            model = db_obj.to_model()
             click.echo(yaml.dump(model.model_dump()))
         case _:
             the_table = [[getattr(db_obj, col_) for col_ in col_names]]
@@ -77,10 +77,10 @@ def output_db_obj_list(
     for db_obj_ in db_objs:
         match output:
             case common_options.OutputEnum.json:
-                model_ = db_obj_.to_model()            
+                model_ = db_obj_.to_model()
                 json_list.append(model_.model_dump())
             case common_options.OutputEnum.yaml:
-                model_ = db_obj_.to_model()                        
+                model_ = db_obj_.to_model()
                 yaml_list.append(model_.model_dump())
             case _:
                 the_table.append([str(getattr(db_obj_, col_)) for col_ in col_names])

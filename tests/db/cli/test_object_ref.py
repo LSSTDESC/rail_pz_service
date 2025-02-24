@@ -1,14 +1,10 @@
-import os
 import uuid
 
-import pytest
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
 from rail_pz_service.cli.admin.admin import admin_top
+from rail_pz_service.common import models
 
 from .util_functions import (
     check_and_parse_result,
@@ -20,7 +16,7 @@ def test_object_ref_cli_db(engine: AsyncEngine) -> None:
     """Test `object-ref` CLI command"""
 
     assert engine
-    
+
     runner = CliRunner()
 
     # generate a uuid to avoid collisions
@@ -50,13 +46,9 @@ def test_object_ref_cli_db(engine: AsyncEngine) -> None:
 
     result = runner.invoke(
         admin_top,
-        "object-ref create "
-        f"--name data_{uuid_int} "
-        "--index 0 "
-        f"--dataset_name {dataset.name} "
-        "--output yaml",
+        f"object-ref create --name data_{uuid_int} --index 0 --dataset_name {dataset.name} --output yaml",
     )
-    object_ref = check_and_parse_result(result, models.ObjectRef)
+    check_and_parse_result(result, models.ObjectRef)
 
     result = runner.invoke(admin_top, "object-ref list --output yaml")
     object_refs = check_and_parse_result(result, list[models.ObjectRef])
@@ -73,7 +65,7 @@ def test_object_ref_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     result = runner.invoke(admin_top, f"object-ref get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

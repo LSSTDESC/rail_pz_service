@@ -1,12 +1,10 @@
-import os
 import uuid
 
-import structlog
-
 import pytest
+import structlog
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import async_scoped_session, AsyncEngine
 from safir.database import create_async_session
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
 from rail_pz_service.common import models
@@ -28,7 +26,7 @@ async def test_model_routes(
     """Test `/model` API endpoint."""
 
     logger = structlog.get_logger(__name__)
-    
+
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
 
@@ -46,7 +44,7 @@ async def test_model_routes(
             name=f"catalog_{uuid_int}",
             class_name="not.really.a.class",
         )
-        
+
         model_ = await db.Model.create_row(
             session,
             name=f"model_{uuid_int}",
@@ -54,11 +52,11 @@ async def test_model_routes(
             algo_name=algo_.name,
             catalog_tag_name=catalog_tag_.name,
         )
-        
+
         response = await client.get(f"{config.asgi.prefix}/{api_version}/model/list")
         models_ = check_and_parse_response(response, list[models.Model])
         entry = models_[0]
-        
+
         assert entry.id == model_.id
 
         response = await client.get(f"{config.asgi.prefix}/{api_version}/model/get/{entry.id}")
@@ -67,10 +65,12 @@ async def test_model_routes(
         assert check.id == model_.id
 
         params = models.NameQuery(name=model_.name).model_dump()
-        
-        response = await client.get(f"{config.asgi.prefix}/{api_version}/model/get_row_by_name", params=params)
+
+        response = await client.get(
+            f"{config.asgi.prefix}/{api_version}/model/get_row_by_name", params=params
+        )
         check = check_and_parse_response(response, models.Model)
         assert check.id == model_.id
-        
+
         # delete everything we just made in the session
         await cleanup(session)

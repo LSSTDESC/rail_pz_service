@@ -1,14 +1,10 @@
-import os
 import uuid
 
-import pytest
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
 from rail_pz_service.cli.admin.admin import admin_top
+from rail_pz_service.common import models
 
 from .util_functions import (
     check_and_parse_result,
@@ -20,7 +16,7 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
     """Test `model` CLI command"""
 
     assert engine
-    
+
     runner = CliRunner()
 
     # generate a uuid to avoid collisions
@@ -51,8 +47,8 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
         f"--catalog_tag_name {catalog_tag_.name} "
         "--output yaml",
     )
-    model_ = check_and_parse_result(result, models.Model)
-    
+    check_and_parse_result(result, models.Model)
+
     result = runner.invoke(admin_top, "model list --output yaml")
     models_ = check_and_parse_result(result, list[models.Model])
     entry = models_[0]
@@ -68,7 +64,7 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     result = runner.invoke(admin_top, f"model get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

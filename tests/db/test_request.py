@@ -1,15 +1,11 @@
-import importlib
-import os
 import uuid
 
 import pytest
 import structlog
 from safir.database import create_async_session
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
-from rail_pz_service.common import errors
 
 from .util_functions import (
     cleanup,
@@ -19,7 +15,6 @@ from .util_functions import (
 @pytest.mark.asyncio()
 async def test_request_db(engine: AsyncEngine) -> None:
     """Test `job` db table."""
-    cache = importlib.import_module("rail_pz_service.db.cache")
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
     logger = structlog.get_logger(__name__)
@@ -45,7 +40,7 @@ async def test_request_db(engine: AsyncEngine) -> None:
             algo_name=algorithm_.name,
             catalog_tag_name=catalog_tag_.name,
         )
-        
+
         estimator_ = await db.Estimator.create_row(
             session,
             name=f"estimator_{uuid_int}",
@@ -61,10 +56,10 @@ async def test_request_db(engine: AsyncEngine) -> None:
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,            
+            validate=False,
         )
-        
-        request_ = await db.Request.create_row(
+
+        await db.Request.create_row(
             session,
             estimator_name=estimator_.name,
             dataset_name=dataset_.name,
@@ -73,11 +68,11 @@ async def test_request_db(engine: AsyncEngine) -> None:
         rows = await db.Request.get_rows(session)
         assert len(rows) == 1
         entry = rows[0]
-        
+
         check = await db.Request.get_row(session, entry.id)
         assert check.id == entry.id
-        
-        request_2 = await db.Request.create_row(
+
+        await db.Request.create_row(
             session,
             estimator_id=estimator_.id,
             dataset_id=dataset_.id,

@@ -1,26 +1,21 @@
-import os
 import uuid
 
 import pytest
 from click.testing import CliRunner
 from safir.testing.uvicorn import UvicornProcess
-
 from sqlalchemy.ext.asyncio import AsyncEngine
-
-from rail_pz_service.common import models
-from rail_pz_service import db
-from rail_pz_service.common import errors
-from rail_pz_service.common.config import config
 
 from rail_pz_service.cli.admin.admin import admin_top
 from rail_pz_service.client.cli.main import top
-
 from rail_pz_service.client.clientconfig import client_config
+from rail_pz_service.common import models
+from rail_pz_service.common.config import config
 
 from .util_functions import (
     check_and_parse_result,
     cleanup,
 )
+
 
 @pytest.mark.parametrize("api_version", ["v1"])
 def test_object_ref_client(uvicorn: UvicornProcess, api_version: str, engine: AsyncEngine) -> None:
@@ -58,13 +53,9 @@ def test_object_ref_client(uvicorn: UvicornProcess, api_version: str, engine: As
 
     result = runner.invoke(
         admin_top,
-        "object-ref create "
-        f"--name data_{uuid_int} "
-        "--index 0 "
-        f"--dataset_name {dataset.name} "
-        "--output yaml",
+        f"object-ref create --name data_{uuid_int} --index 0 --dataset_name {dataset.name} --output yaml",
     )
-    object_ref = check_and_parse_result(result, models.ObjectRef)
+    check_and_parse_result(result, models.ObjectRef)
 
     result = runner.invoke(top, "object-ref list --output yaml")
     object_refs = check_and_parse_result(result, list[models.ObjectRef])
@@ -81,7 +72,7 @@ def test_object_ref_client(uvicorn: UvicornProcess, api_version: str, engine: As
     assert result.exit_code == 0
 
     result = runner.invoke(top, f"object-ref get all --row_id {entry.id}")
-    assert result.exit_code == 0  
+    assert result.exit_code == 0
 
     # delete everything we just made in the session
     cleanup(runner, admin_top, check_cascade=True)

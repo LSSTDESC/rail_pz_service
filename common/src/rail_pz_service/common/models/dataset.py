@@ -20,7 +20,7 @@ class DatasetBase(BaseModel):
     # Number of objects in the dataset
     n_objects: int | None
 
-    
+
 class DatasetCreate(DatasetBase):
     """Dataset Parameters that are used to create new rows but not in DB tables"""
 
@@ -49,4 +49,3 @@ class Dataset(DatasetBase):
 
     # foreign key into catalog_tag table
     catalog_tag_id: int
-

@@ -1,11 +1,8 @@
-import importlib
-import os
 import uuid
 
 import pytest
 import structlog
 from safir.database import create_async_session
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
@@ -19,7 +16,6 @@ from .util_functions import (
 @pytest.mark.asyncio()
 async def test_model_db(engine: AsyncEngine) -> None:
     """Test `job` db table."""
-    cache = importlib.import_module("rail_pz_service.db.cache")
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
     logger = structlog.get_logger(__name__)
@@ -37,8 +33,8 @@ async def test_model_db(engine: AsyncEngine) -> None:
             name=f"catalog_{uuid_int}",
             class_name="not.really.a.class",
         )
-        
-        model_ = await db.Model.create_row(
+
+        await db.Model.create_row(
             session,
             name=f"model_{uuid_int}",
             path="not/really/a/path",
@@ -58,14 +54,14 @@ async def test_model_db(engine: AsyncEngine) -> None:
         rows = await db.Model.get_rows(session)
         assert len(rows) == 1
         entry = rows[0]
-        
+
         check = await db.Model.get_row(session, entry.id)
         assert check.id == entry.id
-        
+
         check = await db.Model.get_row_by_name(session, entry.name)
         assert check.id == entry.id
 
-        model_2 = await db.Model.create_row(
+        await db.Model.create_row(
             session,
             name=f"model_{uuid_int}_2",
             path="not/really/a/path/2",

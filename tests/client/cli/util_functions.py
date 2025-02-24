@@ -4,9 +4,7 @@ import yaml
 from click import BaseCommand
 from click.testing import CliRunner, Result
 from pydantic import TypeAdapter
-from sqlalchemy.ext.asyncio import async_scoped_session
 
-from rail_pz_service import db
 from rail_pz_service.common import models
 
 T = TypeVar("T")
@@ -65,4 +63,3 @@ def cleanup(
     check_cascade: bool = False,
 ) -> None:
     delete_all_stuff(runner, client_top)
-

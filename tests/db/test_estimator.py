@@ -1,11 +1,8 @@
-import importlib
-import os
 import uuid
 
 import pytest
 import structlog
 from safir.database import create_async_session
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
@@ -19,7 +16,6 @@ from .util_functions import (
 @pytest.mark.asyncio()
 async def test_estimator_db(engine: AsyncEngine) -> None:
     """Test `job` db table."""
-    cache = importlib.import_module("rail_pz_service.db.cache")
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
     logger = structlog.get_logger(__name__)
@@ -45,8 +41,8 @@ async def test_estimator_db(engine: AsyncEngine) -> None:
             algo_name=algorithm_.name,
             catalog_tag_name=catalog_tag_.name,
         )
-        
-        estimator_ = await db.Estimator.create_row(
+
+        await db.Estimator.create_row(
             session,
             name=f"estimator_{uuid_int}",
             algo_name=algorithm_.name,
@@ -60,25 +56,25 @@ async def test_estimator_db(engine: AsyncEngine) -> None:
                 name=f"estimator_{uuid_int}",
                 algo_name=algorithm_.name,
                 catalog_tag_name=catalog_tag_.name,
-                model_name=model_.name,                
+                model_name=model_.name,
             )
 
         rows = await db.Estimator.get_rows(session)
         assert len(rows) == 1
         entry = rows[0]
-        
+
         check = await db.Estimator.get_row(session, entry.id)
         assert check.id == entry.id
-        
+
         check = await db.Estimator.get_row_by_name(session, entry.name)
         assert check.id == entry.id
 
-        estimator_2 = await db.Estimator.create_row(
+        await db.Estimator.create_row(
             session,
             name=f"estimator_{uuid_int}_2",
             algo_id=algorithm_.id,
             catalog_tag_id=catalog_tag_.id,
-            model_id=model_.id,            
+            model_id=model_.id,
         )
 
         rows = await db.Estimator.get_rows(session)
