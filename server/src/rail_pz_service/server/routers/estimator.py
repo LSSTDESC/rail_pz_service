@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from rail_pz_service.common import models
 from rail_pz_service import db
+from rail_pz_service.common import models
 
 from . import wrappers
 

@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from rail_pz_service.common import models
 from rail_pz_service import db
+from rail_pz_service.common import models
 
 from . import wrappers
 
@@ -28,5 +28,9 @@ get_rows = wrappers.get_list_function(router, ResponseModelClass, DbClass)
 get_row = wrappers.get_row_function(router, ResponseModelClass, DbClass)
 get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, DbClass)
 
-get_estimators = wrappers.get_row_attribute_list_function(router, ResponseModelClass, DbClass, "_estimators", models.Estimator)
-get_models = wrappers.get_row_attribute_list_function(router, ResponseModelClass, DbClass, "_models", models.Estimator)
+get_estimators = wrappers.get_row_attribute_list_function(
+    router, ResponseModelClass, DbClass, "_estimators", models.Estimator
+)
+get_models = wrappers.get_row_attribute_list_function(
+    router, ResponseModelClass, DbClass, "_models", models.Estimator
+)

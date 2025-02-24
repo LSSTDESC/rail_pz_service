@@ -3,8 +3,9 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from .. import __version__
 from rail_pz_service.common.config import config
+
+from .. import __version__
 
 health_router = APIRouter()
 """An API Router for a health endpoint"""

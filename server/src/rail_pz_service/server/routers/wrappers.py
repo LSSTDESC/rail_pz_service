@@ -9,7 +9,7 @@ apply to all RowMixin, NodeMixin and ElementMixin classes.
 """
 
 from collections.abc import Callable, Sequence
-from typing import Any, TypeAlias
+from typing import TypeAlias
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -17,13 +17,11 @@ from safir.dependencies.db_session import db_session_dependency
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
-from rail_pz_service.common import models
-from rail_pz_service.common.errors import (
-    RAILMissingNameError,
-    RAILMissingIDError,
-)
-
 from rail_pz_service import db
+from rail_pz_service.common.errors import (
+    RAILMissingIDError,
+    RAILMissingNameError,
+)
 
 logger = get_logger(__name__)
 
@@ -213,14 +211,12 @@ def delete_row_function(
     return delete_row
 
 
-
-
 def get_row_attribute_list_function(
     router: APIRouter,
     response_model_class: TypeAlias = BaseModel,
     db_class: TypeAlias = db.RowMixin,
     attr_name: str = "",
-    list_response_model_class: TypeAlias = BaseModel,    
+    list_response_model_class: TypeAlias = BaseModel,
 ) -> Callable:
     """Return a function gets collection names associated to a Node.
 

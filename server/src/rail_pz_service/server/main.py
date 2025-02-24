@@ -9,8 +9,8 @@ from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from rail_pz_service.common.config import config
-from . import __version__
 
+from . import __version__
 from .routers import (
     healthz,
     index,
@@ -18,7 +18,11 @@ from .routers import (
 )
 
 configure_uvicorn_logging(config.logging.level)
-configure_logging(profile=config.logging.profile, log_level=config.logging.level, name=config.asgi.title)
+configure_logging(
+    profile=config.logging.profile,
+    log_level=config.logging.level,
+    name=config.asgi.title,
+)
 
 tags_metadata = [
     {
@@ -27,13 +31,13 @@ tags_metadata = [
     },
     {
         "name": "Request",
-        "description": "Operations with `Request`s. A `Request` runs a single `Estimator` or a single `Dataset` and "
-        "keeps track of the resulting data products.",
+        "description": "Operations with `Request`s. A `Request` runs a single `Estimator` or a single "
+        "`Dataset` and keeps track of the resulting data products.",
     },
     {
         "name": "Algorithm",
-        "description": "Operations with `Algorithms`s. An `Algorithm` is a particular python class that "
-        "implements a p(z) estimation algorithm. `Algorithm`s must be uniquely named.",
+        "description": "Operations with `Algorithms`s. An `Algorithm` is a particular python class "
+        "that implements a p(z) estimation algorithm. `Algorithm`s must be uniquely named.",
     },
     {
         "name": "CatalogTag",
@@ -49,15 +53,15 @@ tags_metadata = [
     },
     {
         "name": "Estimator",
-        "description": "Operations with `Estimator`s. An `Estimator` is a particular instance of an `Algorithm`"
-        "associated to a particular `Model` and `CatalogTag` and possibly overridding some configuration "
-        "parameters.  `Estimator`s must be uniquely named.",
+        "description": "Operations with `Estimator`s. An `Estimator` is a particular instance of an "
+        "`Algorithm` associated to a particular `Model` and `CatalogTag` and possibly overridding some "
+        "configuration parameters.  `Estimator`s must be uniquely named.",
     },
     {
         "name": "Dataset",
-        "description": "Operations with `Dataset`s. A `Dataset` contains the photometric information about several "
-        "objects, and can be passed to to an `Estimator` to obtain p(z) estimates. `Dataset`s must be uniquely "
-        "named.",
+        "description": "Operations with `Dataset`s. A `Dataset` contains the photometric information about "
+        "several objects, and can be passed to to an `Estimator` to obtain p(z) estimates. `Dataset`s must "
+        "be uniquely named.",
     },
     {
         "name": "ObjectRef",
@@ -100,10 +104,13 @@ app.include_router(index.router, prefix="")
 app.include_router(v1.router, prefix=config.asgi.prefix)
 
 # Start the frontend web application.
-#app.mount(config.asgi.frontend_prefix, web_app)
+# app.mount(config.asgi.frontend_prefix, web_app)
 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "rail_pz_service.server.main:app", host=config.asgi.host, port=config.asgi.port, reload=config.asgi.reload
+        "rail_pz_service.server.main:app",
+        host=config.asgi.host,
+        port=config.asgi.port,
+        reload=config.asgi.reload,
     )
