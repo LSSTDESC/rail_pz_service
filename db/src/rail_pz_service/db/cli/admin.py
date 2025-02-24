@@ -64,7 +64,7 @@ def init(*, reset: bool) -> None:
 
 # Build the client CLI
 @click.group(
-    name="admin",
+    name="pz-rail-server-admin",
     commands=[
         init,
         algorithm_group,

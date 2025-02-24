@@ -17,12 +17,18 @@ class DatasetBase(BaseModel):
     # Data for the dataset (could be None)
     data: dict | None = None
 
+    # Number of objects in the dataset
+    n_objects: int | None
 
+    
 class DatasetCreate(DatasetBase):
     """Dataset Parameters that are used to create new rows but not in DB tables"""
 
     # Name of the associated catalog tag
     catalog_tag_name: str
+
+    # Validate the files before loading
+    validate: bool = False
 
 
 class Dataset(DatasetBase):
@@ -44,5 +50,3 @@ class Dataset(DatasetBase):
     # foreign key into catalog_tag table
     catalog_tag_id: int
 
-    # Number of objects in the dataset
-    n_objects: int

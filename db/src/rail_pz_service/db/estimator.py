@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
+from rail_pz_service.common import models
+
 from rail_pz_service.common.errors import RAILMissingRowCreateInputError
 
 from .algorithm import Algorithm
@@ -31,7 +33,7 @@ class Estimator(Base, RowMixin):
     class_string = "estimator"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column(index=True, unique=True)
     algo_id: Mapped[int] = mapped_column(
         ForeignKey("algorithm.id", ondelete="CASCADE"),
         index=True,
@@ -62,7 +64,9 @@ class Estimator(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "name", "algo_id", "catalog_tag_id", "model_id"]
+    pydantic_mode_class = models.Estimator
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:
         return f"Estimator {self.name} {self.id} {self.algo_id} {self.catalog_tag_id} {self.model_id}"

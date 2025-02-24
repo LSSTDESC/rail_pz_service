@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
+from rail_pz_service.common import models
+
 from rail_pz_service.common.errors import (
     RAILBadDatasetError,
     RAILFileNotFoundError,
@@ -32,7 +34,7 @@ class Dataset(Base, RowMixin):
     class_string = "dataset"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column(index=True, unique=True)
     n_objects: Mapped[int] = mapped_column()
     path: Mapped[str | None] = mapped_column(default=None)
     data: Mapped[dict | None] = mapped_column(type_=JSON)
@@ -46,7 +48,10 @@ class Dataset(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "name", "n_objects", "catalog_tag_id", "path"]
+    pydantic_mode_class = models.Dataset
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
+
 
     def __repr__(self) -> str:
         return f"Dataset {self.name} {self.id} {self.n_objects} {self.catalog_tag_id} {self.path}"
@@ -64,6 +69,8 @@ class Dataset(Base, RowMixin):
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
+        validate = kwargs.get('validate', True)
+        
         catalog_tag_id = kwargs.get("catalog_tag_id", None)
         if catalog_tag_id is None:
             try:
@@ -74,11 +81,17 @@ class Dataset(Base, RowMixin):
             catalog_tag_id = catalog_tag_.id
         else:
             catalog_tag_ = await CatalogTag.get_row(session, catalog_tag_id)
-
+            
         if path is not None:
-            n_objects = cls.validate_data_for_path(path, catalog_tag_)
+            if validate:
+                n_objects = cls.validate_data_for_path(path, catalog_tag_)
+            else:
+                n_objects = kwargs.get('n_objects', 1)
         elif data:
-            n_objects = cls.validate_data(data, catalog_tag_)
+            if validate:
+                n_objects = cls.validate_data(data, catalog_tag_)
+            else:
+                n_objects = kwargs.get('n_objects', 1)
         else:
             raise RAILMissingRowCreateInputError(
                 "When creating a Dataset either 'path' to a file must be set or "

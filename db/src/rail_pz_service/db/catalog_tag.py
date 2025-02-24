@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from rail_pz_service.common import models
+
 from .base import Base
 from .row import RowMixin
 
@@ -23,7 +25,7 @@ class CatalogTag(Base, RowMixin):
     class_string = "catalog_tag"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column(index=True, unique=True)
     class_name: Mapped[str] = mapped_column()
 
     estimators_: Mapped["Estimator"] = relationship(
@@ -42,7 +44,9 @@ class CatalogTag(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "name", "class_name"]
+    pydantic_mode_class = models.CatalogTag
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:
         return f"CatalogTag {self.name} {self.id} {self.class_name}"

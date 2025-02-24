@@ -7,7 +7,7 @@ from rail_pz_service.common import models
 from . import wrappers
 
 
-@click.group(name="object_ref")
+@click.group(name="object-ref")
 def object_ref_group() -> None:
     """Manage ObjectRef table"""
 

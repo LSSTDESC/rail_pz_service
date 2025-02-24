@@ -23,6 +23,7 @@ create_options = [
     common_options.name(),
     common_options.dataset_name(),
     common_options.index(),
+    common_options.output(),
 ]
 
 # Construct derived templates

@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
+from rail_pz_service.common import models
+
 from rail_pz_service.common.errors import RAILMissingRowCreateInputError
 
 from .base import Base
@@ -28,7 +30,7 @@ class ObjectRef(Base, RowMixin):
     class_string = "object_ref"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column(index=True, unique=True)
     dataset_id: Mapped[int] = mapped_column(
         ForeignKey("dataset.id", ondelete="CASCADE"),
         index=True,
@@ -40,7 +42,10 @@ class ObjectRef(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "name", "dataset_id", "index"]
+    pydantic_mode_class = models.ObjectRef
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
+
 
     def __repr__(self) -> str:
         return f"ObjectRef {self.name} {self.id} {self.dataset_id} {self.index}"

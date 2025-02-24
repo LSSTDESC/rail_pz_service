@@ -51,6 +51,7 @@ coverage.xml
 .pytest_cache/
 cover/
 db/test_pz_rail_service.db
+tests/temp_data
 
 # Translations
 *.mo

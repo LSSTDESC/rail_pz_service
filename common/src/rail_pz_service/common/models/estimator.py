@@ -44,11 +44,11 @@ class Estimator(EstimatorBase):
     # primary key
     id: int
 
-    # foreign key into catalog_tag table
-    catalog_id: int
+    # foreign key into algorithm table
+    algo_id: int
 
     # foreign key into catalog_tag table
     catalog_tag_id: int
 
-    # foreign key into algorithm table
-    algo_id: int
+    # foreign key into model table
+    model_id: int

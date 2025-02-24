@@ -7,7 +7,7 @@ from rail_pz_service.common import models
 from . import wrappers
 
 
-@click.group(name="catalog_tag")
+@click.group(name="catalog-tag")
 def catalog_tag_group() -> None:
     """Manage CatalogTag table"""
 

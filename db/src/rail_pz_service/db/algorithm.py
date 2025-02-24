@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from rail_pz_service.common import models
+
 from .base import Base
 from .row import RowMixin
 
@@ -37,7 +39,9 @@ class Algorithm(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "name", "class_name"]
+    pydantic_mode_class = models.Algorithm
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:
         return f"Algorithm {self.name} {self.id} {self.class_name}"

@@ -73,7 +73,7 @@ fallback-version = "0.0.0"
 [tool.coverage.run]
 parallel = true
 branch = true
-source = ["rail_pz_service.common"]
+source = ["rail_pz_service"]
 concurrency = ['greenlet', 'thread']
 
 [tool.coverage.paths]
@@ -149,6 +149,13 @@ asyncio_default_fixture_loop_scope="function"
 # with complex data structures rather than only the assert message) in files
 # listed in python_files.
 python_files = ["tests/*.py", "tests/*/*.py"]
+#addopts = [
+#    "--cov=common/src",
+#    "--cov=db/src",
+#    "--cov=server/src",
+#    "--cov=client/src",
+#    "--cov-report=html"
+#]
 
 [tool.mypy]
 disallow_untyped_defs = true

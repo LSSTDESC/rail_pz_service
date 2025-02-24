@@ -12,6 +12,7 @@ from typing import Any, TypeAlias
 
 import click
 import yaml
+import json
 from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 from tabulate import tabulate
@@ -42,9 +43,11 @@ def output_db_object(
     """
     match output:
         case common_options.OutputEnum.json:
-            pass
+            model = db_obj.to_model()
+            click.echo(json.dumps(model.model_dump(), indent=4))
         case common_options.OutputEnum.yaml:
-            pass
+            model = db_obj.to_model()        
+            click.echo(yaml.dump(model.model_dump()))
         case _:
             the_table = [[getattr(db_obj, col_) for col_ in col_names]]
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
@@ -68,22 +71,24 @@ def output_db_obj_list(
     col_names:
         Names for columns in tabular representation
     """
-    _json_list: list = []
-    _yaml_list: list = []
+    json_list: list = []
+    yaml_list: list = []
     the_table = []
     for db_obj_ in db_objs:
         match output:
             case common_options.OutputEnum.json:
-                pass
+                model_ = db_obj_.to_model()            
+                json_list.append(model_.model_dump())
             case common_options.OutputEnum.yaml:
-                pass
+                model_ = db_obj_.to_model()                        
+                yaml_list.append(model_.model_dump())
             case _:
                 the_table.append([str(getattr(db_obj_, col_)) for col_ in col_names])
     match output:
         case common_options.OutputEnum.json:
-            pass
+            click.echo(json.dumps(json_list, indent=4))
         case common_options.OutputEnum.yaml:
-            pass
+            click.echo(yaml.dump(yaml_list))
         case _:
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
 
@@ -193,7 +198,7 @@ def get_row_command(
         async def _the_func() -> None:
             engine = db_engine()
             session = await create_async_session(engine)
-            result = db_class.get_row(session, row_id)
+            result = await db_class.get_row(session, row_id)
             output_db_object(result, output, db_class.col_names_for_table)
             await session.remove()
             await engine.dispose()
@@ -238,7 +243,7 @@ def get_row_by_name_command(
         async def _the_func() -> None:
             engine = db_engine()
             session = await create_async_session(engine)
-            result = db_class.get_row_by_name(session, name)
+            result = await db_class.get_row_by_name(session, name)
             output_db_object(result, output, db_class.col_names_for_table)
             await session.remove()
             await engine.dispose()
@@ -288,7 +293,7 @@ def get_row_attribute_list_command(
         async def _the_func() -> None:
             engine = db_engine()
             session = await create_async_session(engine)
-            result = db_class.get_row(session, row_id)
+            result = await db_class.get_row(session, row_id)
             await session.refresh(result, attribute_names=[attribute])
             the_list = getattr(result, attribute)
             output_db_obj_list(the_list, output, output_db_class.col_names_for_table)

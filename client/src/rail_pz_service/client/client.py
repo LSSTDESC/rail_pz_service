@@ -38,7 +38,7 @@ class PZRailClient:
         self._client = httpx.Client(**client_kwargs)
 
         self.algorithm = PZRailAlgorithmClient(self)
-        self.campaign = PZRailCatalogTagClient(self)
+        self.catalog_tag = PZRailCatalogTagClient(self)
         self.dataset = PZRailDatasetClient(self)
         self.estimator = PZRailEstimatorClient(self)
         self.model = PZRailModelClient(self)

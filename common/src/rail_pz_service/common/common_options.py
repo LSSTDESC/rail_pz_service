@@ -201,8 +201,22 @@ index = PartialOption(
 )
 
 
+n_objects = PartialOption(
+    "--n_objects",
+    type=int,
+    help="Number of object in dataset",
+)
+
+
 path = PartialOption(
     "--path",
     type=click.Path(),
     help="Name for a particular DB row",
+)
+
+validate = PartialOption(
+    "--validate",
+    is_flag=True,
+    default=False,
+    help="Validate files when uploading",
 )

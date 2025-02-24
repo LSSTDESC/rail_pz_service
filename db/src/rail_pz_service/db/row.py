@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, TypeAlias
+from pydantic import BaseModel, TypeAdapter
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -33,6 +34,7 @@ class RowMixin:
     id: Any  # Primary Key, typically an int
     name: Any  # Human-readable name for row
     class_string: str  # Name to use for help functions and descriptions
+    pydantic_mode_class: TypeAlias  # Pydantic model class
 
     @classmethod
     async def get_rows(
@@ -344,3 +346,8 @@ class RowMixin:
                 assert msg.orig
             raise RAILIntegrityError(msg) from msg
         return self
+
+    def to_model(self)  -> BaseModel:
+        """Return a reow as a pydantic model"""
+        return_obj = TypeAdapter(self.pydantic_mode_class).validate_python(self)
+        return return_obj

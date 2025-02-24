@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
+from rail_pz_service.common import models
+
 from rail_pz_service.common.errors import RAILMissingRowCreateInputError
 
 from .base import Base
@@ -54,7 +56,9 @@ class Request(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "user", "estimator_id", "dataset_id", "qp_file_path"]
+    pydantic_mode_class = models.Request
+
+    col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:
         return f"Request {self.id} {self.user} {self.estimator_id} {self.dataset_id} {self.qp_file_path}"
