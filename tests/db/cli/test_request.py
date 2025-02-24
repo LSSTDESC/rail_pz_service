@@ -3,8 +3,8 @@ import uuid
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.cli.admin.admin import admin_top
 from rail_pz_service.common import models
+from rail_pz_service.db.cli.admin import admin_top
 
 from .util_functions import (
     check_and_parse_result,
@@ -28,13 +28,13 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
 
     result = runner.invoke(
         admin_top,
-        f"algorithm create --name algo_{uuid_int} --class_name not.really.a.class --output yaml",
+        f"algorithm create --name algo_{uuid_int} --class-name not.really.a.class --output yaml",
     )
     algorithm_ = check_and_parse_result(result, models.Algorithm)
 
     result = runner.invoke(
         admin_top,
-        f"catalog-tag create --name cat_{uuid_int} --class_name not.really.a.class --output yaml",
+        f"catalog-tag create --name cat_{uuid_int} --class-name not.really.a.class --output yaml",
     )
     catalog_tag_ = check_and_parse_result(result, models.CatalogTag)
 
@@ -43,8 +43,8 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
         "model create "
         f"--name model_{uuid_int} "
         "--path not/really/a/path "
-        f"--algo_name {algorithm_.name} "
-        f"--catalog_tag_name {catalog_tag_.name} "
+        f"--algo-name {algorithm_.name} "
+        f"--catalog-tag-name {catalog_tag_.name} "
         "--output yaml",
     )
     model_ = check_and_parse_result(result, models.Model)
@@ -53,9 +53,9 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
         admin_top,
         "estimator create "
         f"--name estimator_{uuid_int} "
-        f"--catalog_tag_name {catalog_tag_.name} "
-        f"--algo_name {algorithm_.name} "
-        f"--model_name {model_.name} "
+        f"--catalog-tag-name {catalog_tag_.name} "
+        f"--algo-name {algorithm_.name} "
+        f"--model-name {model_.name} "
         "--output yaml",
     )
     estimator_ = check_and_parse_result(result, models.Estimator)
@@ -64,17 +64,17 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
         admin_top,
         "dataset create "
         f"--name data_{uuid_int} "
-        "--n_objects 2 "
+        "--n-objects 2 "
         "--path not/really/a/path "
-        "--class_name not.really.a.class "
-        f"--catalog_tag_name {catalog_tag_.name} "
+        "--class-name not.really.a.class "
+        f"--catalog-tag-name {catalog_tag_.name} "
         "--output yaml",
     )
     dataset_ = check_and_parse_result(result, models.Dataset)
 
     result = runner.invoke(
         admin_top,
-        f"request create --estimator_name {estimator_.name} --dataset_name {dataset_.name} --output yaml",
+        f"request create --estimator-name {estimator_.name} --dataset-name {dataset_.name} --output yaml",
     )
     check_and_parse_result(result, models.Request)
 
@@ -93,7 +93,7 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
     # --row_id {entry.id} --output json")
     # assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"request get all --row_id {entry.id}")
+    result = runner.invoke(admin_top, f"request get all --row-id {entry.id}")
     assert result.exit_code == 0
 
     # delete everything we just made in the session

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pydantic import BaseModel, TypeAdapter
 from sqlalchemy import select
@@ -34,7 +34,7 @@ class RowMixin:
     id: Any  # Primary Key, typically an int
     name: Any  # Human-readable name for row
     class_string: str  # Name to use for help functions and descriptions
-    pydantic_mode_class: TypeAlias  # Pydantic model class
+    pydantic_mode_class: type[BaseModel]  # Pydantic model class
 
     @classmethod
     async def get_rows(

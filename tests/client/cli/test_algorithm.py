@@ -5,11 +5,11 @@ from click.testing import CliRunner
 from safir.testing.uvicorn import UvicornProcess
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.cli.admin.admin import admin_top
 from rail_pz_service.client.cli.main import top
 from rail_pz_service.client.clientconfig import client_config
 from rail_pz_service.common import models
 from rail_pz_service.common.config import config
+from rail_pz_service.db.cli.admin import admin_top
 
 from .util_functions import (
     check_and_parse_result,
@@ -35,7 +35,7 @@ def test_algorithm_client(uvicorn: UvicornProcess, api_version: str, engine: Asy
 
     result = runner.invoke(
         admin_top,
-        f"algorithm create --name algo_{uuid_int} --class_name not.really.a.class --output yaml",
+        f"algorithm create --name algo_{uuid_int} --class-name not.really.a.class --output yaml",
     )
     check_and_parse_result(result, models.Algorithm)
 
@@ -50,10 +50,10 @@ def test_algorithm_client(uvicorn: UvicornProcess, api_version: str, engine: Asy
     result = runner.invoke(top, "algorithm list")
     assert result.exit_code == 0
 
-    result = runner.invoke(top, f"algorithm get all --row_id {entry.id} --output json")
+    result = runner.invoke(top, f"algorithm get all --row-id {entry.id} --output json")
     assert result.exit_code == 0
 
-    result = runner.invoke(top, f"algorithm get all --row_id {entry.id}")
+    result = runner.invoke(top, f"algorithm get all --row-id {entry.id}")
     assert result.exit_code == 0
 
     # delete everything we just made in the session

@@ -46,7 +46,7 @@ async def test_dataset_routes(
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,
+            validate_file=False,
         )
 
         response = await client.get(f"{config.asgi.prefix}/{api_version}/dataset/list")

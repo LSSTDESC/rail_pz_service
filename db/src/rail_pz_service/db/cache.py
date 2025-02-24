@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 from ceci.errors import StageNotFound
 from ceci.stage import PipelineStage
@@ -440,7 +441,7 @@ class Cache:
         self,
         session: async_scoped_session,
         name: str,
-        file_path: str,
+        file_path: Path,
         algo_name: str,
         catalog_tag_name: str,
     ) -> Model:
@@ -519,7 +520,7 @@ class Cache:
         self,
         session: async_scoped_session,
         name: str,
-        file_path: str,
+        file_path: Path,
         catalog_tag_name: str,
     ) -> Dataset:
         """Import a data file to the archive area and add a Dataset row

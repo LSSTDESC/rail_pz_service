@@ -38,7 +38,7 @@ def delete_all_rows(
     rows = check_and_parse_result(result, list[entry_class])
 
     for row_ in rows:
-        result = runner.invoke(client_top, f"{entry_class_name} delete --row_id {row_.id}")
+        result = runner.invoke(client_top, f"{entry_class_name} delete --row-id {row_.id}")
         if not result.exit_code == 0:
             raise ValueError(f"{result} failed with {result.exit_code} {result.output}")
 

@@ -1,6 +1,7 @@
 """Database model for Dataset table"""
 
 import os
+from pathlib import Path
 from typing import Any
 
 import tables_io
@@ -67,7 +68,7 @@ class Dataset(Base, RowMixin):
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
-        validate = kwargs.get("validate", True)
+        validate_file = kwargs.get("validate_file", True)
 
         catalog_tag_id = kwargs.get("catalog_tag_id", None)
         if catalog_tag_id is None:
@@ -81,12 +82,12 @@ class Dataset(Base, RowMixin):
             catalog_tag_ = await CatalogTag.get_row(session, catalog_tag_id)
 
         if path is not None:
-            if validate:
+            if validate_file:
                 n_objects = cls.validate_data_for_path(path, catalog_tag_)
             else:
                 n_objects = kwargs.get("n_objects", 1)
         elif data:
-            if validate:
+            if validate_file:
                 n_objects = cls.validate_data(data, catalog_tag_)
             else:
                 n_objects = kwargs.get("n_objects", 1)
@@ -107,7 +108,7 @@ class Dataset(Base, RowMixin):
     @classmethod
     def validate_data_for_path(
         cls,
-        path: str,
+        path: Path,
         catalog_tag: CatalogTag,
     ) -> int:
         """Validate that these data are appropriate for the CatalogTag

@@ -35,7 +35,7 @@ async def test_dataset_db(engine: AsyncEngine) -> None:
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,
+            validate_file=False,
         )
 
         with pytest.raises(errors.RAILIntegrityError):
@@ -46,7 +46,7 @@ async def test_dataset_db(engine: AsyncEngine) -> None:
                 path="not/really/a/path",
                 data=None,
                 catalog_tag_name=catalog_tag_.name,
-                validate=False,
+                validate_file=False,
             )
 
         rows = await db.Dataset.get_rows(session)
@@ -66,7 +66,7 @@ async def test_dataset_db(engine: AsyncEngine) -> None:
             path="not/really/a/path/2",
             data=None,
             catalog_tag_id=catalog_tag_.id,
-            validate=False,
+            validate_file=False,
         )
 
         rows = await db.Dataset.get_rows(session)
@@ -86,7 +86,7 @@ async def test_dataset_db(engine: AsyncEngine) -> None:
                 y=[25.0, 25.0],
             ),
             catalog_tag_id=catalog_tag_.id,
-            validate=False,
+            validate_file=False,
         )
 
         # cleanup

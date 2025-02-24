@@ -68,7 +68,7 @@ async def test_request_routes(
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,
+            validate_file=False,
         )
 
         request_ = await db.Request.create_row(

@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Callable
+from pathlib import Path
 
 import click
 from safir.database import create_async_session
@@ -69,7 +70,7 @@ def catalog_tags_from_env_command(
 def dataset_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
-    path: click.Path(),
+    path: Path,
     catalog_tag_name: str,
     output: common_options.OutputEnum | None,
 ) -> None:
@@ -102,7 +103,7 @@ def dataset_command(
 def model_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
-    path: click.Path(),
+    path: Path,
     algo_name: str,
     catalog_tag_name: str,
     output: common_options.OutputEnum | None,

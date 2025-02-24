@@ -26,7 +26,7 @@ create_options = [
     common_options.data(),
     common_options.catalog_tag_name(),
     common_options.n_objects(),
-    common_options.validate(),
+    common_options.validate_file(),
     common_options.output(),
 ]
 

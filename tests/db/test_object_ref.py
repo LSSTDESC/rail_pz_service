@@ -35,7 +35,7 @@ async def test_object_ref_db(engine: AsyncEngine) -> None:
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,
+            validate_file=False,
         )
 
         await db.ObjectRef.create_row(

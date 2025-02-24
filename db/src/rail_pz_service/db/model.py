@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from rail.core import Model as RailModel
@@ -112,7 +113,7 @@ class Model(Base, RowMixin):
     @classmethod
     def validate_model(
         cls,
-        path: str,
+        path: Path,
         algo: Algorithm,
         catalog_tag: CatalogTag,
     ) -> None:

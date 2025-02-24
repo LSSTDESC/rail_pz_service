@@ -3,8 +3,8 @@ import uuid
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.cli.admin.admin import admin_top
 from rail_pz_service.common import models
+from rail_pz_service.db.cli.admin import admin_top
 
 from .util_functions import (
     check_and_parse_result,
@@ -28,7 +28,7 @@ def test_catalog_tag_cli_db(engine: AsyncEngine) -> None:
 
     result = runner.invoke(
         admin_top,
-        f"catalog-tag create --name algo_{uuid_int} --class_name not.really.a.class --output yaml",
+        f"catalog-tag create --name algo_{uuid_int} --class-name not.really.a.class --output yaml",
     )
     check_and_parse_result(result, models.CatalogTag)
 
@@ -43,10 +43,10 @@ def test_catalog_tag_cli_db(engine: AsyncEngine) -> None:
     result = runner.invoke(admin_top, "catalog-tag list")
     assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"catalog-tag get all --row_id {entry.id} --output json")
+    result = runner.invoke(admin_top, f"catalog-tag get all --row-id {entry.id} --output json")
     assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"catalog-tag get all --row_id {entry.id}")
+    result = runner.invoke(admin_top, f"catalog-tag get all --row-id {entry.id}")
     assert result.exit_code == 0
 
     # delete everything we just made in the session

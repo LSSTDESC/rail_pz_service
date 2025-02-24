@@ -46,7 +46,7 @@ async def test_object_ref_routes(
             path="not/really/a/path",
             data=None,
             catalog_tag_name=catalog_tag_.name,
-            validate=False,
+            validate_file=False,
         )
 
         object_ref_ = await db.ObjectRef.create_row(
