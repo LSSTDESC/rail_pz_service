@@ -100,4 +100,3 @@ COPY alembic.ini .
 
 ENTRYPOINT ["/opt/venv/bin/python3", "-m"]
 CMD ["nrail_pz_service.cli.admin.main"]
-

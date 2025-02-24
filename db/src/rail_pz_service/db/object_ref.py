@@ -35,7 +35,7 @@ class ObjectRef(Base, RowMixin):
     )
     index: Mapped[int] = mapped_column()
     dataset_: Mapped["Dataset"] = relationship(
-        "CatalogTag",
+        "Dataset",
         primaryjoin="ObjectRef.dataset_id==Dataset.id",
         viewonly=True,
     )
@@ -54,15 +54,20 @@ class ObjectRef(Base, RowMixin):
         try:
             name = kwargs["name"]
             index = kwargs["index"]
-            dataset_name = kwargs["dataset_name"]
-
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
-        dataset_ = await Dataset.get_row_by_name(session, dataset_name)
+        dataset_id = kwargs.get("dataset_id", None)
+        if dataset_id is None:
+            try:
+                dataset_name = kwargs["dataset_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            dataset_ = await Dataset.get_row_by_name(session, dataset_name)
+            dataset_id = dataset_.id
 
         return dict(
             name=name,
             index=index,
-            dataset_id=dataset_.id,
+            dataset_id=dataset_id,
         )

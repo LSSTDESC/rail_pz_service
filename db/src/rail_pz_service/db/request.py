@@ -54,7 +54,7 @@ class Request(Base, RowMixin):
         viewonly=True,
     )
 
-    col_names_for_table = ["id", "user", "estimator_id", "dataset_id", "qp_file"]
+    col_names_for_table = ["id", "user", "estimator_id", "dataset_id", "qp_file_path"]
 
     def __repr__(self) -> str:
         return f"Request {self.id} {self.user} {self.estimator_id} {self.dataset_id} {self.qp_file_path}"
@@ -65,24 +65,31 @@ class Request(Base, RowMixin):
         session: async_scoped_session,
         **kwargs: Any,
     ) -> dict:
-        try:
-            name = kwargs["name"]
-            estimator_name = kwargs["estimator_name"]
-            dataset_name = kwargs["dataset_name"]
-        except KeyError as e:
-            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
-
         user = kwargs.get("user", os.environ["USER"])
 
-        estimator_ = await Estimator.get_row_by_name(session, estimator_name)
-        dataset_ = await Dataset.get_row_by_name(session, dataset_name)
+        dataset_id = kwargs.get("dataset_id", None)
+        if dataset_id is None:
+            try:
+                dataset_name = kwargs["dataset_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            dataset_ = await Dataset.get_row_by_name(session, dataset_name)
+            dataset_id = dataset_.id
+
+        estimator_id = kwargs.get("estimator_id", None)
+        if estimator_id is None:
+            try:
+                estimator_name = kwargs["estimator_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            estimator_ = await Estimator.get_row_by_name(session, estimator_name)
+            estimator_id = estimator_.id
 
         time_created = datetime.now()
 
         return dict(
-            name=name,
             user=user,
-            estimator_id=estimator_.id,
-            dataset_id=dataset_.id,
+            estimator_id=estimator_id,
+            dataset_id=dataset_id,
             time_created=time_created,
         )

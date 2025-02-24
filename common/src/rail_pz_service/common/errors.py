@@ -27,3 +27,23 @@ class RAILImportError(ImportError):
 
 class RAILRequestError(RuntimeError):
     """Raised when a RAIL request failed"""
+
+
+class RAILFileNotFoundError(FileNotFoundError):
+    """Raised when a requested input file is not found"""
+
+
+class RAILBadDatasetError(RuntimeError):
+    """Raised when a requested input dataset fails validation checks"""
+
+
+class RAILBadModelError(RuntimeError):
+    """Raised when a requested input model fails validation checks"""
+
+
+class RAILMissingInputError(FileNotFoundError):
+    """Raised when a function is missing a required input"""
+
+
+class RAILBadInputError(FileNotFoundError):
+    """Raised when a functions input is not what is expected"""

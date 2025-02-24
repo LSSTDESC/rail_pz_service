@@ -1,4 +1,4 @@
-""" Common enums for pz-rail-service related packages"""
+"""Common enums for pz-rail-service related packages"""
 
 # pylint: disable=invalid-name
 from __future__ import annotations

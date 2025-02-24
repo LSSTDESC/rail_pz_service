@@ -31,7 +31,7 @@ class Request(RequestBase):
     id: int
 
     # path to the output file
-    qp_file_path: int
+    qp_file_path: str | None = None
 
     # foreign key into estimator table
     estimator_id: int

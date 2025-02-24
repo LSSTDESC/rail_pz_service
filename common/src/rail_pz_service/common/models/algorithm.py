@@ -1,5 +1,7 @@
 """Pydantic model for the Algorithm"""
 
+from typing import ClassVar
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -21,6 +23,8 @@ class Algorithm(AlgorithmBase):
     """Algorithm Parameters that are in DB tables and not used to create new rows"""
 
     model_config = ConfigDict(from_attributes=True)
+
+    col_names_for_table: ClassVar[list[str]] = ["id", "name", "class_name"]
 
     # primary key
     id: int

@@ -1,5 +1,6 @@
 """CLI to manage Job table"""
 
+import asyncio
 from collections.abc import Callable
 
 import click
@@ -57,17 +58,20 @@ get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 @admin_options.db_engine()
 @admin_options.row_id()
 @admin_options.output()
-async def run(
+def run(
     db_engine: Callable[[], AsyncEngine],
     row_id: int,
     output: admin_options.OutputEnum | None,
 ) -> None:
     """Run a particular request"""
-    session = await create_async_session(db_engine())
-    the_cache = db.cache.Cache()
-    qp_file = the_cache.get_qp_file(session, row_id)
-    print(f"Wrote {qp_file}")
-    wrappers.output_dict({"qp_file": qp_file}, output)
 
-    await session.remove()
-    await db_engine.dispose()
+    async def _the_func() -> None:
+        engine = db_engine()
+        session = await create_async_session(engine)
+        the_cache = db.cache.Cache()
+        request = await the_cache.run_process_request(session, request_id=row_id)
+        wrappers.output_db_object(request, output, db.Request.col_names_for_table)
+        await session.remove()
+        await engine.dispose()
+
+    asyncio.run(_the_func())

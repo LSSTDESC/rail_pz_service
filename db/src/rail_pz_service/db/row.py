@@ -1,4 +1,5 @@
-""" Mixin functionality for Database tables """
+"""Mixin functionality for Database tables"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -273,15 +274,14 @@ class RowMixin:
         """
         create_kwargs = await cls.get_create_kwargs(session, **kwargs)
         row = cls(**create_kwargs)
-        async with session.begin_nested():
-            try:
+        try:
+            async with session.begin_nested():
                 session.add(row)
-            except IntegrityError as msg:
-                await session.rollback()
-                if TYPE_CHECKING:
-                    assert msg.orig  # for mypy
-                raise RAILIntegrityError(params=msg.params, orig=msg.orig, statement=msg.statement) from msg
-        await session.refresh(row)
+        except IntegrityError as msg:
+            if TYPE_CHECKING:
+                assert msg.orig  # for mypy
+            raise RAILIntegrityError(msg) from msg
+        await session.commit()
         return row
 
     @classmethod

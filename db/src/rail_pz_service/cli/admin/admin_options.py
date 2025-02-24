@@ -7,7 +7,10 @@ from typing import Any, cast
 
 import click
 from click.decorators import FC
-from safir.database import create_database_engine
+
+# using safir to set things up
+# from safir.database import create_database_engine
+# setting stuff up directly from sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from rail_pz_service.common.config import config as db_config
@@ -206,7 +209,7 @@ index = PartialOption(
 
 
 path = PartialOption(
-    "--name",
+    "--path",
     type=click.Path(),
     help="Name for a particular DB row",
 )

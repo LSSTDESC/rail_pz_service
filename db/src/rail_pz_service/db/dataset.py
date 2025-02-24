@@ -1,13 +1,20 @@
-""" Database model for Dataset table """
+"""Database model for Dataset table"""
 
+import os
 from typing import Any
 
+import tables_io
 from sqlalchemy import JSON
 from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from rail_pz_service.common.errors import RAILMissingRowCreateInputError
+from rail_pz_service.common.errors import (
+    RAILBadDatasetError,
+    RAILFileNotFoundError,
+    RAILMissingRowCreateInputError,
+)
+
 from .base import Base
 from .catalog_tag import CatalogTag
 from .row import RowMixin
@@ -54,11 +61,19 @@ class Dataset(Base, RowMixin):
             name = kwargs["name"]
             path = kwargs.get("path", None)
             data = kwargs.get("data", None)
-            catalog_tag_name = kwargs["catalog_tag_name"]
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
-        catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
+        catalog_tag_id = kwargs.get("catalog_tag_id", None)
+        if catalog_tag_id is None:
+            try:
+                catalog_tag_name = kwargs["catalog_tag_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
+            catalog_tag_id = catalog_tag_.id
+        else:
+            catalog_tag_ = await CatalogTag.get_row(session, catalog_tag_id)
 
         if path is not None:
             n_objects = cls.validate_data_for_path(path, catalog_tag_)
@@ -75,7 +90,7 @@ class Dataset(Base, RowMixin):
             path=path,
             n_objects=n_objects,
             data=data,
-            catalog_tag_id=catalog_tag_.id,
+            catalog_tag_id=catalog_tag_id,
         )
 
     @classmethod
@@ -84,7 +99,7 @@ class Dataset(Base, RowMixin):
         path: str,
         catalog_tag: CatalogTag,
     ) -> int:
-        """ Validate that these data are appropriate for the CatalogTag
+        """Validate that these data are appropriate for the CatalogTag
 
         Parameters
         ----------
@@ -99,7 +114,12 @@ class Dataset(Base, RowMixin):
         int
             Size of the datset
         """
-        raise NotImplementedError()
+        if not os.path.exists(path):
+            raise RAILFileNotFoundError(f"Input file {path} not found")
+        n_objects = tables_io.io.getInputDataLength(path)
+        if n_objects == 0:
+            raise RAILBadDatasetError(f"Could not find data in input file {path}")
+        return n_objects
 
     @classmethod
     def validate_data(
@@ -107,7 +127,7 @@ class Dataset(Base, RowMixin):
         data: dict,
         catalog_tag: CatalogTag,
     ) -> int:
-        """ Validate that these data are appropriate for the CatalogTag
+        """Validate that these data are appropriate for the CatalogTag
 
         Parameters
         ----------

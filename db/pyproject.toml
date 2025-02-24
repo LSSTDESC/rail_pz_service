@@ -24,7 +24,6 @@ dependencies = [
     "anyio==4.7.*",
     "asyncpg==0.30.*",
     "click==8.1.*",
-    "fastapi==0.115.*",
     "greenlet==3.1.*",
     "jinja2==3.1.*",
     "numpy==2.1.*",
@@ -79,7 +78,7 @@ build-backend = "hatchling.build"
 packages = ["src/rail_pz_service"]
 
 [tool.hatch.version]
-path = "src/rail_pz_service/db/__init__.py"
+path = "src/rail_pz_service/client/__init__.py"
 fallback-version = "0.0.0"
 
 [tool.coverage.run]

@@ -28,4 +28,3 @@ clean:
 .PHONY: typing
 typing:
 	mypy src tests
-

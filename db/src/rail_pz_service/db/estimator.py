@@ -1,4 +1,4 @@
-""" Database model for Estimator table """
+"""Database model for Estimator table"""
 
 from typing import TYPE_CHECKING, Any
 
@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
 from rail_pz_service.common.errors import RAILMissingRowCreateInputError
+
 from .algorithm import Algorithm
 from .base import Base
 from .catalog_tag import CatalogTag
@@ -75,20 +76,40 @@ class Estimator(Base, RowMixin):
         try:
             name = kwargs["name"]
             config = kwargs.get("config", {})
-            algo_name = kwargs["algo_name"]
-            catalog_tag_name = kwargs["catalog_tag_name"]
-            model_name = kwargs["model_name"]
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
 
-        algo_ = await Algorithm.get_row_by_name(session, algo_name)
-        catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
-        model_ = await Model.get_row_by_name(session, model_name)
+        algo_id = kwargs.get("algo_id", None)
+        if algo_id is None:
+            try:
+                algo_name = kwargs["algo_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            algo_ = await Algorithm.get_row_by_name(session, algo_name)
+            algo_id = algo_.id
+
+        catalog_tag_id = kwargs.get("catalog_tag_id", None)
+        if catalog_tag_id is None:
+            try:
+                catalog_tag_name = kwargs["catalog_tag_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
+            catalog_tag_id = catalog_tag_.id
+
+        model_id = kwargs.get("model_id", None)
+        if model_id is None:
+            try:
+                model_name = kwargs["model_name"]
+            except KeyError as e:
+                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            model_ = await Model.get_row_by_name(session, model_name)
+            model_id = model_.id
 
         return dict(
             name=name,
             config=config,
-            algo_id=algo_.id,
-            catalog_tag_id=catalog_tag_.id,
-            model_id=model_.id,
+            algo_id=algo_id,
+            catalog_tag_id=catalog_tag_id,
+            model_id=model_id,
         )

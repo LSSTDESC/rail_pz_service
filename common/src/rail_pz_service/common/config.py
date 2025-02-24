@@ -1,4 +1,4 @@
-""" Common configuration parameters for pz-rail-service related packages"""
+"""Common configuration parameters for pz-rail-service related packages"""
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -39,7 +39,7 @@ class AsgiConfiguration(BaseModel):
 
     reload: bool = Field(
         description="Whether to support ASGI server reload on content change.",
-        default=False,
+        default=True,
     )
 
 
@@ -105,6 +105,23 @@ class DatabaseConfiguration(BaseModel):
     )
 
 
+class StorageConfiguration(BaseModel):
+    """Database storage configuration nested model.
+
+    Set according to STORAGE__FIELD environment variables.
+    """
+
+    archive: str = Field(
+        default="",
+        description="The path for the archived files for pz-rail-service database",
+    )
+
+    import_area: str = Field(
+        default="",
+        description="The path for the import area for files for pz-rail-service database",
+    )
+
+
 class Configuration(BaseSettings):
     """Configuration for pz-rail-service.
 
@@ -125,6 +142,7 @@ class Configuration(BaseSettings):
     daemon: DaemonConfiguration = DaemonConfiguration()
     db: DatabaseConfiguration = DatabaseConfiguration()
     logging: LoggingConfiguration = LoggingConfiguration()
+    storage: StorageConfiguration = StorageConfiguration()
 
 
 config = Configuration()

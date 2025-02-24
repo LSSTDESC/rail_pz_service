@@ -1,4 +1,4 @@
-""" Database model for Algorithm table """
+"""Database model for Algorithm table"""
 
 from typing import TYPE_CHECKING
 
@@ -23,7 +23,7 @@ class Algorithm(Base, RowMixin):
     class_string = "algorithm"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column(index=True, unique=True)
     class_name: Mapped[str] = mapped_column()
 
     estimators_: Mapped["Estimator"] = relationship(

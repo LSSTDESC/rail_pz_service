@@ -1,4 +1,4 @@
-""" Database model for CatalogTag table """
+"""Database model for CatalogTag table"""
 
 from typing import TYPE_CHECKING
 
