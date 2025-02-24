@@ -1,0 +1,9 @@
+# Ignore Everything
+*
+
+# Except
+!pyproject.toml
+!uv.lock
+!alembic.ini
+!src/rail/
+!alembic/

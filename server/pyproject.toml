@@ -1,0 +1,78 @@
+[project]
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+name = "pz-rail-service-server"
+description = "RAIL service to generate photometric redshifts: web server"
+license = { file = "LICENSE" }
+readme = "README.md"
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Typing :: Typed",
+]
+requires-python = ">=3.11,<3.13"
+dynamic = ["version"]
+
+dependencies = [
+    "anyio==4.7.*",
+    "asyncpg==0.30.*",
+    "click==8.1.*",
+    "fastapi==0.115.*",
+    "greenlet==3.1.*",
+    "jinja2==3.1.*",
+    "numpy==2.1.*",
+    "pydantic==2.10.*",
+    "pydantic-settings==2.7.*",
+    "python-multipart==0.0.*",
+    "rich==13.9.*",
+    "structlog==24.4.*",
+    "tabulate==0.9.*",
+    "safir[db]==7.0.*",
+    "uvicorn[standard]==0.32.*",
+]
+
+[project.optional-dependencies]
+dev = [
+    "aiosqlite>=0.20.0",
+    "asgi-lifespan>=2.1.0",
+    "coverage[toml]>=7.6.7",
+    "greenlet>=3.1.1",
+    "httpx>=0.27.2",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-playwright>=0.5.2",
+    "pytest-timeout>=2.3.1",
+    "ruff>=0.8.0",
+    "python-semantic-release==9.14.*",
+    "sqlalchemy[mypy]>=2.0.36",
+    "types-pyyaml>=6.0.12.20240917",
+    "types-tabulate>=0.9.0.20240106",
+]
+
+[project.scripts]
+pz-rail-server = "rail_pz_service.server.main:main"
+
+[project.urls]
+Source = "https://github.com/LSSTDESC/rail_pz_service"
+
+[tool.uv]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rail_pz_service"]
+
+[tool.hatch.version]
+path = "src/rail_pz_service/server/__init__.py"
+fallback-version = "0.0.0"
