@@ -38,6 +38,9 @@ init: $(PY_VENV)
 update-deps: init
 	uv lock --upgrade --build-isolation
 
+.PHONY: update
+update: update-deps init
+
 .PHONY: build
 build: export BUILDKIT_PROGRESS=plain
 build:

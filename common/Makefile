@@ -1,5 +1,3 @@
-SHELL := /bin/bash
-GIT_BRANCH := $(shell git branch --show-current)
 PY_VENV := .venv/
 UV_LOCKFILE := uv.lock
 

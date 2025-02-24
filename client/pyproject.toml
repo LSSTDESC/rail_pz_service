@@ -23,28 +23,19 @@ dependencies = [
     "anyio==4.7.*",
     "asyncpg==0.30.*",
     "click==8.1.*",
-    "fastapi==0.115.*",
-    "greenlet==3.1.*",
-    "jinja2==3.1.*",
+    "httpx>=0.27.2",
     "numpy==2.1.*",
-    "psycopg2-binary==2.9.*",
     "pydantic==2.10.*",
     "pydantic-settings==2.7.*",
     "python-multipart==0.0.*",
     "rich==13.9.*",
     "structlog==24.4.*",
     "tabulate==0.9.*",
-    "safir[db]==7.0.*",
-    "uvicorn[standard]==0.32.*",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "aiosqlite>=0.20.0",
-    "asgi-lifespan>=2.1.0",
     "coverage[toml]>=7.6.7",
-    "greenlet>=3.1.1",
-    "httpx>=0.27.2",
     "mypy>=1.13.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.3",
@@ -77,123 +68,3 @@ packages = ["src/rail_pz_service"]
 [tool.hatch.version]
 path = "src/rail_pz_service/client/__init__.py"
 fallback-version = "0.0.0"
-
-[tool.coverage.run]
-parallel = true
-branch = true
-source = ["rail_pz_service"]
-concurrency = ['greenlet', 'thread']
-
-[tool.coverage.paths]
-source = ["src"]
-
-[tool.coverage.report]
-show_missing = true
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "except Exception as msg",
-    "except KeyError as msg",
-    "except IntegrityError as msg",
-    "if 0:",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]
-
-[tool.ruff]
-exclude = [
-    "__init__.py",
-]
-line-length = 110
-target-version = "py311"
-
-[tool.ruff.lint]
-ignore = [
-    "COM812",  # missing-trailing-comma
-    "N802",  # invalid-function-name
-    "N803",  # invalid-argument-name
-    "N806",  # non-lowercase-variable-in-function
-    "N812",  # lowercase-imported-as-non-lowercase
-    "N813",  # camelcase-imported-as-constant
-    "N815",  # mixed-case-variable-in-class-scope
-    "N816",  # mixed-case-variable-in-global-scope
-]
-select = [
-    "E",  # pycodestyle
-    "F",  # pyflakes
-    "N",  # pep8-naming
-    "W",  # pycodestyle
-    "COM", # pyflakes-commas
-    "FBT", # flake8-boolean-trap
-    "UP", # pyupgrade
-    "ASYNC", # flake8-async
-]
-extend-select = [
-    "RUF100", # Warn about unused noqa
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["rail_pz_service", "tests"]
-
-[tool.ruff.lint.pycodestyle]
-max-doc-length = 88
-
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
-[tool.pytest.ini_options]
-asyncio_mode = "strict"
-asyncio_default_fixture_loop_scope="function"
-# The python_files setting is not for test detection (pytest will pick up any
-# test files named *_test.py without this setting) but to enable special
-# assert processing in any non-test supporting files under tests.  We
-# conventionally put test support functions under tests.support and may
-# sometimes use assert in test fixtures in conftest.py, and pytest only
-# enables magical assert processing (showing a full diff on assert failures
-# with complex data structures rather than only the assert message) in files
-# listed in python_files.
-python_files = ["tests/*.py", "tests/*/*.py"]
-
-[tool.mypy]
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-ignore_missing_imports = true
-local_partial_types = true
-no_implicit_reexport = true
-show_error_codes = true
-strict_equality = true
-warn_redundant_casts = true
-warn_unreachable = true
-warn_unused_ignores = true
-plugins = ["sqlalchemy.ext.mypy.plugin", "pydantic.mypy"]
-
-[tool.pydocstyle]
-convention = "numpy"
-add_select = [
-    "D212" # Multi-line docstring summary should start at the first line
-]
-add-ignore = [
-    "D105", # Missing docstring in magic method
-    "D102", # Missing docstring in public method (needed for docstring inheritance)
-    "D100", # Missing docstring in public module
-    # Below are required to allow multi-line summaries.
-    "D200", # One-line docstring should fit on one line with quotes
-    "D205", # 1 blank line required between summary line and description
-    "D400", # First line should end with a period
-    # Properties shouldn't be written in imperative mode. This will be fixed
-    # post 6.1.1, see https://github.com/PyCQA/pydocstyle/pull/546
-    "D401",
-    # To avoid all the pydantic config class giving errors
-    "D106",
-]
-
-
-[tool.pylint.format]
-max-line-length = 120
-
-[tool.pylint."MESSAGES CONTROL"]
-disable = "use-dict-literal,too-few-public-methods,R0801"
