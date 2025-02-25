@@ -370,7 +370,8 @@ class Cache:
             Rows already exist in database
         """
         algos_: list[Algorithm] = []
-        RailEnv.import_all_packages(silent=True)
+        # RailEnv.import_all_packages(silent=True)
+        RailEnv.import_all_packages()
         for stage_name, stage_info in RailStage.pipeline_stages.items():
             the_class = stage_info[0]
 

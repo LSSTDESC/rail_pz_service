@@ -50,4 +50,5 @@ class Request(RequestBase):
 
     # timestamps
     time_created: datetime
+    time_started: datetime | None
     time_finished: datetime | None
