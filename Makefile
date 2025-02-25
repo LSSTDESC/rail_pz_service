@@ -63,8 +63,7 @@ lint:
 
 .PHONY: typing
 typing:
-	mypy -p rail_pz_service.common -p rail_pz_service.client -p rail_pz_service.db -p rail_pz_service.server
-	mypy tests
+	mypy src tests
 
 
 #------------------------------------------------------------------------------

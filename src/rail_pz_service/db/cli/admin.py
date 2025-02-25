@@ -14,6 +14,7 @@ from sqlalchemy.schema import CreateSchema
 from rail_pz_service import db
 from rail_pz_service.common.config import config
 
+from ... import __version__
 from .algorithm import algorithm_group
 from .catalog_tag import catalog_tag_group
 from .dataset import dataset_group
@@ -77,7 +78,7 @@ def init(*, reset: bool) -> None:
         request_group,
     ],
 )
-@click.version_option(version=db.__version__)
+@click.version_option(version=__version__)
 def admin_top() -> None:
     """Administrative command-line rail-pz-server commands."""
 

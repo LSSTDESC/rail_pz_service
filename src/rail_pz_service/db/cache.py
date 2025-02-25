@@ -149,7 +149,7 @@ class Cache:
         estimator_instance = await self.get_estimator(session, request.estimator_id)
         dataset = await Dataset.get_row(session, request.dataset_id)
 
-        output_path = os.path.join("qp_files", dataset.name, f"{estimator.name}.hdf5")
+        output_path = os.path.join(config.storage.archive, "qp_files", dataset.name, f"{estimator.name}.hdf5")
 
         aliased_tag = estimator_instance.get_aliased_tag("output")
         estimator_instance._outputs[aliased_tag] = output_path

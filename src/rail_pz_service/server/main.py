@@ -10,7 +10,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from rail_pz_service.common.config import config
 
-from . import __version__
+from .. import __version__
 from .routers import (
     healthz,
     index,

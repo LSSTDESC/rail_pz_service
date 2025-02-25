@@ -2,7 +2,7 @@
 
 import click
 
-from .. import __version__
+from ... import __version__
 from .algorithm import algorithm_group
 from .catalog_tag import catalog_tag_group
 from .dataset import dataset_group
