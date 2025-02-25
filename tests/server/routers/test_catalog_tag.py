@@ -53,7 +53,8 @@ async def test_catalog_tag_routes(
         params = models.NameQuery(name=catalog_tag_.name).model_dump()
 
         response = await client.get(
-            f"{config.asgi.prefix}/{api_version}/catalog_tag/get_row_by_name", params=params
+            f"{config.asgi.prefix}/{api_version}/catalog_tag/get_row_by_name",
+            params=params,
         )
         check = check_and_parse_response(response, models.CatalogTag)
         assert check.id == catalog_tag_.id

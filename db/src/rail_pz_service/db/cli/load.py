@@ -83,7 +83,7 @@ def dataset_command(
         new_dataset = await the_cache.load_dataset_from_file(
             session,
             name,
-            file_path=path,
+            path=path,
             catalog_tag_name=catalog_tag_name,
         )
         wrappers.output_db_object(new_dataset, output, db.Dataset.col_names_for_table)
@@ -117,7 +117,7 @@ def model_command(
         new_model = await the_cache.load_model_from_file(
             session,
             name,
-            file_path=path,
+            path=path,
             algo_name=algo_name,
             catalog_tag_name=catalog_tag_name,
         )

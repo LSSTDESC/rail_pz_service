@@ -266,3 +266,52 @@ def get_row_attribute_list_function(
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return get_row_attribute_list
+
+
+def create_row_function(
+    router: APIRouter,
+    response_model_class: TypeAlias = BaseModel,
+    create_model_class: TypeAlias = BaseModel,
+    db_class: TypeAlias = db.RowMixin,
+) -> Callable:
+    """Return a function that creates a single row in a table
+    and attaches that function to a router.
+
+    Parameters
+    ----------
+    router
+        Router to attach the function to
+
+    response_model_class
+        Pydantic class used to serialize the return value
+
+    create_model_class
+        Pydantic class used to serialize the inputs value
+
+    db_class
+        Underlying database class
+
+    Returns
+    -------
+    Callable
+        Function that creates a single row in a table
+    """
+
+    @router.post(
+        "/create",
+        status_code=201,
+        response_model=response_model_class,
+        summary=f"Create a {db_class.class_string}",
+    )
+    async def create_row(
+        row_create: create_model_class,
+        session: async_scoped_session = Depends(db_session_dependency),
+    ) -> db_class:
+        try:
+            async with session.begin():
+                return await db_class.create_row(session, **row_create.model_dump())
+        except Exception as msg:
+            logger.error(msg, exc_info=True)
+            raise HTTPException(status_code=500, detail=str(msg)) from msg
+
+    return create_row

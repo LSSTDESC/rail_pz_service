@@ -68,7 +68,9 @@ class Request(Base, RowMixin):
         session: async_scoped_session,
         **kwargs: Any,
     ) -> dict:
-        user = kwargs.get("user", os.environ["USER"])
+        user = kwargs.get("user", None)
+        if user is None:
+            user = os.environ["USER"]
 
         dataset_id = kwargs.get("dataset_id", None)
         if dataset_id is None:

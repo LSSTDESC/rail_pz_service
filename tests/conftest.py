@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncIterator, Iterator
 from typing import Any
 
@@ -13,6 +14,7 @@ from safir.testing.uvicorn import UvicornProcess, spawn_uvicorn
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
+from rail_pz_service.common import test_files
 from rail_pz_service.common.config import config as config_
 from rail_pz_service.server import main
 
@@ -46,7 +48,9 @@ async def client_fixture(app: FastAPI) -> AsyncIterator[AsyncClient]:
 
 
 @pytest_asyncio.fixture(name="uvicorn")
-async def uvicorn_fixture(tmp_path_factory: TempPathFactory) -> AsyncIterator[UvicornProcess]:
+async def uvicorn_fixture(
+    tmp_path_factory: TempPathFactory,
+) -> AsyncIterator[UvicornProcess]:
     """Spawn and return a uvicorn process hosting the test app."""
     my_uvicorn = spawn_uvicorn(
         working_directory=tmp_path_factory.mktemp("uvicorn"),
@@ -55,6 +59,19 @@ async def uvicorn_fixture(tmp_path_factory: TempPathFactory) -> AsyncIterator[Uv
     )
     yield my_uvicorn
     my_uvicorn.process.terminate()
+
+
+@pytest.fixture(name="setup_test_area", scope="session")
+def setup_test_area(request: pytest.FixtureRequest) -> int:
+    ret_val = test_files.setup_test_area()
+
+    config_.storage.archive = os.path.abspath(
+        os.path.join("tests", "temp_data"),
+    )
+
+    request.addfinalizer(test_files.teardown_test_area)
+
+    return ret_val
 
 
 def pytest_addoption(parser: Any) -> None:

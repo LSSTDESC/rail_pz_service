@@ -2,9 +2,10 @@
 
 import click
 
-from rail_pz_service.common import models
+from rail_pz_service.client.client import PZRailClient
+from rail_pz_service.common import common_options, models
 
-from . import wrappers
+from . import client_options, wrappers
 
 
 @click.group(name="request")
@@ -17,6 +18,13 @@ def request_group() -> None:
 cli_group = request_group
 # Specify the associated database table
 ModelClass = models.Request
+create_options = [
+    client_options.pz_client(),
+    common_options.name(),
+    common_options.estimator_name(),
+    common_options.dataset_name(),
+    common_options.output(),
+]
 
 # Construct derived templates
 group_command = cli_group.command
@@ -34,6 +42,8 @@ get_command = get.command
 # Add functions to the cli
 get_rows = wrappers.get_list_command(group_command, sub_client, ModelClass)
 
+create = wrappers.get_create_command(group_command, sub_client, ModelClass, create_options)
+
 get_row = wrappers.get_row_command(get_command, sub_client, ModelClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, ModelClass)
@@ -43,3 +53,17 @@ get_estimators = wrappers.get_row_attribute_list_command(
 )
 
 get_models = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Model, "_models")
+
+
+@group_command(name="run")
+@client_options.pz_client()
+@common_options.row_id()
+@common_options.output()
+def run(
+    pz_client: PZRailClient,
+    row_id: int,
+    output: common_options.OutputEnum | None,
+) -> None:
+    """Get the data_dict parameters for a partiuclar node"""
+    result = pz_client.request.run(row_id)
+    wrappers.output_pydantic_object(result, output, ModelClass.col_names_for_table)

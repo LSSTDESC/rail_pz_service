@@ -370,7 +370,7 @@ class Cache:
             Rows already exist in database
         """
         algos_: list[Algorithm] = []
-        RailEnv.import_all_packages()
+        RailEnv.import_all_packages(silent=True)
         for stage_name, stage_info in RailStage.pipeline_stages.items():
             the_class = stage_info[0]
 
@@ -441,7 +441,7 @@ class Cache:
         self,
         session: async_scoped_session,
         name: str,
-        file_path: Path,
+        path: Path,
         algo_name: str,
         catalog_tag_name: str,
     ) -> Model:
@@ -455,7 +455,7 @@ class Cache:
         name
             Name for new Model
 
-        file_path
+        path
             Path to input file.  Note that it will be copied to DB area
 
         algo_name
@@ -484,10 +484,10 @@ class Cache:
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
         algo = await Algorithm.get_row_by_name(session, algo_name)
 
-        Model.validate_model(file_path, algo, catalog_tag)
+        Model.validate_model(path, algo, catalog_tag)
 
         # File looks ok, move it to the archive area
-        suffix = os.path.splitext(file_path)[1]
+        suffix = os.path.splitext(path)[1]
         output_name = os.path.join(
             config.storage.archive,
             "models",
@@ -498,7 +498,7 @@ class Cache:
         output_abspath = os.path.abspath(output_name)
         output_dir = os.path.dirname(output_abspath)
         os.makedirs(output_dir, exist_ok=True)
-        shutil.copy(file_path, output_abspath)
+        shutil.copy(path, output_abspath)
 
         # Make a new Model row
         try:
@@ -520,7 +520,7 @@ class Cache:
         self,
         session: async_scoped_session,
         name: str,
-        file_path: Path,
+        path: Path,
         catalog_tag_name: str,
     ) -> Dataset:
         """Import a data file to the archive area and add a Dataset row
@@ -533,7 +533,7 @@ class Cache:
         name
             Name for new Dataset
 
-        file_path
+        path
             Path to input file.  Note that it will be copied to DB area
 
         catalog_tag_name
@@ -557,15 +557,15 @@ class Cache:
         """
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
-        n_objects = Dataset.validate_data_for_path(file_path, catalog_tag)
+        n_objects = Dataset.validate_data_for_path(path, catalog_tag)
 
         # File looks ok, move it to the archive area
-        suffix = os.path.splitext(file_path)[1]
+        suffix = os.path.splitext(path)[1]
         output_name = os.path.join(config.storage.archive, "datasets", catalog_tag_name, f"{name}{suffix}")
         output_abspath = os.path.abspath(output_name)
         output_dir = os.path.dirname(output_abspath)
         os.makedirs(output_dir, exist_ok=True)
-        shutil.copy(file_path, output_abspath)
+        shutil.copy(path, output_abspath)
 
         # Make a new Dataset row
         try:

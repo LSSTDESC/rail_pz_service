@@ -44,7 +44,9 @@ class PZRailRequestClient:
         ResponseModelClass, f"{router_string}/get_row_by_name"
     )
 
+    create = wrappers.create_row_function(ResponseModelClass, models.RequestCreate, f"{router_string}/create")
+
     def run(self, row_id: int) -> models.Request:
-        full_query = f"run/{row_id}"
+        full_query = f"{router_string}/run/{row_id}"
         results = self.client.post(full_query).raise_for_status().json()
         return TypeAdapter(ResponseModelClass).validate_python(results)

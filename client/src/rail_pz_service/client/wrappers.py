@@ -181,3 +181,36 @@ def get_row_attribute_list_function(
         return TypeAdapter(response_model_class).validate_python(results)
 
     return get_row_attribute_list
+
+
+def create_row_function(
+    response_model_class: TypeAlias = BaseModel,
+    create_model_class: TypeAlias = BaseModel,
+    query: str = "",
+) -> Callable:
+    """Return a function that creates a single row in a table
+    and attaches that function to a client.
+
+    Parameters
+    ----------
+    response_model_class
+        Pydantic class used to serialize the return value
+
+    create_model_class
+        Pydantic class used to serialize the inputs value
+
+    query
+        http query
+
+    Returns
+    -------
+    the_function: Callable
+        Function that returns a single row from a table by ID
+    """
+
+    def row_create(obj: PZRailClient, **kwargs: Any) -> response_model_class:
+        content = create_model_class(**kwargs).model_dump_json()
+        results = obj.client.post(query, content=content).raise_for_status().json()
+        return TypeAdapter(response_model_class).validate_python(results)
+
+    return row_create

@@ -162,13 +162,13 @@ asyncio_default_fixture_loop_scope="function"
 # with complex data structures rather than only the assert message) in files
 # listed in python_files.
 python_files = ["tests/*.py", "tests/*/*.py"]
-#addopts = [
-#    "--cov=common/src",
-#    "--cov=db/src",
-#    "--cov=server/src",
-#    "--cov=client/src",
-#    "--cov-report=html"
-#]
+addopts = [
+    "--cov=common/src",
+    "--cov=db/src",
+    "--cov=server/src",
+    "--cov=client/src",
+    "--cov-report=html"
+]
 
 [tool.mypy]
 disallow_untyped_defs = true

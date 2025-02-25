@@ -38,6 +38,8 @@ get_rows = wrappers.get_list_function(router, ResponseModelClass, DbClass)
 get_row = wrappers.get_row_function(router, ResponseModelClass, DbClass)
 get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, DbClass)
 
+create = wrappers.create_row_function(router, ResponseModelClass, models.RequestCreate, DbClass)
+
 
 @router.post(
     "/run/{row_id}",

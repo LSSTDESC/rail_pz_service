@@ -75,7 +75,8 @@ async def test_estimator_routes(
         params = models.NameQuery(name=estimator_.name).model_dump()
 
         response = await client.get(
-            f"{config.asgi.prefix}/{api_version}/estimator/get_row_by_name", params=params
+            f"{config.asgi.prefix}/{api_version}/estimator/get_row_by_name",
+            params=params,
         )
         check = check_and_parse_response(response, models.Estimator)
         assert check.id == estimator_.id

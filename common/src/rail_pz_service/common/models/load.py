@@ -17,7 +17,7 @@ class LoadDatasetQuery(BaseModel):
     name: str
 
     # Path to the input file
-    file_path: str
+    path: str
 
     # Associated catalog tag name
     catalog_tag_name: str
@@ -30,7 +30,7 @@ class LoadModelQuery(BaseModel):
     name: str
 
     # Path to the input file
-    file_path: str
+    path: str
 
     # Associated algorithm name
     algo_name: str

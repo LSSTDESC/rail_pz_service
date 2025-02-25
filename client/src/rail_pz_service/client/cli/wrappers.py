@@ -324,3 +324,49 @@ def get_row_attribute_list_command(
         output_pydantic_list(result, output, model_class.col_names_for_table)
 
     return get_row_attribute
+
+
+def get_create_command(
+    group_command: Callable,
+    sub_client_name: str,
+    model_class: TypeAlias,
+    create_options: list[Callable],
+) -> Callable:
+    """Return a function that creates a new row in the table
+    and attaches that function to the cli.
+
+    Parameters
+    ----------
+    group_command
+        CLI decorator from the CLI group to attach to
+
+    sub_client_name
+        Name of python API sub-client to use
+
+    model_class
+        Pydantic model class
+
+    create_options
+        Command line options for the create function
+
+    Returns
+    -------
+    the_function: Callable
+        Function that creates a row in the table
+    """
+
+    def create(
+        pz_client: PZRailClient,
+        output: common_options.OutputEnum | None,
+        **kwargs: Any,
+    ) -> None:
+        """Create a new row"""
+        sub_client = getattr(pz_client, sub_client_name)
+        result = sub_client.create(**kwargs)
+        output_pydantic_object(result, output, model_class.col_names_for_table)
+
+    for option_ in create_options:
+        create = option_(create)
+
+    create = group_command(name="create")(create)
+    return create

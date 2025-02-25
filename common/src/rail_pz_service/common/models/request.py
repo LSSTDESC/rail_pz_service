@@ -10,7 +10,7 @@ class RequestBase(BaseModel):
     """Request parameters that are in DB tables and also used to create new rows"""
 
     # User who orginated this Request
-    user: str
+    user: str | None = None
 
 
 class RequestCreate(RequestBase):

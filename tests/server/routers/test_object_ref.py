@@ -70,7 +70,8 @@ async def test_object_ref_routes(
         params = models.NameQuery(name=object_ref_.name).model_dump()
 
         response = await client.get(
-            f"{config.asgi.prefix}/{api_version}/object_ref/get_row_by_name", params=params
+            f"{config.asgi.prefix}/{api_version}/object_ref/get_row_by_name",
+            params=params,
         )
         check = check_and_parse_response(response, models.ObjectRef)
         assert check.id == object_ref_.id

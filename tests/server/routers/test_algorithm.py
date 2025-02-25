@@ -53,7 +53,8 @@ async def test_algorithm_routes(
         params = models.NameQuery(name=algo_.name).model_dump()
 
         response = await client.get(
-            f"{config.asgi.prefix}/{api_version}/algorithm/get_row_by_name", params=params
+            f"{config.asgi.prefix}/{api_version}/algorithm/get_row_by_name",
+            params=params,
         )
         check = check_and_parse_response(response, models.Algorithm)
         assert check.id == algo_.id
