@@ -12,9 +12,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from rail_pz_service.common import models
-from rail_pz_service.common.errors import RAILMissingRowCreateInputError
-
+from .. import models
+from ..common.errors import RAILMissingRowCreateInputError
 from .base import Base
 from .dataset import Dataset
 from .estimator import Estimator

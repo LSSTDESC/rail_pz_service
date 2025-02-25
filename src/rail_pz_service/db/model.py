@@ -11,13 +11,12 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from rail_pz_service.common import models
-from rail_pz_service.common.errors import (
+from .. import models
+from ..common.errors import (
     RAILBadModelError,
     RAILFileNotFoundError,
     RAILMissingRowCreateInputError,
 )
-
 from .algorithm import Algorithm
 from .base import Base
 from .catalog_tag import CatalogTag

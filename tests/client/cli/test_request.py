@@ -5,9 +5,9 @@ from click.testing import CliRunner
 from safir.testing.uvicorn import UvicornProcess
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from rail_pz_service import models
 from rail_pz_service.client.clientconfig import client_config
-from rail_pz_service.common import models
-from rail_pz_service.common.config import config
+from rail_pz_service.config import config
 from rail_pz_service.db.cli.admin import admin_top
 
 from .util_functions import (

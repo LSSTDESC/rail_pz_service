@@ -7,9 +7,8 @@ from httpx import AsyncClient
 from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service import db
-from rail_pz_service.common import models
-from rail_pz_service.common.config import config
+from rail_pz_service import db, models
+from rail_pz_service.config import config
 
 from .util_functions import (
     check_and_parse_response,

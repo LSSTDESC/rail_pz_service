@@ -11,10 +11,8 @@ from safir.database import create_async_session, create_database_engine
 from safir.logging import configure_uvicorn_logging
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from rail_pz_service import db
-from rail_pz_service.common.config import config
-
-from .. import __version__
+from .. import __version__, db
+from ..config import config
 from .logging import LOGGER
 from .routers.healthz import health_router
 

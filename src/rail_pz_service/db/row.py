@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
-from rail_pz_service.common.errors import (
+from ..common.errors import (
     RAILIDMismatchError,
     RAILIntegrityError,
     RAILMissingIDError,

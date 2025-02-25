@@ -17,8 +17,8 @@ from safir.dependencies.db_session import db_session_dependency
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
-from rail_pz_service import db
-from rail_pz_service.common.errors import (
+from ... import db
+from ...common.errors import (
     RAILMissingIDError,
     RAILMissingNameError,
 )

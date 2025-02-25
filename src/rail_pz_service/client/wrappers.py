@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 from pydantic import BaseModel, TypeAdapter
 
-from rail_pz_service.common import models
+from .. import models
 
 if TYPE_CHECKING:
     from .client import PZRailClient

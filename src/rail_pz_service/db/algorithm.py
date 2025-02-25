@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from rail_pz_service.common import models
-
+from .. import models
 from .base import Base
 from .row import RowMixin
 

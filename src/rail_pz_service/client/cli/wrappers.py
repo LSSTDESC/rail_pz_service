@@ -18,9 +18,8 @@ import yaml
 from pydantic import BaseModel
 from tabulate import tabulate
 
-from rail_pz_service.client.client import PZRailClient
-from rail_pz_service.common import common_options
-
+from ...common import common_options
+from ..client import PZRailClient
 from . import client_options
 
 

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 import httpx
 from pydantic import TypeAdapter
 
-from rail_pz_service.common import models
+from .. import models
 
 if TYPE_CHECKING:
     from .client import PZRailClient

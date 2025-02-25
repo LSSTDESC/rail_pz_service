@@ -2,9 +2,7 @@
 
 from fastapi import APIRouter
 
-from rail_pz_service import db
-from rail_pz_service.common import models
-
+from ... import db, models
 from . import wrappers
 
 # Template specialization

@@ -11,7 +11,7 @@ from click.decorators import FC
 # setting stuff up directly from sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from rail_pz_service.common.config import config as db_config
+from ...config import config as db_config
 
 
 def _make_engine() -> AsyncEngine:

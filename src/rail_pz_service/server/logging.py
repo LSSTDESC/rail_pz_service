@@ -3,7 +3,7 @@
 import structlog
 from safir.logging import configure_logging
 
-from rail_pz_service.common.config import config
+from ..config import config
 
 configure_logging(profile=config.logging.profile, log_level=config.logging.level, name=config.logging.handle)
 

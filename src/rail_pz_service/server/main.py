@@ -8,9 +8,8 @@ from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
-from rail_pz_service.common.config import config
-
 from .. import __version__
+from ..config import config
 from .routers import (
     healthz,
     index,

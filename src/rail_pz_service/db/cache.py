@@ -15,13 +15,12 @@ from rail.interfaces.pz_factory import PZFactory
 from rail.utils.catalog_utils import CatalogConfigBase
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from rail_pz_service.common.config import config
-from rail_pz_service.common.errors import (
+from ..common.errors import (
     RAILImportError,
     RAILIntegrityError,
     RAILRequestError,
 )
-
+from ..config import config
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
 from .dataset import Dataset
