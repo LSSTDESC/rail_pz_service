@@ -20,34 +20,35 @@ requires-python = ">=3.11,<3.13"
 dynamic = ["version"]
 
 dependencies = [
-    # "pz-rail-service-common",
+    "click",
+    "numpy==2.1.*",
+    "pydantic==2.10.*",
+    "pydantic-settings==2.7.*",
+    "httpx>=0.27.2",
+    "numpy==2.1.*",
+    "pydantic==2.10.*",
+    "pydantic-settings==2.7.*",
+    "python-multipart==0.0.*",
+    "structlog==24.4.*",
+    "tabulate==0.9.*",
+    "pz-rail",
 ]
 
 [project.optional-dependencies]
-db = [
-    # "pz-rail-service-common",
-    # "pz-rail-service-db",
-]
-
 server = [
-    # "pz-rail-service-common",
-    # "pz-rail-service-db",
-    # "pz-rail-service-server",
-]
-
-client = [
-    # "pz-rail-service-common",
-    # "pz-rail-service-client",
-]
-
-full = [
-    # "pz-rail-service",
-    # "pz-rail-service[server]",
-    # "pz-rail-service[client]",
+    "aiosqlite>=0.20.0",
+    "alembic==1.14.*",
+    "anyio==4.7.*",
+    "asyncpg==0.30.*",
+    "fastapi==0.115.*",
+    "greenlet==3.1.*",
+    "jinja2==3.1.*",
+    "rich==13.9.*",
+    "sqlalchemy[asyncio]==2.0.*",
+    "safir[db]==7.0.*",
 ]
 
 dev = [
-    # "pz-rail-service[full]",
     "aiosqlite>=0.20.0",
     "asgi-lifespan>=2.1.0",
     "coverage[toml]>=7.6.7",
@@ -61,11 +62,16 @@ dev = [
     "pytest-playwright>=0.5.2",
     "pytest-timeout>=2.3.1",
     "ruff>=0.8.0",
-    "python-semantic-release==9.14.*",
     "sqlalchemy[mypy]>=2.0.36",
     "types-pyyaml>=6.0.12.20240917",
     "types-tabulate>=0.9.0.20240106",
 ]
+
+
+[project.scripts]
+pz-rail-service-client = "rail_pz_service.client.cli.main:top"
+pz-rail-service-admin = "rail_pz_service.db.cli.admin:admin_top"
+pz-rail-service-server = "rail_pz_service.server.main:main"
 
 [project.urls]
 Source = "https://github.com/LSSTDESC/rail_pz_service"
@@ -80,7 +86,7 @@ build-backend = "hatchling.build"
 packages = ["src/rail_pz_service"]
 
 [tool.hatch.version]
-path = "src/rail_pz_service/top/__init__.py"
+path = "src/rail_pz_service/__init__.py"
 fallback-version = "0.0.0"
 
 [tool.coverage.run]
@@ -163,10 +169,7 @@ asyncio_default_fixture_loop_scope="function"
 # listed in python_files.
 python_files = ["tests/*.py", "tests/*/*.py"]
 addopts = [
-    "--cov=common/src",
-    "--cov=db/src",
-    "--cov=server/src",
-    "--cov=client/src",
+    "--cov=src",
     "--cov-report=html"
 ]
 
