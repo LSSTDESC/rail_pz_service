@@ -36,3 +36,5 @@ get_rows = wrappers.get_list_command(group_command, sub_client, ModelClass)
 get_row = wrappers.get_row_command(get_command, sub_client, ModelClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, ModelClass)
+
+get_requests = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Request, "requests")

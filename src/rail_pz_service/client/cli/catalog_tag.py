@@ -43,4 +43,4 @@ get_estimators = wrappers.get_row_attribute_list_command(
 
 get_models = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Model, "models")
 
-get_datasets = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Estimator, "datasets")
+get_datasets = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Dataset, "datasets")

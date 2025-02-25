@@ -25,6 +25,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+src/rail_pz_service/_version.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

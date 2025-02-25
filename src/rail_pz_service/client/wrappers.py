@@ -154,6 +154,7 @@ def get_row_by_name_function(
 def get_row_attribute_list_function(
     response_model_class: TypeAlias,
     query: str = "",
+    query_suffix: str = "",
 ) -> Callable:
     """Return a function that gets a property of a single row of a table
     and attaches that function to a client.
@@ -163,8 +164,11 @@ def get_row_attribute_list_function(
     response_model_class: TypeAlias = BaseModel,
         Pydantic class used to serialize the return value
 
-    query: str
+    query
         http query
+
+    query_suffix
+        Rest of the query
 
     Returns
     -------
@@ -176,7 +180,7 @@ def get_row_attribute_list_function(
         obj: PZRailClient,
         row_id: int,
     ) -> response_model_class:
-        full_query = f"{query}/{row_id}"
+        full_query = f"{query}/{row_id}/{query_suffix}/"
         results = obj.client.get(full_query).raise_for_status().json()
         return TypeAdapter(response_model_class).validate_python(results)
 

@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import tables_io
 from sqlalchemy import JSON
@@ -19,6 +19,10 @@ from ..common.errors import (
 from .base import Base
 from .catalog_tag import CatalogTag
 from .row import RowMixin
+
+if TYPE_CHECKING:
+    from .object_ref import ObjectRef
+    from .request import Request
 
 
 class Dataset(Base, RowMixin):
@@ -44,6 +48,16 @@ class Dataset(Base, RowMixin):
     catalog_tag_: Mapped["CatalogTag"] = relationship(
         "CatalogTag",
         primaryjoin="Dataset.catalog_tag_id==CatalogTag.id",
+        viewonly=True,
+    )
+    object_refs_: Mapped[list["ObjectRef"]] = relationship(
+        "ObjectRef",
+        primaryjoin="Dataset.id==ObjectRef.dataset_id",
+        viewonly=True,
+    )
+    requests_: Mapped[list["Request"]] = relationship(
+        "Request",
+        primaryjoin="Dataset.id==Request.dataset_id",
         viewonly=True,
     )
 

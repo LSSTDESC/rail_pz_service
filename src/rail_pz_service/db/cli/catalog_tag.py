@@ -48,8 +48,8 @@ get_row = wrappers.get_row_command(get_command, DbClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
-get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "_estimators", db.Estimator)
+get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "estimators_", db.Estimator)
 
-get_models = wrappers.get_row_attribute_list_command(get_command, DbClass, "_models", db.Model)
+get_models = wrappers.get_row_attribute_list_command(get_command, DbClass, "models_", db.Model)
 
-get_datasets = wrappers.get_row_attribute_list_command(get_command, DbClass, "_datasets", db.Dataset)
+get_datasets = wrappers.get_row_attribute_list_command(get_command, DbClass, "datasets_", db.Dataset)

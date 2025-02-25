@@ -16,7 +16,7 @@ from .model import Model
 from .row import RowMixin
 
 if TYPE_CHECKING:
-    pass
+    from .request import Request
 
 
 class Estimator(Base, RowMixin):
@@ -59,6 +59,11 @@ class Estimator(Base, RowMixin):
     model_: Mapped["Model"] = relationship(
         "Model",
         primaryjoin="Estimator.model_id==Model.id",
+        viewonly=True,
+    )
+    requests_: Mapped[list["Request"]] = relationship(
+        "Request",
+        primaryjoin="Estimator.id==Request.estimator_id",
         viewonly=True,
     )
 

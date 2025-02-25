@@ -308,7 +308,7 @@ def get_row_attribute_list_command(
         Function that returns the data_dict from a row
     """
 
-    @group_command(name=f"get-{query}")
+    @group_command(name=query)
     @client_options.pz_client()
     @common_options.row_id()
     @common_options.output()
@@ -319,7 +319,8 @@ def get_row_attribute_list_command(
     ) -> None:
         """Get the data_dict parameters for a partiuclar node"""
         sub_client = getattr(pz_client, sub_client_name)
-        result = sub_client.get_row_attribute_list_function(row_id, query)
+        the_func = getattr(sub_client, f"get_{query}")
+        result = the_func(row_id)
         output_pydantic_list(result, output, model_class.col_names_for_table)
 
     return get_row_attribute

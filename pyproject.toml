@@ -85,7 +85,7 @@ requires = ["setuptools>=62", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/rail_pz_service/__init__.py"
+write_to = "src/rail_pz_service/_version.py"
 
 [tool.coverage.run]
 parallel = true

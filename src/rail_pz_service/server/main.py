@@ -15,6 +15,7 @@ from .routers import (
     index,
     v1,
 )
+from .web_app import web_app
 
 configure_uvicorn_logging(config.logging.level)
 configure_logging(
@@ -103,7 +104,7 @@ app.include_router(index.router, prefix="")
 app.include_router(v1.router, prefix=config.asgi.prefix)
 
 # Start the frontend web application.
-# app.mount(config.asgi.frontend_prefix, web_app)
+app.mount(config.asgi.frontend_prefix, web_app)
 
 
 def main() -> None:

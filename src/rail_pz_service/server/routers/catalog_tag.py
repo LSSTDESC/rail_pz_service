@@ -27,11 +27,11 @@ get_row = wrappers.get_row_function(router, ResponseModelClass, DbClass)
 get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, DbClass)
 
 get_estimators = wrappers.get_row_attribute_list_function(
-    router, ResponseModelClass, DbClass, "_estimators", models.Estimator
+    router, ResponseModelClass, DbClass, "estimators_", models.Estimator
 )
 get_models = wrappers.get_row_attribute_list_function(
-    router, ResponseModelClass, DbClass, "_models", models.Estimator
+    router, ResponseModelClass, DbClass, "models_", models.Model
 )
 get_datasets = wrappers.get_row_attribute_list_function(
-    router, ResponseModelClass, DbClass, "_datasets", models.Dataset
+    router, ResponseModelClass, DbClass, "datasets_", models.Dataset
 )
