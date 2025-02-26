@@ -22,23 +22,23 @@ There are two ways you might choose to install `rail_projects`
 In call cases we recommend you first install RAIL by following the either the "Production
 Installation" (if you want all of the RAIL "ecosystem") or "Algorithm
 Installation" (if you only want access to a sub-set of the RAIL
-algorithms) instructions 
+algorithms) instructions
 `on the RAIL installation page <https://rail-hub.readthedocs.io/en/latest/source/installation.html>`_
 
 
 =======================
 Production Installation
-=======================   
+=======================
 
 Here we will be installing ``rail_projects`` into an existing conda environment "[env]".
 
 .. code-block:: bash
 
     conda activate [env]
-    pip install pz-rail-projects	
+    pip install pz-rail-projects
 
 
-========================   
+========================
 Exploration Installation
 ========================
 
@@ -60,11 +60,11 @@ At that point you should be able to run the demonstration notebooks, e.g.;
 .. code-block:: bash
 
     jupyter-notebook examples
-	  
 
-======================	  
+
+======================
 Developer Installation
-======================   
+======================
 
 Here we will be installing the source code from `rail
 <https://github.com/LSSTDESC/rail_projects>`_ to be able to develop
@@ -87,12 +87,12 @@ the source code.
 
       .. code-block:: bash
 
-	  conda activate [env]	      
+	  conda activate [env]
           git clone https://github.com/LSSTDESC/rail_projects.git
           cd rail_projects
           pip install -e '.[dev]'
 
-    
+
 =============
 RAIL packages
 =============
@@ -107,4 +107,3 @@ Adding your kernel to jupyter
 If you want to use the kernel that you have just created to run RAIL example demos, then you may need to explicitly add an ipython kernel.  You may need to first install ipykernel with `conda install ipykernel`.  You can do then add your kernel with the following command, making sure that you have the conda environment that you wish to add activated.  From your environment, execute the command:
 `python -m ipykernel install --user --name [nametocallnewkernel]`
 (you may or may not need to prepend `sudo` depending on your permissions).  When you next start up Jupyter you should see a kernel with your new name as an option, including using the Jupyter interface at NERSC.
-
