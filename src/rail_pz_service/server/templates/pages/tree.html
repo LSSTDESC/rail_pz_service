@@ -1,0 +1,15 @@
+{% extends "pages/base.html" %}
+{% block title %}Tree{% endblock %}
+{% block content %}
+    <div id="tree_content" hx-get=" {{ url_for('get_tree', catalog_tag_name=catalog_tag_name) }}" hx-trigger="every 120s" hx-select="#tree_content" hx-swap="outerHTML">
+        <div class="mt-5 px-4 sm:px-6 lg:px-8">
+	    {% include "partials/catalog_tag_tree.html" %}
+        </div>
+	<div class="mt-5 px-4 sm:px-6 lg:px-8">
+	    {% include "partials/dataset_tree.html" %}
+        </div>
+	<div class="mt-5 px-4 sm:px-6 lg:px-8">
+	    {% include "partials/estimator_tree.html" %}
+        </div>
+    </div>
+{% endblock %}

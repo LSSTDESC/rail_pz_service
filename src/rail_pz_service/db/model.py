@@ -59,7 +59,7 @@ class Model(Base, RowMixin):
         primaryjoin="Model.catalog_tag_id==CatalogTag.id",
         viewonly=True,
     )
-    estimators_: Mapped[Estimator] = relationship(
+    estimators_: Mapped[list[Estimator]] = relationship(
         "Estimator",
         primaryjoin="Model.id==Estimator.model_id",
         viewonly=True,
