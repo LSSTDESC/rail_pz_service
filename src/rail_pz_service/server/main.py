@@ -10,6 +10,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from .. import __version__
 from ..config import config
+from .logging import LOGGER
 from .routers import (
     healthz,
     index,
@@ -23,6 +24,8 @@ configure_logging(
     log_level=config.logging.level,
     name=config.asgi.title,
 )
+logger = LOGGER.bind(module=__name__)
+
 
 tags_metadata = [
     {
@@ -108,6 +111,7 @@ app.mount(config.asgi.frontend_prefix, web_app)
 
 
 def main() -> None:
+    logger.info(f"Server starting {config.asgi.host}:{config.asgi.port}{config.asgi.frontend_prefix}")
     uvicorn.run(
         "rail_pz_service.server.main:app",
         host=config.asgi.host,

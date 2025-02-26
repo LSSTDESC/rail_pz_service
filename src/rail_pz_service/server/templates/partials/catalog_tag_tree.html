@@ -1,14 +1,14 @@
 <div class="bg-gray-100 p-4 max-w-lg mt-24">
-    <details class="mb-2">
-        <summary class="bg-gray-200 p-4 rounded-lg cursor-pointer shadow-md mb-4">
-            <span class="font-semibold">Catalog Tags</span>
-        </summary>
-        <ul class="ml-8 space-y-4">
-	  {% for catalog_tag_name in catalog_tags.keys() %}
-          <li class="items-left justify-between gap-2">
-	    <span>{{ catalog_tag_name }}</span>
-          </li>
-	  {% endfor %}
-	</ul>
-    </details>
+  <ul id="catalogTagUL">
+    <li>
+      <span class="caret">CatalogTags</span>
+      <ul class="nested">
+	{% for catalog_tag_name in catalog_tags.keys() %}
+	<li>
+	  <span class="box">{{ catalog_tag_name }}</span>
+	</li>
+	{% endfor %}
+      </ul>
+    </li>
+  </ul>
 </div>

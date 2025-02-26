@@ -32,7 +32,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run unit tests with pytest
       run: |
-        python -m pytest tests --cov=src/rail --cov-report=xml
+        make test-github-ci
     - name: Upload coverage report to codecov
       uses: codecov/codecov-action@v4
       with:

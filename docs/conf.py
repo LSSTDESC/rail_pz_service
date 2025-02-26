@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Configuration file for the Sphinx documentation builder.
 #
 # This file does only contain a selection of the most common options. For a
@@ -13,26 +11,24 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import pkgutil
-import subprocess
 import sys
 
-import rail
+# Use unittest mock module to shield some modules away from docs building.
+# This way one does not need to install them when dealing with the doc.
+from unittest.mock import MagicMock
+
+# The short X.Y version
+from rail.projects import _version
 
 # import rail.plotting
 # import rail.cli.rail_project
 # import rail.cli.rail_plot
-
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("../src"))
 
 print(sys.path)
 
-
-# Use unittest mock module to shield some modules away from docs building.
-# This way one does not need to install them when dealing with the doc.
-from unittest.mock import MagicMock
 
 MOCK_MODULES = [
     "qp",
@@ -49,10 +45,8 @@ project = "RAIL_Projects"
 copyright = "2025, LSST DESC RAIL Contributors"
 author = "LSST DESC RAIL Contributors"
 
-# The short X.Y version
-from rail.projects import _version
 
-version = "%i.%i" % (_version.version_tuple[0], _version.version_tuple[1])
+version = f"{_version.version_tuple[0]}.{_version.version_tuple[1]}"
 # The full version, including alpha/beta/rc tags
 release = _version.version
 

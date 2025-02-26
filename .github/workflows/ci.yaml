@@ -76,5 +76,5 @@ jobs:
       - name: Run tests
         run: |
           uv run playwright install
-          uv run make test
+          uv run make test-github-ci
         continue-on-error: true

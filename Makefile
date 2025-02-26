@@ -118,7 +118,11 @@ unmigrate: run-compose
 #------------------------------------------------------------------------------
 
 .PHONY: test-sqlite
-test-sqlite: export DB__URL=sqlite+aiosqlite://///test_pz_rail_service.db
+test-sqlite: export DB__URL=sqlite+aiosqlite:////${PWD}/tests/test_pz_rail_service.db
 test-sqlite:
-	alembic -x pz-rail_database_url=sqlite:///test_pz_rail_service.db upgrade head
 	pytest -vvv --asyncio-mode=auto --cov=rail_pz_service --cov-branch --cov-report=term --cov-report=html ${PYTEST_ARGS}
+
+.PHONY: test-github-ci
+test-github-ci: export DB__URL=sqlite+aiosqlite:////${PWD}/tests/test_pz_rail_service.db
+test-github-ci:
+	pytest -vvv --asyncio-mode=auto --cov=rail_pz_service --cov-branch --cov-report=term --cov-report=xml ${PYTEST_ARGS}
