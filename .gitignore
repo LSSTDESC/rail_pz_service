@@ -54,6 +54,8 @@ coverage.xml
 cover/
 db/test_pz_rail_service.db
 tests/temp_data
+tests/test_pz_rail_service.db
+tests/pz_rail_server.tgz
 
 # Translations
 *.mo
