@@ -1,19 +1,24 @@
-<div class="h-full w-full bg-gray-100 p-4 max-w-lg mt-24">
-  <span>Datasets</span>
-  <ul class="ml-2" id="datasetUL">
-    {% for dataset_id, dataset_ in datasets.items() %}
-    <li>
-      <span class="box">Dataset {{ dataset_.dataset.name }}   N={{ dataset_.dataset.n_objects }}</span>
-      <ul class="nested ml-2">
-	{% for request_id, request_ in dataset_.requests.items() %}
-	<li>
-          <span class="box">Request: {{ request_id }} {{ request_.qp_file_path }}</span>
-	</li>
-	{% endfor %}
-      </ul>
-    </li>
-    {% endfor %}
-  </ul>
+<div class="p-4 mt-24">
+  {% if dataset_name %}
+  <div>Dataset: {{ dataset_name }} </div>
+  {% else %}
+  <div>No Dataset Selected </div>
+  {% endif %}
+  <div class="dropdown">
+    <button class="dropbtn">Select</button>
+    <div class="dropdown-content">
+      {% for dataset_id, dataset_ in datasets.items() %}
+      <a href="{{ url_for('get_tree', catalog_tag_name=catalog_tag_name, dataset_name=dataset_.dataset.name) }}">{{ dataset_.dataset.name }} N={{ dataset_.dataset.n_objects }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% if catalog_tag_name %}
+  <div class="dropdown">
+    <button class="dropbtn">Load new</button>
+    <div class="dropdown-content">
+      <a href="#">Upload file</a>
+      <a href="#">Enter values</a>
+    </div>
+  </div>
+  {% endif %}
 </div>
-<script src="{{ url_for('static', path='/js/tree_view.js') }}"></script>
-<script src="{{ url_for('static', path='/js/tree_check_boxes.js') }}"></script>

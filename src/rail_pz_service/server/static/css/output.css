@@ -675,9 +675,51 @@ video {
   z-index: 10;
 }
 
+.col-start-1 {
+  grid-column-start: 1;
+}
+
+.col-start-2 {
+  grid-column-start: 2;
+}
+
+.row-start-1 {
+  grid-row-start: 1;
+}
+
+.row-start-2 {
+  grid-row-start: 2;
+}
+
 .col-span-1 {
   grid-column: span 1 / span 1;
 }
+
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+.col-span-3 {
+  grid-column: span 3 / span 3;
+}
+
+.col-span-full {
+  grid-column: 1 / -1
+}
+
+
+.row-span-1 {
+  grid-row: span 1 / span 1;
+}
+
+.row-span-2 {
+  grid-row: span 2 / span 2;
+}
+
+.row-span-3 {
+  grid-row: span 3 / span 3;
+}
+
 
 .m-1 {
   margin: 0.25rem;
@@ -962,8 +1004,52 @@ video {
   resize: both;
 }
 
+.grid-flow-row {
+  grid-auto-flow: row;
+}
+
+.grid-flow-row-dense {
+  grid-auto-flow: row dense;
+}
+
+.grid-flow-col {
+  grid-auto-flow: col;
+}
+
+.grid-flow-col-dense {
+  grid-auto-flow: col dense;
+}
+
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-rows-1 {
+  grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+
+.grid-rows-2 {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.grid-rows-3 {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.grid-rows-4 {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 
 .flex-wrap {
@@ -1881,8 +1967,28 @@ video {
 }
 
 @media (min-width: 640px) {
+  .sm\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
+  .sm\:col-span-2 {
+      grid-column: span 2 / span 2;
+  }
+
   .sm\:col-span-3 {
     grid-column: span 3 / span 3;
+  }
+
+  .sm\:row-span-1 {
+    grid-row: span 1 / span 2;
+  }
+
+  .sm\:row-span-2 {
+    grid-row: span 2 / span 2;
+  }
+
+  .sm\:row-span-3 {
+    grid-row: span 3 / span 3;
   }
 
   .sm\:col-start-1 {
@@ -1998,6 +2104,14 @@ video {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .sm\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -2082,6 +2196,14 @@ video {
 @media (min-width: 1024px) {
   .lg\:block {
     display: block;
+  }
+
+  .lg\:grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .lg\:grid-cols-3 {

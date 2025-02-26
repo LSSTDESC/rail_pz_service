@@ -48,9 +48,11 @@ web_app.mount("/static", StaticFiles(directory=str(Path(BASE_DIR, "static"))), n
 
 @web_app.get("/tree/", response_class=HTMLResponse)
 @web_app.get("/tree/{catalog_tag_name}", response_class=HTMLResponse)
+@web_app.get("/tree/{catalog_tag_name}/{dataset_name}", response_class=HTMLResponse)
 async def get_tree(
     request: Request,
     catalog_tag_name: str | None = None,
+    dataset_name: str | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     cache = db.Cache.shared_cache()
@@ -64,22 +66,35 @@ async def get_tree(
                 datasets={},
                 catalog_tag=None,
             )
+
+        selected_dataset_id = int | None
+        if dataset_name is not None:
+            selected_dataset = await db.Dataset.get_row_by_name(session, dataset_name)
+            selected_dataset_id = selected_dataset.id
+        catalog_tag_dataset_tree = catalog_tag_leaf.filter_for_dataset(
+            selected_dataset_id,
+        )
+
+        import yaml
+
+        print(f"selected {selected_dataset_id}")
+        print(yaml.dump(catalog_tag_dataset_tree.model_dump()))
+
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
         return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
 
-    for dataset_id, dataset_ in catalog_tag_leaf.datasets.items():
-        print(dataset_.model_dump())
     try:
         return templates.TemplateResponse(
             name="pages/tree.html",
             request=request,
             context={
                 "catalog_tag_name": catalog_tag_name,
+                "dataset_name": dataset_name,
                 "catalog_tags": the_tree.catalog_tags,
                 "datasets": catalog_tag_leaf.datasets,
-                "algos": catalog_tag_leaf.algos,
+                "algos": catalog_tag_dataset_tree.algos,
             },
         )
     except Exception as e:

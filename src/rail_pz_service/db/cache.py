@@ -183,6 +183,8 @@ class Cache:
         catalog_tags = await CatalogTag.get_rows(session)
         catalog_tag_dict: dict[str, models.CatalogTagLeaf] = {}
 
+        algos = await Algorithm.get_rows(session)
+
         async with session.begin_nested():
             for catalog_tag_ in catalog_tags:
                 await session.refresh(catalog_tag_, attribute_names=["models_", "datasets_"])
@@ -200,15 +202,19 @@ class Cache:
                         dataset=models.Dataset.model_validate(dataset_),
                     )
 
-                algos_lists: dict[int, list[models.ModelLeaf]] = {}
+                algos_lists: dict[int, list[models.ModelLeaf]] = {algo_.id: [] for algo_ in algos}
+
                 models_dict: dict[int, models.ModelLeaf] = {}
 
                 for model_ in catalog_tag_.models_:
-                    estimator_tree: dict[int, models.Estimator] = {}
+                    estimator_tree: dict[int, models.EstimatorLeaf] = {}
                     await session.refresh(model_, attribute_names=["estimators_"])
 
                     for estimator_ in model_.estimators_:
-                        estimator_tree[estimator_.id] = models.Estimator.model_validate(estimator_)
+                        estimator_tree[estimator_.id] = models.EstimatorLeaf(
+                            estimator=models.Estimator.model_validate(estimator_),
+                            request=None,
+                        )
 
                     model_leaf = models.ModelLeaf(
                         estimators=estimator_tree,
