@@ -1,15 +1,32 @@
-{% extends "pages/base.html" %}
-{% block title %}Tree{% endblock %}
-{% block content %}
-    <div id="tree_content" hx-get=" {{ url_for('get_tree', catalog_tag_name=catalog_tag_name) }}" hx-trigger="every 120s" hx-select="#tree_content" hx-swap="outerHTML">
-        <div class="mt-5 px-4 sm:px-6 lg:px-8">
-	    {% include "partials/catalog_tag_tree.html" %}
-        </div>
-	<div class="mt-5 px-4 sm:px-6 lg:px-8">
-	    {% include "partials/dataset_tree.html" %}
-        </div>
-	<div class="mt-5 px-4 sm:px-6 lg:px-8">
-	    {% include "partials/estimator_tree.html" %}
-        </div>
-    </div>
+{% extends "pages/standard.html" %}
+{% block catalog_tags %}
+<div class="h-full w-full" id="catalog_tag_content">
+<div class="h-full w-full mt-5 px-4 sm:px-6 lg:px-8">
+  {% include "partials/catalog_tag_tree.html" %}
+</div>
+</div>
+{% endblock %}
+
+{% block estimators %}
+<div class="h-full w-full" id="estimator_content">
+<div class="h-full w-full mt-5 px-4 sm:px-6 lg:px-8">
+  {% include "partials/estimator_tree.html" %}
+</div>
+</div>
+{% endblock %}
+
+{% block display %}
+<div class="h-full w-full" id="display_content">
+<div class="h-full w-full mt-5 px-4 sm:px-6 lg:px-8">
+</div>
+</div>
+{% endblock %}
+
+
+{% block datasets %}
+<div class="h-full w-full" id="dataset_content">
+<div class="h-full w-full mt-5 px-4 sm:px-6 lg:px-8">
+  {% include "partials/dataset_tree.html" %}
+</div>
+</div>
 {% endblock %}

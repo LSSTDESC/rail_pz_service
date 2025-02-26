@@ -1,19 +1,19 @@
-<div class="bg-gray-100 p-4 max-w-lg mt-24">
-    <details class="mb-2">
-        <summary class="bg-gray-200 p-4 rounded-lg cursor-pointer shadow-md mb-4">
-            <span class="font-semibold">Datasets</span>
+<div class="h-full w-full bg-gray-100 p-4 max-w-lg mt-24">
+    <details class="w-full mb-2">
+        <summary class="w-full bg-gray-200 p-4 rounded-lg cursor-pointer shadow-md mb-4">
+            <span class="w-full font-semibold">Datasets</span>
         </summary>
-        <ul class="ml-8 space-y-4">
+        <ul class="w-full ml-8 space-y-4">
 	  {% for dataset_id, dataset_ in datasets.items() %}
           <li>
-            <details class="mb-2">
-              <summary class="mb-4">
-                <span>Dataset {{ dataset_.dataset.name }}   N={{ dataset_.dataset.n_objects }}</span>
+            <details class="w-full mb-2">
+              <summary class="w-full mb-4">
+                <span class="w-full">Dataset {{ dataset_.dataset.name }}   N={{ dataset_.dataset.n_objects }}</span>
               </summary>
-	      <ul class="ml-8 space-y-4">
+	      <ul class="w-full ml-8 space-y-4">
 		{% for request_id, request_ in dataset_.requests.items() %}
-		<li>
-                  <span>Request: {{ request_id }} {{ request_.qp_file_path }}</span>
+		<li class="w-full">
+                  <span class="w-full">Request: {{ request_id }} {{ request_.qp_file_path }}</span>
 		</li>
 		{% endfor %}
 	      </ul>

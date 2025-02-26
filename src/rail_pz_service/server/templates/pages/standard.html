@@ -1,0 +1,45 @@
+{% extends "pages/base.html" %}
+{% block title %}Rail PZ Server{% endblock %}
+{% block content %}
+<table class="table-fixed h-full w-full">
+  <tbody>
+    <tr class="h-full">
+      <td class="h-full w-1/4">
+	<table class="table-fixed">
+	  <tbody>
+	    <tr class="h-1/4">
+	      <td class="w-full">
+		{% block catalog_tags %}
+		{% endblock %}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		{% block estimators %}
+		{% endblock %}
+	      </td>
+	    </tr>
+	  </tbody>
+	</table>
+      <td>
+	<table class="table-fixed">
+	  <tbody>
+	    <tr class="h-3/4">
+	      <td class="w-full">
+		{% block display %}
+		{% endblock %}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		{% block datasets %}
+		{% endblock %}
+	      </td>
+	    </tr>
+	  </tbody>
+	</table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}
