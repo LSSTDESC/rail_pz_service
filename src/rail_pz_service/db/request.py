@@ -1,6 +1,9 @@
 """Database model for Request table"""
 
+from __future__ import annotations
+
 import os
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
@@ -9,9 +12,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from rail_pz_service.common import models
-from rail_pz_service.common.errors import RAILMissingRowCreateInputError
-
+from .. import models
+from ..common.errors import RAILMissingRowCreateInputError
 from .base import Base
 from .dataset import Dataset
 from .estimator import Estimator
@@ -42,14 +44,15 @@ class Request(Base, RowMixin):
     qp_file_path: Mapped[str | None] = mapped_column(default=None)
 
     time_created: Mapped[datetime] = mapped_column(type_=DateTime)
+    time_started: Mapped[datetime | None] = mapped_column(type_=DateTime, default=None)
     time_finished: Mapped[datetime | None] = mapped_column(type_=DateTime, default=None)
 
-    estimator_: Mapped["Estimator"] = relationship(
+    estimator_: Mapped[Estimator] = relationship(
         "Estimator",
         primaryjoin="Request.estimator_id==Estimator.id",
         viewonly=True,
     )
-    dataset_: Mapped["Dataset"] = relationship(
+    dataset_: Mapped[Dataset] = relationship(
         "Dataset",
         primaryjoin="Request.dataset_id==Dataset.id",
         viewonly=True,
@@ -98,3 +101,10 @@ class Request(Base, RowMixin):
             dataset_id=dataset_id,
             time_created=time_created,
         )
+
+    @classmethod
+    async def get_open_requests(
+        cls,
+        session: async_scoped_session,
+    ) -> Sequence[Request]:
+        return await session.query.filter(cls.time_started.is_(None)).ordery_by(cls.time_created.desc()).all()

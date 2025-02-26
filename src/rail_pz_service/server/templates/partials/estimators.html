@@ -1,0 +1,19 @@
+<div class="px-4 sm:px-6 lg:px-8">
+    <h1 class="text-sm font-bold leading-tight tracking-tight text-gray-400 pb-3 font-mono uppercase pt-8">Estimators</h1>
+</div>
+<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-5 px-4 sm:px-6 lg:px-8">
+  <table>
+    <tbody>
+      <tr>
+	<th>ID</th>
+	<th>Name</th>
+	<th>CatalogTag ID</th>
+	<th>Algo ID</th>
+	<th>Path</th>
+      </tr>
+      {% for estimator_ in estimators %}
+      {% include "partials/estimators.html" %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

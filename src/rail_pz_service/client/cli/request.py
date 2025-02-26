@@ -2,9 +2,9 @@
 
 import click
 
-from rail_pz_service.client.client import PZRailClient
-from rail_pz_service.common import common_options, models
-
+from ... import models
+from ...common import common_options
+from ..client import PZRailClient
 from . import client_options, wrappers
 
 

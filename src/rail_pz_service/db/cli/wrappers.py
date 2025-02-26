@@ -17,9 +17,8 @@ from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 from tabulate import tabulate
 
-from rail_pz_service import db
-from rail_pz_service.common import common_options
-
+from ... import db
+from ...common import common_options
 from . import admin_options
 
 
@@ -273,13 +272,16 @@ def get_row_attribute_list_command(
     attribute:
         The attribute to get
 
+    output_db_class
+        Db class for the output type
+
     Returns
     -------
     Callable
         Function that returns the row for the table in question
     """
 
-    @group_command(name="by_name")
+    @group_command(name=f"{attribute[:-1]}")
     @admin_options.db_engine()
     @common_options.row_id()
     @common_options.output()

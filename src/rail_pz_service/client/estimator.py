@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from rail_pz_service.common import models
-
+from .. import models
 from . import wrappers
 
 if TYPE_CHECKING:
@@ -41,4 +40,8 @@ class PZRailEstimatorClient:
 
     get_row_by_name = wrappers.get_row_by_name_function(
         ResponseModelClass, f"{router_string}/get_row_by_name"
+    )
+
+    get_requests = wrappers.get_row_attribute_list_function(
+        ResponseModelClass, f"{router_string}/get", "requests"
     )

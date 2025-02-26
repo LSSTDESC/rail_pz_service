@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from rail_pz_service.common import models
-
+from .. import models
 from . import wrappers
 
 if TYPE_CHECKING:
@@ -44,11 +43,15 @@ class PZRailCatalogTagClient:
     )
 
     get_estimators = wrappers.get_row_attribute_list_function(
-        ResponseModelClass, f"{router_string}/get/estimators"
+        list[models.Estimator],
+        f"{router_string}/get",
+        "estimators",
     )
 
-    get_models = wrappers.get_row_attribute_list_function(ResponseModelClass, f"{router_string}/get/models")
+    get_models = wrappers.get_row_attribute_list_function(
+        list[models.Model], f"{router_string}/get", "models"
+    )
 
     get_datasets = wrappers.get_row_attribute_list_function(
-        ResponseModelClass, f"{router_string}/get/datasets"
+        list[models.Dataset], f"{router_string}/get", "datasets"
     )

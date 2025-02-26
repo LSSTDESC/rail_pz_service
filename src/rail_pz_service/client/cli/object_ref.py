@@ -2,8 +2,7 @@
 
 import click
 
-from rail_pz_service.common import models
-
+from ... import models
 from . import wrappers
 
 

@@ -78,8 +78,8 @@ ENDRUN
 
 
 #==============================================================================
-# RUNTIME IMAGE - pz-rail-admin
-FROM base-image AS pz-rail-admin
+# RUNTIME IMAGE - pz-rail-service
+FROM base-image AS pz-rail-service
 
 # Make sure frontend output won't go into the layer store
 VOLUME /archive
@@ -99,4 +99,26 @@ COPY alembic ./alembic
 COPY alembic.ini .
 
 ENTRYPOINT ["/opt/venv/bin/python3", "-m"]
-CMD ["nrail_pz_service.cli.admin.main"]
+
+#==============================================================================
+# RUNTIME IMAGE - ADMIN
+FROM pz-rail-service AS pz-rail-service-admin
+
+USER lsstsvc1
+CMD ["rail_pz_service.db.cli.admin"]
+
+
+#==============================================================================
+# RUNTIME IMAGE - CLIENT
+FROM pz-rail-service AS pz-rail-service-client
+
+USER lsstsvc1
+CMD ["rail_pz_service.client.cli.main"]
+
+
+#==============================================================================
+# RUNTIME IMAGE - CLIENT
+FROM pz-rail-service AS pz-rail-service-server
+
+USER lsstsvc1
+CMD ["rail_pz_service.server.main"]

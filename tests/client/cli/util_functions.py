@@ -5,7 +5,7 @@ from click import BaseCommand
 from click.testing import CliRunner, Result
 from pydantic import TypeAdapter
 
-from rail_pz_service.common import models
+from rail_pz_service import models
 
 T = TypeVar("T")
 

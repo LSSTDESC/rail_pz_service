@@ -11,9 +11,8 @@ from sqlalchemy.schema import CreateSchema
 
 # Using safir to set stuff up
 # from safir.database import create_database_engine, initialize_database
-from rail_pz_service import db
-from rail_pz_service.common.config import config
-
+from ... import __version__, db
+from ...config import config
 from .algorithm import algorithm_group
 from .catalog_tag import catalog_tag_group
 from .dataset import dataset_group
@@ -77,7 +76,7 @@ def init(*, reset: bool) -> None:
         request_group,
     ],
 )
-@click.version_option(version=db.__version__)
+@click.version_option(version=__version__)
 def admin_top() -> None:
     """Administrative command-line rail-pz-server commands."""
 

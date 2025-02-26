@@ -8,14 +8,15 @@ from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
-from rail_pz_service.common.config import config
-
-from . import __version__
+from .. import __version__
+from ..config import config
+from .logging import LOGGER
 from .routers import (
     healthz,
     index,
     v1,
 )
+from .web_app import web_app
 
 configure_uvicorn_logging(config.logging.level)
 configure_logging(
@@ -23,6 +24,8 @@ configure_logging(
     log_level=config.logging.level,
     name=config.asgi.title,
 )
+logger = LOGGER.bind(module=__name__)
+
 
 tags_metadata = [
     {
@@ -104,10 +107,11 @@ app.include_router(index.router, prefix="")
 app.include_router(v1.router, prefix=config.asgi.prefix)
 
 # Start the frontend web application.
-# app.mount(config.asgi.frontend_prefix, web_app)
+app.mount(config.asgi.frontend_prefix, web_app)
 
 
 def main() -> None:
+    logger.info(f"Server starting {config.asgi.host}:{config.asgi.port}{config.asgi.frontend_prefix}")
     uvicorn.run(
         "rail_pz_service.server.main:app",
         host=config.asgi.host,

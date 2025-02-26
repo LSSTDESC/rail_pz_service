@@ -2,9 +2,8 @@
 
 import click
 
-from rail_pz_service import db
-from rail_pz_service.common import common_options
-
+from ... import db
+from ...common import common_options
 from . import admin_options, wrappers
 
 
@@ -53,3 +52,7 @@ delete = wrappers.get_delete_command(group_command, DbClass)
 get_row = wrappers.get_row_command(get_command, DbClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
+
+get_object_refs = wrappers.get_row_attribute_list_command(get_command, DbClass, "object_refs_", db.ObjectRef)
+
+get_requests = wrappers.get_row_attribute_list_command(get_command, DbClass, "request_", db.Request)

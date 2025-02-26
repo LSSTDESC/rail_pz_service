@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import db
 from rail_pz_service.common import test_files
-from rail_pz_service.common.config import config as config_
+from rail_pz_service.config import config as config_
 from rail_pz_service.server import main
 
 

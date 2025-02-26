@@ -7,9 +7,8 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
 
-from rail_pz_service.common import models
-from rail_pz_service.common.errors import RAILMissingRowCreateInputError
-
+from .. import models
+from ..common.errors import RAILMissingRowCreateInputError
 from .algorithm import Algorithm
 from .base import Base
 from .catalog_tag import CatalogTag
@@ -17,7 +16,7 @@ from .model import Model
 from .row import RowMixin
 
 if TYPE_CHECKING:
-    pass
+    from .request import Request
 
 
 class Estimator(Base, RowMixin):
@@ -60,6 +59,11 @@ class Estimator(Base, RowMixin):
     model_: Mapped["Model"] = relationship(
         "Model",
         primaryjoin="Estimator.model_id==Model.id",
+        viewonly=True,
+    )
+    requests_: Mapped[list["Request"]] = relationship(
+        "Request",
+        primaryjoin="Estimator.id==Request.estimator_id",
         viewonly=True,
     )
 

@@ -17,8 +17,8 @@ from safir.dependencies.db_session import db_session_dependency
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
-from rail_pz_service import db
-from rail_pz_service.common.errors import (
+from ... import db
+from ...common.errors import (
     RAILMissingIDError,
     RAILMissingNameError,
 )
@@ -242,9 +242,10 @@ def get_row_attribute_list_function(
     Callable
         Function that gets the collection names associated to a Node
     """
+    route_str = "/get/{row_id}/" + attr_name[:-1] + "/"
 
     @router.get(
-        "/get/{row_id}/collections",
+        route_str,
         response_model=list[list_response_model_class],
         summary=f"Get an attribute associated to a {db_class.class_string}",
     )

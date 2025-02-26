@@ -1,0 +1,9 @@
+{% extends "pages/base.html" %}
+{% block title %}CatalogTags{% endblock %}
+{% block content %}
+    <div id="catalog_tags_content" hx-get=" {{ url_for('get_catalog_tags') }}" hx-trigger="every 20s" hx-select="#catalog_tags_content" hx-swap="outerHTML">
+        <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-5 px-4 sm:px-6 lg:px-8">
+	    {% include "partials/catalog_tags.html" %}
+        </div>
+    </div>
+{% endblock %}

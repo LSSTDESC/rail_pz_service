@@ -1,0 +1,28 @@
+<div class="bg-gray-100 p-4 max-w-lg mt-24">
+  <ul id="estimatorUL">
+    <li>
+      <span class="caret">Algorithms</span>
+      <ul class="nested">
+	{% for algo_id, algo_ in algos.items() %}
+        <li>
+	  <span class="caret">Algorithm: {{ algo_.algo.name }}</span>
+	  <ul class="nested">
+	    {% for model_id, model_ in algo_.models.items() %}
+	    <li>
+	      <span class="caret">Model: {{ model_.model.name }}</span>
+	      <ul class="nested">
+		{% for estimator_id, estimator_ in model_.estimators.items() %}
+		<li>
+		  <span class="box">Estimator: {{ estimator_.name }}</span>
+		</li>
+		{% endfor %}
+	      </ul>
+            </li>
+	    {% endfor %}
+	  </ul>
+	</li>
+	{% endfor %}
+      </ul>
+    </li>
+  </ul>
+</div>

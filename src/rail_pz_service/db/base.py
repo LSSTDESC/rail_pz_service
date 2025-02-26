@@ -4,9 +4,9 @@
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
-from rail_pz_service.common.config import config
+from ..config import config
 
-# from rail_pz_service.common.enums import (
+# from ..common.enums import (
 #    TableEnum,
 # )
 

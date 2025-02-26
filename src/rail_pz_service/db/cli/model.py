@@ -2,9 +2,8 @@
 
 import click
 
-from rail_pz_service import db
-from rail_pz_service.common import common_options
-
+from ... import db
+from ...common import common_options
 from . import admin_options, wrappers
 
 
@@ -50,4 +49,4 @@ get_row = wrappers.get_row_command(get_command, DbClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, DbClass)
 
-get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "_estimators", db.Estimator)
+get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "estimators_", db.Estimator)

@@ -1,0 +1,23 @@
+<div class="h-full w-full bg-gray-100 p-4 max-w-lg mt-24">
+  <ul id="datasetUL">
+    <li>
+      <span class="caret">Datasets</span>
+      <ul class="nested">
+	{% for dataset_id, dataset_ in datasets.items() %}
+        <li>
+          <span class="box">Dataset {{ dataset_.dataset.name }}   N={{ dataset_.dataset.n_objects }}</span>
+	  <ul class="nested">
+	    {% for request_id, request_ in dataset_.requests.items() %}
+	    <li>
+	      <span class="box">Request: {{ request_id }} {{ request_.qp_file_path }}</span>
+	    </li>
+	    {% endfor %}
+	  </ul>
+        </li>
+	{% endfor %}
+      </ul>
+    </li>
+  </ul>
+</div>
+<script src="{{ url_for('static', path='/js/tree_view.js') }}"></script>
+<script src="{{ url_for('static', path='/js/tree_check_boxes.js') }}"></script>

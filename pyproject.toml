@@ -31,6 +31,8 @@ dependencies = [
     "python-multipart==0.0.*",
     "structlog==24.4.*",
     "tabulate==0.9.*",
+    "h5py",
+    "qp-prob[full]",
     "pz-rail",
 ]
 
@@ -46,6 +48,7 @@ server = [
     "rich==13.9.*",
     "sqlalchemy[asyncio]==2.0.*",
     "safir[db]==7.0.*",
+    "uvicorn",
 ]
 
 dev = [
@@ -72,6 +75,7 @@ dev = [
 pz-rail-service-client = "rail_pz_service.client.cli.main:top"
 pz-rail-service-admin = "rail_pz_service.db.cli.admin:admin_top"
 pz-rail-service-server = "rail_pz_service.server.main:main"
+pz-rail-service-worker = "rail_pz_service.server.worker:main"
 
 [project.urls]
 Source = "https://github.com/LSSTDESC/rail_pz_service"
@@ -79,15 +83,11 @@ Source = "https://github.com/LSSTDESC/rail_pz_service"
 [tool.uv]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=62", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/rail_pz_service"]
-
-[tool.hatch.version]
-path = "src/rail_pz_service/__init__.py"
-fallback-version = "0.0.0"
+[tool.setuptools_scm]
+write_to = "src/rail_pz_service/_version.py"
 
 [tool.coverage.run]
 parallel = true

@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from rail_pz_service.common import models
-
+from .. import models
 from .base import Base
 from .row import RowMixin
 
@@ -28,12 +27,12 @@ class Algorithm(Base, RowMixin):
     name: Mapped[str] = mapped_column(index=True, unique=True)
     class_name: Mapped[str] = mapped_column()
 
-    estimators_: Mapped["Estimator"] = relationship(
+    estimators_: Mapped[list["Estimator"]] = relationship(
         "Estimator",
         primaryjoin="Algorithm.id==Estimator.algo_id",
         viewonly=True,
     )
-    models_: Mapped["Model"] = relationship(
+    models_: Mapped[list["Model"]] = relationship(
         "Model",
         primaryjoin="Algorithm.id==Model.algo_id",
         viewonly=True,

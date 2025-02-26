@@ -1,5 +1,4 @@
-"""Campaign management tooling"""
+from ._version import __version__
+from . import client, common, config, db, models, server
 
-__all__ = ["__version__"]
-
-__version__ = "0.0.0"
+__all__ = ["__version__", "client", "common", "config", "db", "models", "server"]

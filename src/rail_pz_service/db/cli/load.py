@@ -8,9 +8,8 @@ import click
 from safir.database import create_async_session
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service import db
-from rail_pz_service.common import common_options
-
+from ... import db
+from ...common import common_options
 from . import admin_options, wrappers
 
 

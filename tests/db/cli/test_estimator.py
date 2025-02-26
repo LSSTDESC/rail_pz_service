@@ -3,7 +3,7 @@ import uuid
 from click.testing import CliRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from rail_pz_service.common import models
+from rail_pz_service import models
 from rail_pz_service.db.cli.admin import admin_top
 
 from .util_functions import (
