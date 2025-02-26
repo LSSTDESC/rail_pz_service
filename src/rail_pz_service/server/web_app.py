@@ -12,9 +12,8 @@ from safir.dependencies.db_session import db_session_dependency
 from safir.dependencies.http_client import http_client_dependency
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from .. import db
+from .. import db, models
 from ..config import config
-from . import routers
 
 
 @asynccontextmanager
@@ -47,132 +46,30 @@ router = APIRouter(
 web_app.mount("/static", StaticFiles(directory=str(Path(BASE_DIR, "static"))), name="static")
 
 
-@web_app.get("/catalog_tags/", response_class=HTMLResponse)
-async def get_catalog_tags(
-    request: Request,
-    session: async_scoped_session = Depends(db_session_dependency),
-) -> HTMLResponse:
-    try:
-        catalog_tags = await routers.catalog_tag.get_rows(session=session)
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_rows:  {e}")
-
-    try:
-        return templates.TemplateResponse(
-            name="pages/catalog_tags.html",
-            request=request,
-            context={
-                "catalog_tags": catalog_tags,
-            },
-        )
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
-
-
-@web_app.get("/models/{catalog_tag_id}", response_class=HTMLResponse)
-async def get_models(
-    request: Request,
-    catalog_tag_id: int,
-    session: async_scoped_session = Depends(db_session_dependency),
-) -> HTMLResponse:
-    try:
-        models = await routers.catalog_tag.get_models(catalog_tag_id, session)
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_rows:  {e}")
-
-    try:
-        return templates.TemplateResponse(
-            name="pages/models.html",
-            request=request,
-            context={
-                "catalog_tag_id": catalog_tag_id,
-                "models": models,
-            },
-        )
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
-
-
-@web_app.get("/estimators/{catalog_tag_id}", response_class=HTMLResponse)
-async def get_estimators(
-    request: Request,
-    catalog_tag_id: int,
-    session: async_scoped_session = Depends(db_session_dependency),
-) -> HTMLResponse:
-    try:
-        estimators = await routers.catalog_tag.get_estimators(catalog_tag_id, session)
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_rows:  {e}")
-
-    try:
-        return templates.TemplateResponse(
-            name="pages/estimators.html",
-            request=request,
-            context={
-                "catalog_tag_id": catalog_tag_id,
-                "estimators": estimators,
-            },
-        )
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
-
-
-@web_app.get("/datasets/{catalog_tag_id}", response_class=HTMLResponse)
-async def get_datasets(
-    request: Request,
-    catalog_tag_id: int,
-    session: async_scoped_session = Depends(db_session_dependency),
-) -> HTMLResponse:
-    try:
-        datasets = await routers.catalog_tag.get_datasets(catalog_tag_id, session)
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_rows:  {e}")
-
-    try:
-        return templates.TemplateResponse(
-            name="pages/datasets.html",
-            request=request,
-            context={
-                "catalog_tag_id": catalog_tag_id,
-                "datasets": datasets,
-            },
-        )
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
-
-
+@web_app.get("/tree/", response_class=HTMLResponse)
 @web_app.get("/tree/{catalog_tag_name}", response_class=HTMLResponse)
 async def get_tree(
     request: Request,
-    catalog_tag_name: str,
+    catalog_tag_name: str | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     cache = db.Cache.shared_cache()
     try:
         the_tree = await cache.get_catalog_tag_tree(session)
-        catalog_tag_tree = the_tree.catalog_tags[catalog_tag_name]
+        if catalog_tag_name is not None:
+            catalog_tag_leaf = the_tree.catalog_tags[catalog_tag_name]
+        else:
+            catalog_tag_leaf = models.CatalogTagLeaf(
+                algos={},
+                datasets={},
+                catalog_tag=None,
+            )
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
         return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
 
-    for dataset_id, dataset_ in catalog_tag_tree.datasets.items():
+    for dataset_id, dataset_ in catalog_tag_leaf.datasets.items():
         print(dataset_.model_dump())
     try:
         return templates.TemplateResponse(
@@ -181,8 +78,8 @@ async def get_tree(
             context={
                 "catalog_tag_name": catalog_tag_name,
                 "catalog_tags": the_tree.catalog_tags,
-                "datasets": catalog_tag_tree.datasets,
-                "algos": catalog_tag_tree.algos,
+                "datasets": catalog_tag_leaf.datasets,
+                "algos": catalog_tag_leaf.algos,
             },
         )
     except Exception as e:

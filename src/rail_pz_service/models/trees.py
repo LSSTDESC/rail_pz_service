@@ -34,7 +34,7 @@ class CatalogTagLeaf(BaseModel):
     algos: dict[int, AlgoLeaf]
     datasets: dict[int, DatasetLeaf]
 
-    catalog_tag: CatalogTag
+    catalog_tag: CatalogTag | None
 
 
 class CatalogTagTree(BaseModel):
