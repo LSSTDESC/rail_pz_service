@@ -46,6 +46,166 @@ router = APIRouter(
 web_app.mount("/static", StaticFiles(directory=str(Path(BASE_DIR, "static"))), name="static")
 
 
+async def get_request_context(
+    session: async_scoped_session,
+    catalog_tag_name: str | None = None,
+    dataset_name: str | None = None,
+) -> dict:
+    cache = db.Cache.shared_cache()
+
+    the_tree = await cache.get_catalog_tag_tree(session)
+    if catalog_tag_name is not None:
+        catalog_tag_leaf = the_tree.catalog_tags[catalog_tag_name]
+    else:
+        catalog_tag_leaf = models.CatalogTagLeaf(
+            algos={},
+            datasets={},
+            catalog_tag=None,
+        )
+
+    selected_dataset_id: int | None = None
+    if dataset_name is not None:
+        selected_dataset = await db.Dataset.get_row_by_name(session, dataset_name)
+        selected_dataset_id = selected_dataset.id
+    catalog_tag_dataset_tree = catalog_tag_leaf.filter_for_dataset(
+        selected_dataset_id,
+    )
+
+    context = {
+        "catalog_tag_name": catalog_tag_name,
+        "dataset_name": dataset_name,
+        "catalog_tags": the_tree.catalog_tags,
+        "datasets": catalog_tag_leaf.datasets,
+        "algos": catalog_tag_dataset_tree.algos,
+    }
+    return context
+
+
+@web_app.get("/load_dataset/{catalog_tag_name}", response_class=HTMLResponse)
+async def load_dataset(
+    request: Request,
+    catalog_tag_name: str | None = None,
+    session: async_scoped_session = Depends(db_session_dependency),
+) -> HTMLResponse:
+    try:
+        context = await get_request_context(
+            session,
+            catalog_tag_name=catalog_tag_name,
+            dataset_name=None,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
+
+    try:
+        return templates.TemplateResponse(
+            name="pages/load_dataset.html",
+            request=request,
+            context=context,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong:  {e}")
+
+
+@web_app.get("/load_dataset_from_values/{catalog_tag_name}", response_class=HTMLResponse)
+async def load_dataset_from_values(
+    request: Request,
+    catalog_tag_name: str | None = None,
+    session: async_scoped_session = Depends(db_session_dependency),
+) -> HTMLResponse:
+    try:
+        context = await get_request_context(
+            session,
+            catalog_tag_name=catalog_tag_name,
+            dataset_name=None,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
+
+    try:
+        return templates.TemplateResponse(
+            name="pages/load_dataset_from_values.html",
+            request=request,
+            context=context,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong:  {e}")
+
+
+@web_app.get("/load_model/{algo_name}", response_class=HTMLResponse)
+@web_app.get("/load_model/{algo_name}/{catalog_tag_name}", response_class=HTMLResponse)
+@web_app.get("/load_model/{algo_name}/{catalog_tag_name}/{dataset_name}", response_class=HTMLResponse)
+async def load_model(
+    request: Request,
+    algo_name: str,
+    catalog_tag_name: str | None = None,
+    dataset_name: str | None = None,
+    session: async_scoped_session = Depends(db_session_dependency),
+) -> HTMLResponse:
+    context = await get_request_context(
+        session,
+        catalog_tag_name=catalog_tag_name,
+        dataset_name=dataset_name,
+    )
+
+    try:
+        return templates.TemplateResponse(
+            name="pages/load_model.html",
+            request=request,
+            context=context,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong:  {e}")
+
+
+@web_app.get("/load_estimator/{model_name}", response_class=HTMLResponse)
+@web_app.get("/load_estimator/{model_name}/{dataset_name}", response_class=HTMLResponse)
+async def load_estimator(
+    request: Request,
+    model_name: str,
+    dataset_name: str | None = None,
+    session: async_scoped_session = Depends(db_session_dependency),
+) -> HTMLResponse:
+    model_ = await db.Model.get_row_by_name(session, model_name)
+    await session.refresh(model_, attribute_names=["algo_", "catalog_tag_"])
+
+    try:
+        context = await get_request_context(
+            session,
+            catalog_tag_name=model_.catalog_tag_.name,
+            dataset_name=dataset_name,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
+
+    context.update(
+        model_name=model_name,
+        algo_name=model_.algo_.name,
+    )
+
+    try:
+        return templates.TemplateResponse(
+            name="pages/load_model.html",
+            request=request,
+            context=context,
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return templates.TemplateResponse(f"Something went wrong:  {e}")
+
+
 @web_app.get("/tree/", response_class=HTMLResponse)
 @web_app.get("/tree/{catalog_tag_name}", response_class=HTMLResponse)
 @web_app.get("/tree/{catalog_tag_name}/{dataset_name}", response_class=HTMLResponse)
@@ -55,31 +215,12 @@ async def get_tree(
     dataset_name: str | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
-    cache = db.Cache.shared_cache()
     try:
-        the_tree = await cache.get_catalog_tag_tree(session)
-        if catalog_tag_name is not None:
-            catalog_tag_leaf = the_tree.catalog_tags[catalog_tag_name]
-        else:
-            catalog_tag_leaf = models.CatalogTagLeaf(
-                algos={},
-                datasets={},
-                catalog_tag=None,
-            )
-
-        selected_dataset_id = int | None
-        if dataset_name is not None:
-            selected_dataset = await db.Dataset.get_row_by_name(session, dataset_name)
-            selected_dataset_id = selected_dataset.id
-        catalog_tag_dataset_tree = catalog_tag_leaf.filter_for_dataset(
-            selected_dataset_id,
+        context = await get_request_context(
+            session,
+            catalog_tag_name=catalog_tag_name,
+            dataset_name=dataset_name,
         )
-
-        import yaml
-
-        print(f"selected {selected_dataset_id}")
-        print(yaml.dump(catalog_tag_dataset_tree.model_dump()))
-
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
@@ -89,13 +230,7 @@ async def get_tree(
         return templates.TemplateResponse(
             name="pages/tree.html",
             request=request,
-            context={
-                "catalog_tag_name": catalog_tag_name,
-                "dataset_name": dataset_name,
-                "catalog_tags": the_tree.catalog_tags,
-                "datasets": catalog_tag_leaf.datasets,
-                "algos": catalog_tag_dataset_tree.algos,
-            },
+            context=context,
         )
     except Exception as e:
         print(e)

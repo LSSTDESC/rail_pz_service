@@ -9,7 +9,6 @@ from .dataset import dataset_group
 from .estimator import estimator_group
 from .load import load_group
 from .model import model_group
-from .object_ref import object_ref_group
 from .request import request_group
 
 
@@ -23,7 +22,6 @@ from .request import request_group
         estimator_group,
         load_group,
         model_group,
-        object_ref_group,
         request_group,
     ],
 )

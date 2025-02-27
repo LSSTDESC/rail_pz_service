@@ -702,8 +702,6 @@ class Cache:
             new_estimator = await Estimator.create_row(
                 session,
                 name=name,
-                algo_id=model.algo_id,
-                catalog_tag_id=model.catalog_tag_id,
                 model_id=model.id,
                 config=config,
             )

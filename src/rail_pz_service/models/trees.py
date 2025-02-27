@@ -33,7 +33,7 @@ class CatalogTagDatasetTree(BaseModel):
     algos: dict[int, AlgoLeaf]
 
     dataset: Dataset | None
-    catalog_tag: CatalogTag
+    catalog_tag: CatalogTag | None
     request_by_estimator: dict[int, Request]
 
 

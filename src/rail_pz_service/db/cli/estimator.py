@@ -21,9 +21,7 @@ create_options = [
     admin_options.db_engine(),
     common_options.name(),
     common_options.config(),
-    common_options.algo_name(),
     common_options.model_name(),
-    common_options.catalog_tag_name(),
     common_options.output(),
 ]
 

@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, select
 from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
@@ -107,4 +107,7 @@ class Request(Base, RowMixin):
         cls,
         session: async_scoped_session,
     ) -> Sequence[Request]:
-        return await session.query.filter(cls.time_started.is_(None)).ordery_by(cls.time_created.desc()).all()
+        q = select(cls)
+        q = q.filter(cls.time_started.is_(None)).order_by(cls.time_created.desc())
+        results = await session.scalars(q)
+        return results.all()

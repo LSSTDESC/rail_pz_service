@@ -13,7 +13,6 @@ from .dataset import PZRailDatasetClient
 from .estimator import PZRailEstimatorClient
 from .load import PZRailLoadClient
 from .model import PZRailModelClient
-from .object_ref import PZRailObjectRefClient
 from .request import PZRailRequestClient
 
 __all__ = ["PZRailClient"]
@@ -43,7 +42,6 @@ class PZRailClient:
         self.estimator = PZRailEstimatorClient(self)
         self.model = PZRailModelClient(self)
         self.request = PZRailRequestClient(self)
-        self.object_ref = PZRailObjectRefClient(self)
 
         self.load = PZRailLoadClient(self)
 

@@ -53,7 +53,6 @@ def delete_all_stuff(
     delete_all_rows(runner, client_top, "estimator", models.Estimator)
     delete_all_rows(runner, client_top, "model", models.Model)
     delete_all_rows(runner, client_top, "request", models.Request)
-    delete_all_rows(runner, client_top, "object-ref", models.ObjectRef)
 
 
 def cleanup(

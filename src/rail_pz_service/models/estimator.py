@@ -18,12 +18,6 @@ class EstimatorBase(BaseModel):
 class EstimatorCreate(EstimatorBase):
     """Estimator Parameters that are used to create new rows but not in DB tables"""
 
-    # Name of the algorithm
-    algo_name: str
-
-    # Name of the catalog_tag
-    catalog_tag_name: str
-
     # Name of the model
     model_name: str
 

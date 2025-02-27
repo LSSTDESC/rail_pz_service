@@ -16,8 +16,8 @@
   <div class="dropdown">
     <button class="dropbtn">Load new</button>
     <div class="dropdown-content">
-      <a href="#">Upload file</a>
-      <a href="#">Enter values</a>
+      <a href="{{ url_for('load_dataset', catalog_tag_name=catalog_tag_name) }}">Upload file</a>
+      <a href="{{ url_for('load_dataset_from_values', catalog_tag_name=catalog_tag_name) }}">Enter values</a>
     </div>
   </div>
   {% endif %}
