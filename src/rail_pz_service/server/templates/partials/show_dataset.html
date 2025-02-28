@@ -1,0 +1,13 @@
+<div>
+  <div>Dataset: {{ dataset.name }}</div>
+  <div>CatalogTag: {{ catalog_tag.name }}</div>
+  <div>ID: {{ dataset.id }}</div>
+  <div>N: {{ dataset.id }}</div>
+  {% if dataset.path %}
+  <div>Path: {{ dataset.path }}</div>
+  {% elif dataset.data %}
+  <div>Data: {{ dataset.data }}</div>
+  {% else %}
+  <div>No Data</div>
+  {% endif %}
+</div>											     

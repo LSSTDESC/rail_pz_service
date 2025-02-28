@@ -1,0 +1,34 @@
+<div class="bg-gray-100 p-4 mt-24">
+  <span>Algorithms:</span>
+  <ul id="estimatorUL">
+    {% for algo_id, algo_ in selected_algos.items() %}
+    <li>
+      {% include "partials/show_algorithm_form.html" %}      
+      <ul class="ml-2">
+	{% for model_id, model_ in algo_.models.items() %}
+	<li>
+	  {% include "partials/show_model_form.html" %}
+	  <ul class="ml-2">
+	    {% for estimator_id, estimator_ in model_.estimators.items() %}
+	    <li>
+	      {% include "partials/show_estimator_form.html" %}
+	      {% if dataset %}
+	      {% if estimator_.request %}
+	      Request: {{ estimator_.request.id }}
+	      <a href="#" class="text-indigo-700">({{ estimator_.request.id }})</a>
+	      {% else %}
+	      {% include "partials/request_form.html" %}
+	      {% endif %}
+	      {% endif %}
+	    </li>
+	    {% endfor %}
+	  </ul>
+        </li>
+	{% endfor %}
+      </ul>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+<script src="{{ url_for('static', path='/js/tree_view.js') }}"></script>
+<script src="{{ url_for('static', path='/js/tree_check_boxes.js') }}"></script>

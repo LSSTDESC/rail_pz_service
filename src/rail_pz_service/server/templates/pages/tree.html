@@ -3,14 +3,34 @@
   {% include "partials/catalog_tag_tree.html" %}
 {% endblock %}
 
+{% block datasets %}
+  {% include "partials/dataset_tree.html" %}
+{% endblock %}
+
 {% block estimators %}
-  {% include "partials/estimator_tree.html" %}
+  {% include "partials/estimator_nested_list.html" %}
 {% endblock %}
 
 {% block display %}
-<img src="{{ url_for('static', path='/images/horse.png') }}" alt="A horse">
-{% endblock %}
-
-{% block datasets %}
-  {% include "partials/dataset_tree.html" %}
+  {% if display_type == "show_catalog_tag" %}
+    {% include "partials/show_catalog_tag.html" %}
+  {% elif display_type == "show_algorithm" %}
+    {% include "partials/show_algorithm.html" %}
+  {% elif display_type == "show_dataset" %}
+    {% include "partials/show_dataset.html" %}
+  {% elif display_type == "show_model" %}
+    {% include "partials/show_model.html" %}
+  {% elif display_type == "show_estimator" %}
+    {% include "partials/show_estimator.html" %}
+  {% elif display_type == "load_model" %}
+    {% include "partials/load_model.html" %}
+  {% elif display_type == "load_estimator" %}
+    {% include "partials/load_estimator.html" %}
+  {% elif display_type == "load_dataset" %}
+    {% include "partials/load_dataset.html" %}
+  {% elif display_type == "load_dataset_from_values" %}
+    {% include "partials/load_dataset_from_values.html" %}
+  {% else %}
+    <img src="{{ url_for('static', path='/images/horse.png') }}" alt="A horse">
+  {% endif %}
 {% endblock %}

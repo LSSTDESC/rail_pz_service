@@ -181,7 +181,7 @@ class Cache:
         session: async_scoped_session,
     ) -> models.CatalogTagTree:
         catalog_tags = await CatalogTag.get_rows(session)
-        catalog_tag_dict: dict[str, models.CatalogTagLeaf] = {}
+        catalog_tag_dict: dict[int, models.CatalogTagLeaf] = {}
 
         algos = await Algorithm.get_rows(session)
 
@@ -245,10 +245,11 @@ class Cache:
                     datasets=dataset_tree,
                     catalog_tag=models.CatalogTag.model_validate(catalog_tag_),
                 )
-                catalog_tag_dict[catalog_tag_.name] = catalog_tag_leaf
+                catalog_tag_dict[catalog_tag_.id] = catalog_tag_leaf
 
             catalog_tag_tree = models.CatalogTagTree(
                 catalog_tags=catalog_tag_dict,
+                algos={algo_.id: algo_ for algo_ in algos},
             )
             return catalog_tag_tree
 

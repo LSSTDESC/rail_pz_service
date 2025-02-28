@@ -1,14 +1,14 @@
 <div class="p-4 mt-24">
-  {% if catalog_tag_name %}
-  <div>Catalog Tag: {{ catalog_tag_name }} </div>
-  {% else %}
-  <div>No CatalogTag Selected </div>
-  {% endif %}
+  {% include "partials/show_catalog_tag_form.html" %}
   <div class="dropdown">
     <button class="dropbtn">Select</button>
     <div class="dropdown-content">
-      {% for catalog_tag_name_ in catalog_tags.keys() %}
-      <a href="{{ url_for('get_tree', catalog_tag_name=catalog_tag_name_) }}">{{ catalog_tag_name_ }}</a>
+      {% for catalog_tag_id_, catalog_tag_ in all_catalog_tags.items() %}
+      {% if dataset %}
+      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag_id_ }}&dataset_id={{ dataset.id }}">{{ catalog_tag_.catalog_tag.name }}</a>
+      {% else %}
+      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag_id_ }}">{{ catalog_tag_.catalog_tag.name }}</a>      
+      {% endif %}
       {% endfor %}
     </div>
   </div>

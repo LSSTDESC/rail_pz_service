@@ -1,11 +1,14 @@
-<form action="/action_page.php">
+<form method="post" enctype="multipart/form-data">
   <div class="container">
     <h1>Load Model</h1>
     <hr>
-
     <label for="model_name"><b>Model Name</b></label>
-    <input type="text" placeholder="Name" name="model_name" id="model_name" required>
-    <input type="file" id="myFile" name="filename">
-    <button type="submit" class="registerbtn">Load</button>
+    <input type="text" placeholder="Model Name" name="model_name" id="model_name" required>
+    <input type="file" name="fileToUpload" id="fileToUpload" accept=".pkl, .pickle" required><br>
+    <div class="mt-4">
+      <input type="checkbox" id="skip_estimator" name="skip_estimator" value="1">
+      <label for="skip_estimator">Skip Default Estimator</label><br><br>
+    </div>
+    <input type="submit" value="Create" name="submit_model">
   </div>
 </form>

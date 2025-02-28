@@ -80,4 +80,6 @@ class CatalogTagLeaf(BaseModel):
 
 
 class CatalogTagTree(BaseModel):
-    catalog_tags: dict[str, CatalogTagLeaf]
+    catalog_tags: dict[int, CatalogTagLeaf]
+
+    algos: dict[int, Algorithm]

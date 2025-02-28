@@ -1,0 +1,11 @@
+<form class="form-inline">
+<input type="submit" value="   Estimator {{ estimator_.estimator.name }}" name="show_estimator">
+<input type="hidden" id="algo_id" value="{{ algo_.algo.id }}" name="algo_id">
+<input type="hidden" id="estimator_id" value="{{ estimator_.estimator.id }}" name="estimator_id">
+<input type="hidden" id="catalog_tag_id" value="{{ catalog_tag.id }}" name="catalog_tag_id">
+<input type="hidden" id="model_id" value="{{ model_.model.id }}" name="model_id">
+<input type="hidden" id="display_type" value="show_estimator" name="display_type">
+{% if dataset %}
+<input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
+{% endif %}
+</form>
