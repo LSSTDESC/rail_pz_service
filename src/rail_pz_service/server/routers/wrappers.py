@@ -309,7 +309,7 @@ def create_row_function(
         session: async_scoped_session = Depends(db_session_dependency),
     ) -> db_class:
         try:
-            async with session.begin():
+            async with session.begin_nested():
                 return await db_class.create_row(session, **row_create.model_dump())
         except Exception as msg:
             logger.error(msg, exc_info=True)

@@ -1,0 +1,12 @@
+<div class="container">
+  <h1>Select Request</h1>
+  <hr>
+  <form>
+  <input type="hidden" id="display_type" value="show_request" name="display_type">
+  {% for estimator_name_, request_ in selected_request_map.items() %}
+  <input type="radio" id="{{ estimator_name_ }}" name="request_id" value="{{ request_.id }}">
+  <label for="{{ estimator_name_  }}">{{ estimator_name_ }}</label><br>
+  {% endfor %}
+  <input type="submit" value="Select" name="select_request">
+  </form>
+</div>

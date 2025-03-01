@@ -1,58 +1,12 @@
-<div class="bg-gray-100 p-4 mt-24">
-  <span>Algorithms:</span>
-  <ul class="ml-2" id="estimatorUL">
-    {% for algo_id, algo_ in selected_algos.items() %}
-    <li>
-      <span class="box">{{ algo_.algo.name }}
-	<form>
-	  <input type="submit" value="(View)" name="show_algo">
-	  <input type="hidden" id="algo_id" value="{{ algo_.algo.id }}" name="algo_id">
-	  <input type="hidden" id="catalog_tag_id" value="{{ catalog_tag.id }}" name="catalog_tag_id">
-	  <input type="hidden" id="display_type" value="algo_form" name="display_type">
-	  {% if dataset %}
-	  <input type="submit" value="(Load Model)" name="load_model">
-	  <input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
-	  {% endif %}
-	</form>
-      </span>
-      <ul class="nested ml-2">
-	{% for model_id, model_ in algo_.models.items() %}
-	<li>
-	  <span class="box">Model: {{ model_.model.name }}
-	    <form>
-	      <input type="submit" value="(View)" name="show_model">
-	      <input type="hidden" id="algo_id" value="{{ algo_.algo.id }}" name="algo_id">
-	      <input type="hidden" id="catalog_tag_id" value="{{ catalog_tag.id }}" name="catalog_tag_id">
-	      <input type="hidden" id="model_id" value="{{ model_.model.id }}" name="model_id">
-	      <input type="hidden" id="display_type" value="model_form" name="display_type">	      
-	      {% if dataset %}
-	      <input type="submit" value="(Load Estimator)" name="load_estimator">
-	      <input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
-	      {% endif %}
-	    </form>
-	  </span>
-	  <ul class="nested ml-2">
-	    {% for estimator_id, estimator_ in model_.estimators.items() %}
-	    <li>
-	      <span>
-		{% if dataset %}
-		{% if estimator_.request %}
-		Estimator: {{ estimator_.request.id }}
-		<a href="#" class="text-indigo-700">({{ estimator_.request.id }})</a>
-		{% else %}
-		{% include "partials/request_form.html" %}
-		{% endif %}
-		{% endif %}
-	      </span>
-	    </li>
-	    {% endfor %}
-	  </ul>
-        </li>
-	{% endfor %}
-      </ul>
-    </li>
-    {% endfor %}
-  </ul>
+<div class="p-4 mt-24">
+  {% include "partials/show_estimator_form.html" %}
 </div>
-<script src="{{ url_for('static', path='/js/tree_view.js') }}"></script>
-<script src="{{ url_for('static', path='/js/tree_check_boxes.js') }}"></script>
+<div class="p-4 mt-24">
+  {% include "partials/show_model_form.html" %}
+</div>
+<div class="p-4 mt-24">
+  {% include "partials/show_algorithm_form.html" %}
+</div>
+<div class="p-4 mt-24">
+  {% include "partials/show_request_form.html" %}
+</div>

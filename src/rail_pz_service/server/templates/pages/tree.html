@@ -8,7 +8,36 @@
 {% endblock %}
 
 {% block estimators %}
-  {% include "partials/estimator_nested_list.html" %}
+  {% include "partials/estimator_tree.html" %}
+{% endblock %}
+
+{% block control %}
+  {% if control_type == "select_model" %}
+    {% include "partials/select_model.html" %}
+  {% elif control_type == "load_model" %}
+    {% include "partials/load_model.html" %}
+  {% elif control_type == "select_estimator" %}
+    {% include "partials/select_estimator.html" %}
+  {% elif control_type == "load_estimator" %}
+    {% include "partials/load_estimator.html" %}
+  {% elif control_type == "select_dataset" %}
+    {% include "partials/select_dataset.html" %}
+  {% elif control_type == "load_dataset" %}
+    {% include "partials/load_dataset.html" %}
+  {% elif control_type == "load_dataset_from_values" %}
+    {% include "partials/load_dataset_from_values.html" %}
+  {% elif control_type == "select_algo" %}
+    {% include "partials/select_algo.html" %}
+  {% elif control_type == "select_request" %}
+    {% include "partials/select_request.html" %}
+  {% elif control_type == "run_request" %}
+    {% include "partials/run_request.html" %}
+  {% elif control_type == "explore" %}
+    {% include "partials/explore_controls.html" %}
+
+  {% else %}
+    <img src="{{ url_for('static', path='/images/horse.png') }}" alt="A horse">
+  {% endif %}
 {% endblock %}
 
 {% block display %}
@@ -22,14 +51,10 @@
     {% include "partials/show_model.html" %}
   {% elif display_type == "show_estimator" %}
     {% include "partials/show_estimator.html" %}
-  {% elif display_type == "load_model" %}
-    {% include "partials/load_model.html" %}
-  {% elif display_type == "load_estimator" %}
-    {% include "partials/load_estimator.html" %}
-  {% elif display_type == "load_dataset" %}
-    {% include "partials/load_dataset.html" %}
-  {% elif display_type == "load_dataset_from_values" %}
-    {% include "partials/load_dataset_from_values.html" %}
+  {% elif display_type == "show_request" %}
+    {% include "partials/show_request.html" %}
+  {% elif display_type == "explore" %}
+    {% include "partials/explore_display.html" %}
   {% else %}
     <img src="{{ url_for('static', path='/images/horse.png') }}" alt="A horse">
   {% endif %}

@@ -1,0 +1,14 @@
+<div class="container">
+  <h1>Select Algorithm</h1>
+  <hr>
+  <form>
+    <input type="hidden" id="display_type" value="show_algo" name="display_type">
+    {% for algo_ in all_algos %}
+    <input type="radio" id="{{ algo_.name }}" name="algo_id" value="{{ algo_.id }}">
+    <label for="{{ algo_.name }}">{{ algo_.name }}</label><br>
+    {% endfor %}
+    {% if dataset %}
+    <input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
+    {% endif %}
+    <input type="submit" value="Select" name="select_algo">
+</div>

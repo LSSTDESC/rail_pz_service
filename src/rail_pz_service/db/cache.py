@@ -7,6 +7,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+import qp
 from ceci.errors import StageNotFound
 from ceci.stage import PipelineStage
 from rail.core import RailEnv, RailStage
@@ -15,7 +16,6 @@ from rail.interfaces.pz_factory import PZFactory
 from rail.utils.catalog_utils import CatalogConfigBase
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from .. import models
 from ..common.errors import (
     RAILImportError,
     RAILIntegrityError,
@@ -40,7 +40,7 @@ class Cache:
         self._catalog_tags: dict[int, type[CatalogConfigBase] | None] = {}
         self._estimators: dict[int, CatEstimator | None] = {}
         self._qp_files: dict[int, str | None] = {}
-        self._tree: models.CatalogTagTree | None = None
+        self._qp_dists: dict[int, qp.Ensemble | None] = {}
 
     def clear(self) -> None:
         """Clear out the cache"""
@@ -48,7 +48,7 @@ class Cache:
         self._catalog_tags = {}
         self._estimators = {}
         self._qp_files = {}
-        self._tree = None
+        self._qp_dists = {}
 
     @classmethod
     def shared_cache(cls) -> Cache:
@@ -175,83 +175,6 @@ class Cache:
         )
 
         return result_handle.path
-
-    async def _build_catalog_tag_tree(
-        self,
-        session: async_scoped_session,
-    ) -> models.CatalogTagTree:
-        catalog_tags = await CatalogTag.get_rows(session)
-        catalog_tag_dict: dict[int, models.CatalogTagLeaf] = {}
-
-        algos = await Algorithm.get_rows(session)
-
-        async with session.begin_nested():
-            for catalog_tag_ in catalog_tags:
-                await session.refresh(catalog_tag_, attribute_names=["models_", "datasets_"])
-
-                dataset_tree: dict[int, models.DatasetLeaf] = {}
-                algo_tree: dict[int, models.AlgoLeaf] = {}
-                for dataset_ in catalog_tag_.datasets_:
-                    await session.refresh(dataset_, attribute_names=["requests_"])
-                    request_dict: dict[int, models.Request] = {}
-                    for request_ in dataset_.requests_:
-                        request_dict[request_.id] = models.Request.model_validate(request_)
-
-                    dataset_tree[dataset_.id] = models.DatasetLeaf(
-                        requests=request_dict,
-                        dataset=models.Dataset.model_validate(dataset_),
-                    )
-
-                algos_lists: dict[int, list[models.ModelLeaf]] = {algo_.id: [] for algo_ in algos}
-
-                models_dict: dict[int, models.ModelLeaf] = {}
-
-                for model_ in catalog_tag_.models_:
-                    estimator_tree: dict[int, models.EstimatorLeaf] = {}
-                    await session.refresh(model_, attribute_names=["estimators_"])
-
-                    for estimator_ in model_.estimators_:
-                        estimator_tree[estimator_.id] = models.EstimatorLeaf(
-                            estimator=models.Estimator.model_validate(estimator_),
-                            request=None,
-                        )
-
-                    model_leaf = models.ModelLeaf(
-                        estimators=estimator_tree,
-                        model=model_,
-                    )
-
-                    models_dict[model_.id] = model_leaf
-
-                    if model_.algo_id not in algos_lists:
-                        algos_lists[model_.algo_id] = [model_leaf]
-                    else:
-                        algos_lists[model_.algo_id].append(model_leaf)
-
-                for algo_id, model_leaf_list in algos_lists.items():
-                    the_algo = await Algorithm.get_row(session, algo_id)
-
-                    the_dict = {model_leaf.model.id: model_leaf for model_leaf in model_leaf_list}
-
-                    algo_leaf = models.AlgoLeaf(
-                        models=the_dict,
-                        algo=models.Algorithm.model_validate(the_algo),
-                    )
-
-                    algo_tree[the_algo.id] = algo_leaf
-
-                catalog_tag_leaf = models.CatalogTagLeaf(
-                    algos=algo_tree,
-                    datasets=dataset_tree,
-                    catalog_tag=models.CatalogTag.model_validate(catalog_tag_),
-                )
-                catalog_tag_dict[catalog_tag_.id] = catalog_tag_leaf
-
-            catalog_tag_tree = models.CatalogTagTree(
-                catalog_tags=catalog_tag_dict,
-                algos={algo_.id: algo_ for algo_ in algos},
-            )
-            return catalog_tag_tree
 
     async def get_algo_class(
         self,
@@ -426,6 +349,39 @@ class Cache:
             raise RAILRequestError(f"Request failed because {failed_request}") from failed_request
 
         return qp_file
+
+    async def get_qp_dist(
+        self,
+        session: async_scoped_session,
+        key: int,
+    ) -> qp.Ensemble:
+        """Get the qp.Ensemble from a particular request
+
+        Parameters
+        ----------
+        session
+            DB session manager
+
+        key
+            DB id of the requestion in question
+
+        Returns
+        -------
+        qp.Ensemble
+            Ensemble in question
+
+        Raises
+        ------
+        RAILRequestError
+            Requsts failed for some reason
+        """
+        qp_file = await self.get_qp_file(session, key)
+
+        try:
+            qp_dist = qp.read(qp_file)
+        except Exception as failed_read:
+            raise RAILRequestError(f"Request failed because {failed_read}") from failed_read
+        return qp_dist
 
     async def load_algorithms_from_rail_env(
         self,
@@ -734,28 +690,3 @@ class Cache:
         request_ = await Request.get_row(session, request_id)
         await self.get_qp_file(session, request_.id)
         return request_
-
-    async def get_catalog_tag_tree(
-        self,
-        session: async_scoped_session,
-        *,
-        rebuild: bool = False,
-    ) -> models.CatalogTagTree:
-        """Build the tree of db elements sorted by catalog tag
-
-        Parameters
-        ----------
-        session
-            DB session manager
-
-        rebuild
-            If true, rebuild the tree
-
-        Returns
-        -------
-        models.CatalogTagTree
-            Tree of db elements
-        """
-        if self._tree is None or rebuild:
-            self._tree = await self._build_catalog_tag_tree(session)
-        return self._tree

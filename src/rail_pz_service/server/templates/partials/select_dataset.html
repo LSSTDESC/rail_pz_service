@@ -1,0 +1,18 @@
+<div class="container">
+  <h1>Select Dataset</h1>
+  <hr>
+  <form>
+    <input type="hidden" id="display_type" value="show_dataset" name="display_type">
+    {% for dataset_ in selected_datasets %}
+    <input type="radio" id="{{ dataset_.name }}" name="dataset_id" value="{{ dataset_.id }}">
+    <label for="{{ dataset_.name }}">{{ dataset_.name }}</label><br>
+    {% endfor %}
+    {% if estimator %}
+    <input type="hidden" id="estimator_id" value="{{ estimator.id }}" name="estimator_id">
+    {% elif model %}
+    <input type="hidden" id="model_id" value="{{ model.id }}" name="model_id">
+    {% elif algo %}
+    <input type="hidden" id="algo_id" value="{{ algo.id }}" name="algo_id">
+    {% endif %}
+    <input type="submit" value="Select" name="select_dataset">
+</div>

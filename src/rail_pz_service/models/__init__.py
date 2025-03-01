@@ -7,7 +7,6 @@ from .estimator import Estimator
 from .model import Model
 from .request import Request, RequestCreate
 from .load import LoadDatasetQuery, LoadModelQuery, LoadEstimatorQuery, NameQuery
-from .trees import ModelLeaf, AlgoLeaf, CatalogTagLeaf, CatalogTagTree, CatalogTagDatasetTree, DatasetLeaf, EstimatorLeaf
 
 __all__ = [
     "Algorithm",
@@ -21,11 +20,4 @@ __all__ = [
     "LoadModelQuery",
     "LoadEstimatorQuery",
     "NameQuery",
-    "EstimatorLeaf",
-    "ModelLeaf",
-    "AlgoLeaf",
-    "DatasetLeaf",
-    "CatalogTagDatasetTree",
-    "CatalogTagLeaf",
-    "CatalogTagTree",
 ]

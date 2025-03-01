@@ -3,12 +3,8 @@
   <div class="dropdown">
     <button class="dropbtn">Select</button>
     <div class="dropdown-content">
-      {% for catalog_tag_id_, catalog_tag_ in all_catalog_tags.items() %}
-      {% if dataset %}
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag_id_ }}&dataset_id={{ dataset.id }}">{{ catalog_tag_.catalog_tag.name }}</a>
-      {% else %}
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag_id_ }}">{{ catalog_tag_.catalog_tag.name }}</a>      
-      {% endif %}
+      {% for catalog_tag_ in all_catalog_tags %}
+      <a href="{{ url_for('get_tree', catalog_tag_id=catalog_tag_.id) }}">{{ catalog_tag_.name }}</a>
       {% endfor %}
     </div>
   </div>

@@ -1,25 +1,3 @@
 <div class="p-4 mt-24">
   {% include "partials/show_dataset_form.html" %}
-  <div class="dropdown">
-    <button class="dropbtn">Select</button>
-    <div class="dropdown-content">
-      {% for dataset_id, dataset_ in selected_datasets.items() %}
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag.id }}&dataset_id={{ dataset_.dataset.id }}">{{ dataset_.dataset.name }} N={{ dataset_.dataset.n_objects }}</a>
-      {% endfor %}
-    </div>
-  </div>
-  {% if catalog_tag %}
-  <div class="dropdown">
-    <button class="dropbtn">Load new</button>
-    <div class="dropdown-content">
-      {% if dataset %}  
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag.id }}&dataset_id={{ dataset.id }}&display_type=load_dataset">Upload file</a>
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag.id }}&dataset_id={{ dataset.id }}&display_type=load_dataset_from_values">Enter values</a>
-      {% else %}
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag.id }}&load_dataset=1">Upload file</a>
-      <a href="{{ url_for('get_tree') }}?catalog_tag_id={{ catalog_tag.id }}&load_dataset_from_values=1">Enter values</a>
-      {% endif %}
-    </div>
-  </div>
-  {% endif %}
 </div>

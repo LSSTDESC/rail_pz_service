@@ -1,0 +1,14 @@
+{% if my_request %}
+<input type="hidden" id="request_id" value="{{ my_request.id }}" name="request_id">
+{% else %}
+{% if estimator %}
+<input type="hidden" id="estimator_id" value="{{ estimator.id }}" name="estimator_id">
+{% elif model %}
+<input type="hidden" id="model_id" value="{{ model.id }}" name="model_id">
+{% elif algo %}
+<input type="hidden" id="algo_id" value="{{ algo.id }}" name="algo_id">
+{% endif %}
+{% if dataset %}
+<input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
+{% endif %}
+{% endif %}
