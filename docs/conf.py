@@ -18,7 +18,7 @@ import sys
 from unittest.mock import MagicMock
 
 # The short X.Y version
-from rail.projects import _version
+from rail_pz_service import _version
 
 # import rail.plotting
 # import rail.cli.rail_project
@@ -68,7 +68,6 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
-    "nbsphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.githubpages",
@@ -164,7 +163,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "rail_projects_doc"
+htmlhelp_basename = "rail_pz_service_doc"
 
 
 # -- Options for Autodoc--------------------------------------------------
@@ -173,9 +172,6 @@ htmlhelp_basename = "rail_projects_doc"
 
 
 def run_apidoc(_):
-    if not os.path.exists("examples"):
-        os.system("ln -s ../examples")
-
     from sphinx.ext.apidoc import main as apidoc_main
 
     cur_dir = os.path.normpath(os.path.dirname(__file__))
@@ -183,7 +179,7 @@ def run_apidoc(_):
 
     base_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "src"))
 
-    srcpath = os.path.normpath(os.path.join(base_path, "rail"))
+    srcpath = os.path.normpath(os.path.join(base_path, "rail_pz_service"))
     paramlist = ["--separate", "--implicit-namespaces", "--no-toc", "-M", "-o", output_path, "-f", srcpath]
     print(f"running {paramlist}")
     apidoc_main(paramlist)

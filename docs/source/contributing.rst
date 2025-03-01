@@ -49,7 +49,7 @@ In all cases, begin by following the developer installation instructions
 Contribution workflow
 =====================
 
-The ``rail_projects`` repository use an issue-branch-review workflow,
+The ``rail_pz_service`` repository use an issue-branch-review workflow,
 similar to the standard `GitHub Flow <https://docs.github.com/en/get-started/quickstart/github-flow>`_.
 We typically use ``git`` as our version control tool, there are many resources
 available online, but here is a `nice cheat sheet <https://education.github.com/git-cheat-sheet-education.pdf>`_
@@ -59,7 +59,7 @@ created by GitHub.
 Issue
 -----
 
-When you identify something that should be done, `make an issue <https://github.com/LSSTDESC/rail_projects/issues/new>`_
+When you identify something that should be done, `make an issue <https://github.com/LSSTDESC/rail_pz_service/issues/new>`_
 for it.
 
 ------

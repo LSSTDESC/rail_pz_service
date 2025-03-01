@@ -70,6 +70,16 @@ dev = [
     "types-tabulate>=0.9.0.20240106",
 ]
 
+docs = [
+    "nbsphinx",
+    "sphinx", # Used to automatically generate documentation
+    "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme", # Used to render documentation
+    "sphinx-autoapi", # Used to automatically generate api documentation
+    "sphinx-tabs", # Used to create tabbed content within the docs
+    "sphinx-click", # Used for command line interface docs
+]
+
 
 [project.scripts]
 pz-rail-service-client = "rail_pz_service.client.cli.main:top"
