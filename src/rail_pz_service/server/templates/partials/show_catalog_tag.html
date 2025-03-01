@@ -1,5 +1,12 @@
 <div>
+  {% if catalog_tag %}
   <div>CatalogTag: {{ catalog_tag.name }}</div>
   <div>ID: {{ catalog_tag.id }}</div>
   <div>Python Class: {{ catalog_tag.class_name }}</div>
+  {% else %}
+  No CatalogTag selected.  Use the buttons the left to select one.
+  {% endif %}
+  <br>
+  A CatalogTag defines what kind of catalog we are analyzing data from.<br>
+  Specifically what to expect for the names of the magnitude columns.<br>
 </div>

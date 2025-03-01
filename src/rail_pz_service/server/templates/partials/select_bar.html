@@ -5,7 +5,7 @@
     <button class="dropbtn">Select</button>
     <div class="dropdown-content">
       {% for catalog_tag_ in all_catalog_tags %}
-      <a href="{{ url_for('get_tree', catalog_tag_id=catalog_tag_.id) }}">{{ catalog_tag_.name }}</a>
+      <a href="{{ url_for('get_tree', catalog_tag_id=catalog_tag_.id)}}?display_type=show_catalog_tag&control_type={{ control_type }}">{{ catalog_tag_.name }}</a>
       {% endfor %}
     </div>
   </div>

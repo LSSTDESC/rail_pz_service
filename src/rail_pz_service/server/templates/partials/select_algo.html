@@ -3,8 +3,9 @@
   <hr>
   <form>
     <input type="hidden" id="display_type" value="show_algo" name="display_type">
+    <input type="hidden" id="control_type" value="select_algo" name="control_type">
     {% for algo_ in all_algos %}
-    <input type="radio" id="{{ algo_.name }}" name="algo_id" value="{{ algo_.id }}">
+    <input type="radio" id="{{ algo_.name }}" name="algo_id" value="{{algo_.id }}" required>
     <label for="{{ algo_.name }}">{{ algo_.name }}</label><br>
     {% endfor %}
     {% if dataset %}

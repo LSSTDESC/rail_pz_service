@@ -1,4 +1,5 @@
 <div>
+  {% if dataset %}
   <div>Dataset: {{ dataset.name }}</div>
   <div>CatalogTag: {{ catalog_tag.name }}</div>
   <div>ID: {{ dataset.id }}</div>
@@ -10,4 +11,10 @@
   {% else %}
   <div>No Data</div>
   {% endif %}
+  {% else %}
+  No Dataset selected.  Use the buttons the left to select, load or create one.
+  {% endif %}
+  <br>
+  A Dataset is a specific set of objects.<br>
+  It can either be stored as a file (Load) or created on the fly (create).<br>
 </div>

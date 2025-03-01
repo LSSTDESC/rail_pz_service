@@ -3,8 +3,9 @@
   <hr>
   <form>
   <input type="hidden" id="display_type" value="show_model" name="display_type">
+  <input type="hidden" id="control_type" value="select_model" name="control_type">
   {% for model_ in selected_models %}
-  <input type="radio" id="{{ model_.name }}" name="model_id" value="{{ model_.id }}">
+  <input type="radio" id="{{ model_.name }}" name="model_id" value="{{ model_.id }}" required>
   <label for="{{ model_.name }}">{{ model_.name }}</label><br>
   {% endfor %}
   {% if algo %}

@@ -1,6 +1,15 @@
 <div>
+  {% if estimator %}
   <div>Estimator: {{ estimator.name }}</div>
   <div>ID: {{ estimator.id }}</div>
   <div>Model: {{ model.name }}</div>
   <div>Algorithm: {{ algo.name }}</div>
+  {% else %}
+  No Estimator selected.  Use the buttons the left to select or load one.
+  If you want to load a new Estimator you will need to select a Model first.<br>
+  {% endif %}
+  <br>
+  An Estimator is a specific combinination of an Algorithm to run,<br>
+  A ML Model apply to the data,<br>
+  An any specific configuration overrides.<br>
 </div>

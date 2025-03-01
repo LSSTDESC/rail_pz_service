@@ -347,7 +347,7 @@ async def _load_model(
             load_model_query,
             session,
         )
-        ret_dict = dict(model=new_model)
+        ret_dict: dict[str, Any] = dict(model=new_model)
         skip_estimator = request_params.get("skip_estimator", None)
         if skip_estimator is None:
             load_estimator_query = models.LoadEstimatorQuery(
@@ -451,8 +451,8 @@ async def _explore_request(
     return dict(control_type="explore")
 
 
-@web_app.post("/tree/", response_class=HTMLResponse)
-@web_app.post("/tree/{catalog_tag_id:int}", response_class=HTMLResponse)
+@web_app.post("/", response_class=HTMLResponse)
+@web_app.post("/{catalog_tag_id:int}", response_class=HTMLResponse)
 async def post_tree(
     request: Request,
     catalog_tag_id: int | None = None,
@@ -513,8 +513,8 @@ async def post_tree(
         return templates.TemplateResponse(f"Something went wrong:  {e}")
 
 
-@web_app.get("/tree/", response_class=HTMLResponse)
-@web_app.get("/tree/{catalog_tag_id:int}", response_class=HTMLResponse)
+@web_app.get("/", response_class=HTMLResponse)
+@web_app.get("/{catalog_tag_id:int}", response_class=HTMLResponse)
 async def get_tree(
     request: Request,
     catalog_tag_id: int | None = None,

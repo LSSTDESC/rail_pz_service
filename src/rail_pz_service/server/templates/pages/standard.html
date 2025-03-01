@@ -1,16 +1,16 @@
 {% extends "pages/base.html" %}
 {% block title %}Rail PZ Server{% endblock %}
 {% block content %}
-<div class="h-full w-full grid grid-cols-3 grid-rows-3 gap-4">
-  <div class="h-full col-span-1 row-span-3 mt-5 px-4 sm:px-6 lg:px-8">
+<div class="h-3/4 w-full grid grid-cols-3 grid-rows-3 gap-4">
+  <div class="h-fit col-span-1 row-span-3 mt-5 px-4 sm:px-6 lg:px-8">
     {% block sidebar %}
     {% endblock %}
   </div>
-  <div class="col-span-2 row-span-2 col-start-2 mt-5 px-4 sm:px-6 lg:px-8" id="display_content">
+  <div class="h-fit col-span-2 row-span-2 col-start-2 mt-5 px-4 sm:px-6 lg:px-8" id="display_content">
     {% block display %}
     {% endblock %}
   </div>
-  <div class="row-start-3 col-start-2 col-span-2 mt-5 px-4 sm:px-6 lg:px-8" id="control_content">
+  <div class="h-fit row-start-3 col-start-2 col-span-2 mt-5 px-4 sm:px-6 lg:px-8" id="control_content">
       {% block control %}
       {% endblock %}
   </div>

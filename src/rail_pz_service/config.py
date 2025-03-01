@@ -34,7 +34,7 @@ class AsgiConfiguration(BaseModel):
 
     frontend_prefix: str = Field(
         description="The URL prefix for the frontend web app",
-        default="/web_app",
+        default="/rail",
     )
 
     reload: bool = Field(

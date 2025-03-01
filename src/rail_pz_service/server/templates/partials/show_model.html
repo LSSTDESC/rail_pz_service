@@ -1,6 +1,14 @@
 <div>
+  {% if model %}
   <div>Model: {{ model.name }}</div>
   <div>ID: {{ model.id }}</div>
   <div>CatalogTag: {{ catalog_tag.name }}</div>
   <div>Algorithm: {{ algo.name }}</div>
+  {% else %}
+  No Model selected.  Use the buttons the left to select or load one.
+  If you want to load a new Model you will need to select an Algorithm and CatalogTag first.<br>
+  {% endif %}
+  <br>
+  A Model is a specific ML model that is trained to work with a specific Algorithm,<br>
+  On a particular type of data (CatalogTag).<br>
 </div>

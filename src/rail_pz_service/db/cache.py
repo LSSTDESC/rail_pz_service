@@ -173,6 +173,7 @@ class Cache:
             qp_file_path=result_handle.path,
             time_finished=now,
         )
+        self._qp_files[request.id] = result_handle.path
 
         return result_handle.path
 
@@ -342,6 +343,11 @@ class Cache:
             return qp_file
 
         request_ = await Request.get_row(session, key)
+        if request_.qp_file_path is not None:
+            if os.path.exists(request_.qp_file_path):
+                self._qp_files[key] = request_.qp_file_path
+                return request_.qp_file_path
+
         try:
             qp_file = await self._process_request(session, request_)
         except RAILRequestError as failed_request:

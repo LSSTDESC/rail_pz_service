@@ -1,17 +1,23 @@
 {% if catalog_tag %}
-{% if dataset %}
 <form>
+  {% if dataset %}
   <input type="submit" value="Dataset: {{ dataset.name }}" name="show_dataset">
-  <input type="hidden" id="display_type" value="show_catalog_tag" name="display_type">
-{% include "partials/hidden_fields.html" %}
+  {% else %}
+  <input type="submit" value="No Dataset Selected" name="show_dataset">
+  {% endif %}
+  <input type="hidden" id="display_type" value="show_dataset" name="display_type">
+  {% if control_type %}
+  <input type="hidden" id="control_type" value="{{ control_type }}" name="control_type">
+  {% endif %}
+  {% include "partials/hidden_fields.html" %}
 </form>
-{% else %}
-<div>No Dataset Selected </div><br>
-{% endif %}
 <form>
   <input type="submit" value="Select" name="select_dataset">
   <input type="submit" value="Load" name="load_dataset">
   <input type="submit" value="Create" name="load_dataset_from_values">
+  {% if display_type %}
+  <input type="hidden" id="display_type" value="{{ display_type }}" name="display_type">
+  {% endif %}
   <input type="hidden" id="control_type" value="dataset_form" name="control_type">
 {% include "partials/hidden_fields.html" %}
 </form>
