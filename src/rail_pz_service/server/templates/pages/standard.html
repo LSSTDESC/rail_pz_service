@@ -2,19 +2,9 @@
 {% block title %}Rail PZ Server{% endblock %}
 {% block content %}
 <div class="h-full w-full grid grid-cols-3 grid-rows-3 gap-4">
-  <div class="col-span-1 row-span-3 mt-5 px-4 sm:px-6 lg:px-8">
-    <div id="catalog_tag_content">
-      {% block catalog_tags %}
-      {% endblock %}
-    </div>
-    <div id="dataset_content" >
-      {% block datasets %}
-      {% endblock %}
-    </div>
-    <div id="estimator_content">
-      {% block estimators %}
-      {% endblock %}
-    </div>
+  <div class="h-full col-span-1 row-span-3 mt-5 px-4 sm:px-6 lg:px-8">
+    {% block sidebar %}
+    {% endblock %}
   </div>
   <div class="col-span-2 row-span-2 col-start-2 mt-5 px-4 sm:px-6 lg:px-8" id="display_content">
     {% block display %}

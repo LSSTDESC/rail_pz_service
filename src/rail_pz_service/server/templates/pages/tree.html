@@ -1,14 +1,6 @@
 {% extends "pages/standard.html" %}
-{% block catalog_tags %}
-  {% include "partials/catalog_tag_tree.html" %}
-{% endblock %}
-
-{% block datasets %}
-  {% include "partials/dataset_tree.html" %}
-{% endblock %}
-
-{% block estimators %}
-  {% include "partials/estimator_tree.html" %}
+{% block sidebar %}
+  {% include "partials/select_bar.html" %}
 {% endblock %}
 
 {% block control %}
