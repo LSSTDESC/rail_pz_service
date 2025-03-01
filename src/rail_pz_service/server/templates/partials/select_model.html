@@ -1,0 +1,17 @@
+<div class="container">
+  <h1>Select Model</h1>
+  <hr>
+  <form>
+  <input type="hidden" id="display_type" value="show_model" name="display_type">
+  {% for model_ in selected_models %}
+  <input type="radio" id="{{ model_.name }}" name="model_id" value="{{ model_.id }}">
+  <label for="{{ model_.name }}">{{ model_.name }}</label><br>
+  {% endfor %}
+  {% if algo %}
+  <input type="hidden" id="algo_id" value="{{ algo.id }}" name="algo_id">
+  {% endif %}
+  {% if dataset %}
+  <input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
+  {% endif %}
+  <input type="submit" value="Select" name="select_model">
+</div>

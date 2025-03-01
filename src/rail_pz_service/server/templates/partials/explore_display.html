@@ -1,0 +1,30 @@
+<canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+{% if plot_type in ["zmode_hist", "pdf"] %}
+<script>
+const xValues = {{ hist_x_values.tolist() }};
+const yValues = {{ hist_y_values.tolist() }};
+
+new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor:"rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: yValues
+    }]
+  },
+  options: {
+    legend: {display: false},
+    scales: {
+{% if plot_type in ["zmode_hist"] %}
+    yAxes: [{ticks: {min: 0, max:20}}],
+{% else %}
+    yAxes: [{ticks: {min: 0, max:3}}],
+{% endif %}
+    }
+  }
+});
+</script>
+{% endif %}

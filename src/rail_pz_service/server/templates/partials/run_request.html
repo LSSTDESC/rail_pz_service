@@ -1,0 +1,25 @@
+<form method="post" enctype="multipart/form-data">
+  <div class="container">
+    <h1>Request</h1>
+    <hr>
+    {% if my_request %}
+    {% if my_request.qp_file_path %}
+    <input type="submit" value="Explore" name="explore_request">
+    {% elif request.time_started %}
+    Request started at {{ request.time_started }}
+    {% else %}
+    <input type="submit" value="Run" name="run_request">
+    {% endif %}
+    {% else %}
+    <input type="submit" value="Create" name="create_request">
+    {% endif %}
+    {% include "partials/hidden_fields.html" %}
+  </div>
+</form>
+{% if my_request %}
+<form>
+  <input type="submit" value="Show" name="show_request">
+  <input type="hidden" id="display_type" value="show_request" name="display_type">
+  {% include "partials/hidden_fields.html" %}
+</form>
+{% endif %}

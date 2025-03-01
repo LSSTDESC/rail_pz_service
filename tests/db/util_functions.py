@@ -26,7 +26,6 @@ async def delete_all_stuff(
     await delete_all_rows(session, db.Estimator)
     await delete_all_rows(session, db.Model)
     await delete_all_rows(session, db.Request)
-    await delete_all_rows(session, db.ObjectRef)
 
 
 async def cleanup(

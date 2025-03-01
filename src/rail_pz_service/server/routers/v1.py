@@ -7,7 +7,6 @@ from . import (
     estimator,
     load,
     model,
-    object_ref,
     request,
 )
 
@@ -23,4 +22,3 @@ router.include_router(catalog_tag.router)
 router.include_router(dataset.router)
 router.include_router(estimator.router)
 router.include_router(model.router)
-router.include_router(object_ref.router)

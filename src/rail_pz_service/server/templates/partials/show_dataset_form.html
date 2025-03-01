@@ -1,0 +1,20 @@
+{% if catalog_tag %}
+{% if dataset %}
+<form>
+  <input type="submit" value="Dataset: {{ dataset.name }}" name="show_dataset">
+  <input type="hidden" id="display_type" value="show_catalog_tag" name="display_type">
+{% include "partials/hidden_fields.html" %}
+</form>
+{% else %}
+<div>No Dataset Selected </div><br>
+{% endif %}
+<form>
+  <input type="submit" value="Select" name="select_dataset">
+  <input type="submit" value="Load" name="load_dataset">
+  <input type="submit" value="Create" name="load_dataset_from_values">
+  <input type="hidden" id="control_type" value="dataset_form" name="control_type">
+{% include "partials/hidden_fields.html" %}
+</form>
+{% else %}
+<div>Selected a catalog before selecting an dataset</div>
+{% endif %}

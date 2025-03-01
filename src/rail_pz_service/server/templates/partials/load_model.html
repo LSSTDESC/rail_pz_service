@@ -1,0 +1,20 @@
+<form method="post" enctype="multipart/form-data">
+  <div class="container">
+    <h1>Load Model</h1>
+    <hr>
+    <label for="model_name"><b>Model Name</b></label>
+    <input type="text" placeholder="Model Name" name="model_name" id="model_name" required>
+    <input type="file" name="fileToUpload" id="fileToUpload" accept=".pkl, .pickle" required><br>
+    <div class="mt-4">
+      <input type="checkbox" id="skip_estimator" name="skip_estimator" value="1">
+      <label for="skip_estimator">Skip Default Estimator</label><br><br>
+    </div>
+    <input type="submit" value="Create" name="submit_model">
+    {% if algo %}
+    <input type="hidden" id="algo_id" value="{{ algo.id }}" name="algo_id">
+    {% endif %}
+    {% if dataset %}
+    <input type="hidden" id="dataset_id" value="{{ dataset.id }}" name="dataset_id">
+    {% endif %}
+  </div>
+</form>

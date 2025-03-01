@@ -1,12 +1,6 @@
 """CLI to manage Job table"""
 
-import asyncio
-from collections.abc import Callable
-
 import click
-import yaml
-from safir.database import create_async_session
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from ... import db
 from ...common import common_options
@@ -59,22 +53,3 @@ get_estimators = wrappers.get_row_attribute_list_command(get_command, DbClass, "
 get_models = wrappers.get_row_attribute_list_command(get_command, DbClass, "models_", db.Model)
 
 get_datasets = wrappers.get_row_attribute_list_command(get_command, DbClass, "datasets_", db.Dataset)
-
-
-@get_command(name="tree")
-@admin_options.db_engine()
-def run(
-    db_engine: Callable[[], AsyncEngine],
-) -> None:
-    """Run a particular request"""
-
-    async def _the_func() -> None:
-        engine = db_engine()
-        session = await create_async_session(engine)
-        the_cache = db.cache.Cache()
-        request = await the_cache.get_catalog_tag_tree(session)
-        click.echo(yaml.dump(request.model_dump()))
-        await session.remove()
-        await engine.dispose()
-
-    asyncio.run(_the_func())

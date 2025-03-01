@@ -112,12 +112,12 @@ class StorageConfiguration(BaseModel):
     """
 
     archive: str = Field(
-        default="",
+        default="archive",
         description="The path for the archived files for pz-rail-service database",
     )
 
     import_area: str = Field(
-        default="",
+        default="import",
         description="The path for the import area for files for pz-rail-service database",
     )
 

@@ -1,14 +1,11 @@
-<div class="bg-gray-100 p-4 max-w-lg mt-24">
-  <ul id="catalogTagUL">
-    <li>
-      <span class="caret">CatalogTags</span>
-      <ul class="nested">
-	{% for catalog_tag_name in catalog_tags.keys() %}
-	<li>
-	  <span class="box">{{ catalog_tag_name }}</span>
-	</li>
-	{% endfor %}
-      </ul>
-    </li>
-  </ul>
+<div class="p-4 mt-24">
+  {% include "partials/show_catalog_tag_form.html" %}
+  <div class="dropdown">
+    <button class="dropbtn">Select</button>
+    <div class="dropdown-content">
+      {% for catalog_tag_ in all_catalog_tags %}
+      <a href="{{ url_for('get_tree', catalog_tag_id=catalog_tag_.id) }}">{{ catalog_tag_.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
 </div>

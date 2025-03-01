@@ -1,0 +1,14 @@
+{% if algo %}
+<form>
+  <input type="submit" value="Algorithm: {{ algo.name }}" name="show_algo">
+  <input type="hidden" id="display_type" value="show_catalog_tag" name="display_type">
+{% include "partials/hidden_fields.html" %}
+</form>
+{% else %}
+<div>No Algo Selected </div><br>
+{% endif %}
+<form>
+  <input type="submit" value="Select" name="select_algo">
+  <input type="hidden" id="control_type" value="select_algo" name="control_type">
+{% include "partials/hidden_fields.html" %}
+</form>

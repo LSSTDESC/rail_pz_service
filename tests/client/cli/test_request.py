@@ -57,12 +57,7 @@ def test_request_client(uvicorn: UvicornProcess, api_version: str, engine: Async
 
     result = runner.invoke(
         admin_top,
-        "estimator create "
-        f"--name estimator_{uuid_int} "
-        f"--catalog-tag-name {catalog_tag_.name} "
-        f"--algo-name {algorithm_.name} "
-        f"--model-name {model_.name} "
-        "--output yaml",
+        f"estimator create --name estimator_{uuid_int} --model-name {model_.name} --output yaml",
     )
     estimator_ = check_and_parse_result(result, models.Estimator)
 

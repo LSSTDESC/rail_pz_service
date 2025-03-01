@@ -72,8 +72,6 @@ async def test_estimator_db(engine: AsyncEngine) -> None:
         await db.Estimator.create_row(
             session,
             name=f"estimator_{uuid_int}_2",
-            algo_id=algorithm_.id,
-            catalog_tag_id=catalog_tag_.id,
             model_id=model_.id,
         )
 

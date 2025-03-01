@@ -7,7 +7,6 @@ from .cache import Cache
 from .dataset import Dataset
 from .estimator import Estimator
 from .model import Model
-from .object_ref import ObjectRef
 from .request import Request
 from .row import RowMixin
 
@@ -20,7 +19,6 @@ __all__ = [
     "Dataset",
     "Estimator",
     "Model",
-    "ObjectRef",
     "Request",
     "RowMixin",
 ]
