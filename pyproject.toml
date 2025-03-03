@@ -105,10 +105,14 @@ branch = true
 source = ["rail_pz_service"]
 concurrency = ['greenlet', 'thread']
 omit = [
-    # omit everything in web_app, worker and main
+    # omit everything in web_app, worker, main
     "web_app.py",
     "worker.py",
     "main.py",
+    # omit test_files
+    "test_files.py",
+    # omit healthz
+    "healthz.py",
 ]
 
 [tool.coverage.paths]

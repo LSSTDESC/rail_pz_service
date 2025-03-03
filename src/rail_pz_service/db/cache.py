@@ -208,11 +208,8 @@ class Cache:
         RAILMissingIDError
             ID not found in database
         """
-        if key in self._algorithms:
-            algo_class = self._algorithms[key]
-            if algo_class is None:  # pragma: no cover
-                algo_ = await Algorithm.get_row(session, key)
-                raise RAILImportError(f"Failed to load alogrithm {algo_}")
+        algo_class = self._algorithms.get(key)
+        if algo_class is not None:
             return algo_class
 
         algo_ = await Algorithm.get_row(session, key)
@@ -220,6 +217,7 @@ class Cache:
             algo_class = self._load_algorithm_class(algo_)
             self._algorithms[key] = algo_class
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._algorithms[key] = None
             raise RAILImportError(f"Import of Algorithm failed because {failed_import}") from failed_import
 
@@ -253,11 +251,8 @@ class Cache:
         RAILMissingIDError
             ID not found in database
         """
-        if key in self._catalog_tags:
-            catalog_tag_class = self._catalog_tags[key]
-            if catalog_tag_class is None:  # pragma: no cover
-                catalog_tag_ = await CatalogTag.get_row(session, key)
-                raise RAILImportError(f"Failed to load catalog_tags {catalog_tag_}")
+        catalog_tag_class = self._catalog_tags.get(key)
+        if catalog_tag_class is not None:
             return catalog_tag_class
 
         catalog_tag_ = await CatalogTag.get_row(session, key)
@@ -265,6 +260,7 @@ class Cache:
             catalog_tag_class = self._load_catalog_tag_class(catalog_tag_)
             self._catalog_tags[key] = catalog_tag_class
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._catalog_tags[key] = None
             raise RAILImportError(f"Import of CatalogTag failed because {failed_import}") from failed_import
         return catalog_tag_class
@@ -298,11 +294,8 @@ class Cache:
             ID not found in database
         """
 
-        if key in self._estimators:
-            estimator = self._estimators[key]
-            if estimator is None:  # pragma: no cover
-                estimator_ = await Estimator.get_row(session, key)
-                raise RAILImportError(f"Failed to load Estimator {estimator_}")
+        estimator = self._estimators.get(key)
+        if estimator is not None:
             return estimator
 
         estimator_ = await Estimator.get_row(session, key)
@@ -310,6 +303,7 @@ class Cache:
             estimator = await self._build_estimator(session, estimator_)
             self._estimators[key] = estimator
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._estimators[key] = None
             raise RAILImportError(f"Import of Estimator failed because {failed_import}") from failed_import
 
@@ -341,11 +335,8 @@ class Cache:
             Requsts failed for some reason
         """
 
-        if key in self._qp_files:
-            qp_file = self._qp_files[key]
-            if qp_file is None:  # pragma: no cover
-                request_ = await Request.get_row(session, key)
-                raise RAILRequestError(f"Request failed {request_}")
+        qp_file = self._qp_files.get(key)
+        if qp_file is not None:
             return qp_file
 
         request_ = await Request.get_row(session, key)
@@ -359,7 +350,8 @@ class Cache:
         try:
             qp_file = await self._process_request(session, request_)
             self._qp_files[key] = qp_file
-        except RAILRequestError as failed_request:  # pragma: no cover
+        except RAILRequestError as failed_request:
+            # Set the value to None, allowing to retry later
             self._qp_files[key] = None
             raise RAILRequestError(f"Request failed because {failed_request}") from failed_request
 
