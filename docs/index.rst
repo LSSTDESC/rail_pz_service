@@ -55,7 +55,7 @@ guidance on citing RAIL and the underlying algorithms.
    :maxdepth: 2
    :caption: Contributing
 
-    source/contributing
+   source/contributing
 
 
 .. toctree::

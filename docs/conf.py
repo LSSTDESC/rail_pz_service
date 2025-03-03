@@ -41,7 +41,7 @@ for mod_name in MOCK_MODULES:
 
 # -- Project information -----------------------------------------------------
 
-project = "RAIL_Projects"
+project = "RAIL p(z) service"
 copyright = "2025, LSST DESC RAIL Contributors"
 author = "LSST DESC RAIL Contributors"
 
@@ -72,7 +72,6 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosectionlabel",
     "sphinx_tabs.tabs",
     "sphinx_click",
 ]
@@ -180,7 +179,7 @@ def run_apidoc(_):
     base_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "src"))
 
     srcpath = os.path.normpath(os.path.join(base_path, "rail_pz_service"))
-    paramlist = ["--separate", "--implicit-namespaces", "--no-toc", "-M", "-o", output_path, "-f", srcpath]
+    paramlist = ["--separate", "--no-toc", "-M", "-o", output_path, "-f", srcpath]
     print(f"running {paramlist}")
     apidoc_main(paramlist)
 

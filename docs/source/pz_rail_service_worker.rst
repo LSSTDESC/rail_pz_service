@@ -1,3 +1,3 @@
 **********************
-pz-rail-service-server
+pz-rail-service-worker
 **********************
