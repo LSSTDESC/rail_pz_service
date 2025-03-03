@@ -6,7 +6,11 @@ class RAILIDMismatchError(ValueError):
 
 
 class RAILIntegrityError(RuntimeError):
-    """Raise when catching a sqlalchemy.exc.IntegrityError"""
+    """Raised when catching a sqlalchemy.exc.IntegrityError"""
+
+
+class RAILStatementError(RuntimeError):
+    """Raised when catching a sqlalchemy.exc.StatementError"""
 
 
 class RAILMissingIDError(KeyError):

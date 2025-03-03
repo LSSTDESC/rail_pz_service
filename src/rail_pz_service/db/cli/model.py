@@ -23,6 +23,7 @@ create_options = [
     common_options.path(),
     common_options.catalog_tag_name(),
     common_options.algo_name(),
+    common_options.validate_file(),
     common_options.output(),
 ]
 

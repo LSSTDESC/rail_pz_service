@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, select
+from sqlalchemy import DateTime, UniqueConstraint, select
 from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey
@@ -30,6 +30,7 @@ class Request(Base, RowMixin):
 
     __tablename__ = "request"
     class_string = "request"
+    __table_args__ = (UniqueConstraint("estimator_id", "dataset_id", name="request_constraint"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user: Mapped[str] = mapped_column(index=True)

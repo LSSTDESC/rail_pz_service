@@ -44,6 +44,7 @@ class PZRailRequestClient:
     )
 
     create = wrappers.create_row_function(ResponseModelClass, models.RequestCreate, f"{router_string}/create")
+    delete = wrappers.delete_row_function(f"{router_string}")
 
     def run(self, row_id: int) -> models.Request:
         full_query = f"{router_string}/run/{row_id}"

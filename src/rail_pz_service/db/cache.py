@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 import qp
+import structlog
 from ceci.errors import StageNotFound
 from ceci.stage import PipelineStage
 from rail.core import RailEnv, RailStage
@@ -35,7 +36,8 @@ class Cache:
 
     _shared_cache: Cache | None = None
 
-    def __init__(self) -> None:
+    def __init__(self, logger: structlog.BoundLogger | None = None) -> None:
+        self._logger = logger
         self._algorithms: dict[int, type[CatEstimator] | None] = {}
         self._catalog_tags: dict[int, type[CatalogConfigBase] | None] = {}
         self._estimators: dict[int, CatEstimator | None] = {}
@@ -51,9 +53,9 @@ class Cache:
         self._qp_dists = {}
 
     @classmethod
-    def shared_cache(cls) -> Cache:
+    def shared_cache(cls, logger: structlog.BoundLogger) -> Cache:
         if cls._shared_cache is None:
-            cls._shared_cache = Cache()
+            cls._shared_cache = Cache(logger)
         return cls._shared_cache
 
     def _load_algorithm_class(
@@ -173,6 +175,7 @@ class Cache:
             qp_file_path=result_handle.path,
             time_finished=now,
         )
+        await session.commit()
         self._qp_files[request.id] = result_handle.path
 
         return result_handle.path
@@ -207,7 +210,7 @@ class Cache:
         """
         if key in self._algorithms:
             algo_class = self._algorithms[key]
-            if algo_class is None:
+            if algo_class is None:  # pragma: no cover
                 algo_ = await Algorithm.get_row(session, key)
                 raise RAILImportError(f"Failed to load alogrithm {algo_}")
             return algo_class
@@ -215,6 +218,7 @@ class Cache:
         algo_ = await Algorithm.get_row(session, key)
         try:
             algo_class = self._load_algorithm_class(algo_)
+            self._algorithms[key] = algo_class
         except RAILImportError as failed_import:
             self._algorithms[key] = None
             raise RAILImportError(f"Import of Algorithm failed because {failed_import}") from failed_import
@@ -251,7 +255,7 @@ class Cache:
         """
         if key in self._catalog_tags:
             catalog_tag_class = self._catalog_tags[key]
-            if catalog_tag_class is None:
+            if catalog_tag_class is None:  # pragma: no cover
                 catalog_tag_ = await CatalogTag.get_row(session, key)
                 raise RAILImportError(f"Failed to load catalog_tags {catalog_tag_}")
             return catalog_tag_class
@@ -259,6 +263,7 @@ class Cache:
         catalog_tag_ = await CatalogTag.get_row(session, key)
         try:
             catalog_tag_class = self._load_catalog_tag_class(catalog_tag_)
+            self._catalog_tags[key] = catalog_tag_class
         except RAILImportError as failed_import:
             self._catalog_tags[key] = None
             raise RAILImportError(f"Import of CatalogTag failed because {failed_import}") from failed_import
@@ -295,7 +300,7 @@ class Cache:
 
         if key in self._estimators:
             estimator = self._estimators[key]
-            if estimator is None:
+            if estimator is None:  # pragma: no cover
                 estimator_ = await Estimator.get_row(session, key)
                 raise RAILImportError(f"Failed to load Estimator {estimator_}")
             return estimator
@@ -303,6 +308,7 @@ class Cache:
         estimator_ = await Estimator.get_row(session, key)
         try:
             estimator = await self._build_estimator(session, estimator_)
+            self._estimators[key] = estimator
         except RAILImportError as failed_import:
             self._estimators[key] = None
             raise RAILImportError(f"Import of Estimator failed because {failed_import}") from failed_import
@@ -337,20 +343,23 @@ class Cache:
 
         if key in self._qp_files:
             qp_file = self._qp_files[key]
-            if qp_file is None:
+            if qp_file is None:  # pragma: no cover
                 request_ = await Request.get_row(session, key)
                 raise RAILRequestError(f"Request failed {request_}")
             return qp_file
 
         request_ = await Request.get_row(session, key)
+
         if request_.qp_file_path is not None:
-            if os.path.exists(request_.qp_file_path):
+            full_path = os.path.join(config.storage.archive, request_.qp_file_path)
+            if os.path.exists(full_path):
                 self._qp_files[key] = request_.qp_file_path
                 return request_.qp_file_path
 
         try:
             qp_file = await self._process_request(session, request_)
-        except RAILRequestError as failed_request:
+            self._qp_files[key] = qp_file
+        except RAILRequestError as failed_request:  # pragma: no cover
             self._qp_files[key] = None
             raise RAILRequestError(f"Request failed because {failed_request}") from failed_request
 
@@ -427,15 +436,16 @@ class Cache:
                     name=stage_name,
                     class_name=full_name,
                 )
+                await session.refresh(new_algo)
+                check_class = await self.get_algo_class(session, new_algo.id)
+                if check_class != the_class:  # pragma: no cover
+                    raise RAILIntegrityError(f"{the_class.__name__} != {check_class.__name__}")
+                algos_.append(new_algo)
 
-            except RAILIntegrityError:
-                continue
+            except RAILIntegrityError as msg:
+                if self._logger:
+                    self._logger.info(msg)
 
-            await session.refresh(new_algo)
-            check_class = await self.get_algo_class(session, new_algo.id)
-            if check_class != the_class:
-                raise RAILIntegrityError(f"{the_class.__name__} != {check_class.__name__}")
-            algos_.append(new_algo)
         return algos_
 
     async def load_catalog_tags_from_rail_env(
@@ -469,13 +479,15 @@ class Cache:
                     name=tag,
                     class_name=f"{a_class.__module__}.{a_class.__name__}",
                 )
-            except RAILIntegrityError:
-                pass
-            await session.refresh(new_catalog_tag)
-            check_class = await self.get_catalog_tag_class(session, new_catalog_tag.id)
-            if check_class != a_class:
-                raise RAILIntegrityError(f"{a_class.__name__} != {check_class.__name__}")
-            catalog_tags_.append(new_catalog_tag)
+                await session.refresh(new_catalog_tag)
+                check_class = await self.get_catalog_tag_class(session, new_catalog_tag.id)
+                if check_class != a_class:  # pragma: no cover
+                    raise RAILIntegrityError(f"{a_class.__name__} != {check_class.__name__}")
+                catalog_tags_.append(new_catalog_tag)
+            except RAILIntegrityError as msg:
+                if self._logger:
+                    self._logger.info(msg)
+
         return catalog_tags_
 
     async def load_model_from_file(
@@ -553,7 +565,11 @@ class Cache:
             await session.refresh(new_model)
             return new_model
         except RAILIntegrityError as msg:
-            print(f"Model ingest failed: removing file {output_abspath}")
+            msg_str = f"Model ingest failed: removing file {output_abspath} {str(msg)}"
+            if self._logger:
+                self._logger.warn(msg_str)
+            else:
+                print(msg_str)
             os.unlink(output_abspath)
             raise RAILIntegrityError(msg) from msg
 
@@ -621,7 +637,11 @@ class Cache:
             await session.refresh(new_dataset)
             return new_dataset
         except RAILIntegrityError as msg:
-            print(f"Dataset ingest failed: removing file {output_abspath}")
+            msg_str = f"Dataset ingest failed: removing file {output_abspath}: {str(msg)}"
+            if self._logger:
+                self._logger.warn(msg_str)
+            else:
+                print(msg_str)
             os.unlink(output_abspath)
             raise RAILIntegrityError(msg) from msg
 

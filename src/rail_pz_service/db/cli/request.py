@@ -71,6 +71,7 @@ def run(
         the_cache = db.cache.Cache()
         request = await the_cache.run_process_request(session, request_id=row_id)
         wrappers.output_db_object(request, output, db.Request.col_names_for_table)
+        await session.commit()
         await session.remove()
         await engine.dispose()
 

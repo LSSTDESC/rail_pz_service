@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 from pydantic import BaseModel, TypeAdapter
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, StatementError
 from sqlalchemy.ext.asyncio import async_scoped_session
 from structlog import get_logger
 
@@ -16,6 +16,7 @@ from ..common.errors import (
     RAILIntegrityError,
     RAILMissingIDError,
     RAILMissingNameError,
+    RAILStatementError,
 )
 
 logger = get_logger(__name__)
@@ -222,26 +223,24 @@ class RowMixin:
         """
         if kwargs.get("id", row_id) != row_id:
             raise RAILIDMismatchError("ID mismatch between URL and body")
+
         row = await session.get(cls, row_id)
         if row is None:
             raise RAILMissingIDError(f"{cls} {row_id} not found")
-        async with session.begin_nested():
-            try:
+
+        try:
+            async with session.begin_nested():
                 for var, value in kwargs.items():
-                    if not value:
-                        continue
-                    if isinstance(value, dict):
+                    if isinstance(value, dict):  # pragma: no cover
                         the_dict = getattr(row, var).copy()
                         the_dict.update(**value)
                         setattr(row, var, the_dict)
                     else:
                         setattr(row, var, value)
-            except IntegrityError as msg:
-                await session.rollback()
-                if TYPE_CHECKING:
-                    assert msg.orig  # for mypy
-                raise RAILIntegrityError(msg) from msg
-        await session.refresh(row)
+        except StatementError as msg:
+            if TYPE_CHECKING:
+                assert msg.orig  # for mypy
+            raise RAILStatementError(msg) from msg
         return row
 
     @classmethod
@@ -279,7 +278,7 @@ class RowMixin:
             if TYPE_CHECKING:
                 assert msg.orig  # for mypy
             raise RAILIntegrityError(msg) from msg
-        await session.commit()
+        await session.refresh(row)
         return row
 
     @classmethod
@@ -335,17 +334,7 @@ class RowMixin:
         CMIntegrityError
             Catching a IntegrityError
         """
-        try:
-            async with session.begin_nested():
-                for var, value in kwargs.items():
-                    setattr(self, var, value)
-            await session.refresh(self)
-        except IntegrityError as msg:
-            await session.rollback()
-            if TYPE_CHECKING:
-                assert msg.orig
-            raise RAILIntegrityError(msg) from msg
-        return self
+        return await self.update_row(session, self.id, **kwargs)
 
     def to_model(self) -> BaseModel:
         """Return a reow as a pydantic model"""

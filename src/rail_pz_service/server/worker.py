@@ -48,7 +48,7 @@ async def main_loop() -> None:
     """
     engine = create_database_engine(config.db.url, config.db.password)
     sleep_time = config.daemon.processing_interval
-    cache = db.Cache()
+    cache = db.Cache.shared_cache(logger)
 
     async with engine.begin():
         session = await create_async_session(engine, logger)

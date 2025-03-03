@@ -3,7 +3,7 @@ import uuid
 import pytest
 import structlog
 from safir.database import create_async_session
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_scoped_session
 
 from rail_pz_service import db
 from rail_pz_service.common import errors
@@ -13,15 +13,12 @@ from .util_functions import (
 )
 
 
-@pytest.mark.asyncio()
-async def test_model_db(engine: AsyncEngine) -> None:
-    """Test `job` db table."""
+async def _test_model_db(session: async_scoped_session) -> None:
+    """Test `Model` db table."""
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
-    logger = structlog.get_logger(__name__)
-    async with engine.begin():
-        session = await create_async_session(engine, logger)
 
+    if session:
         algorithm_ = await db.Algorithm.create_row(
             session,
             name=f"algorithm_{uuid_int}",
@@ -40,7 +37,38 @@ async def test_model_db(engine: AsyncEngine) -> None:
             path="not/really/a/path",
             algo_name=algorithm_.name,
             catalog_tag_name=catalog_tag_.name,
+            validate_file=False,
         )
+
+        with pytest.raises(errors.RAILMissingRowCreateInputError):
+            await db.Model.create_row(
+                session,
+            )
+
+        with pytest.raises(errors.RAILMissingRowCreateInputError):
+            await db.Model.create_row(
+                session,
+                name=f"model_{uuid_int}",
+                path="not/really/a/path",
+                catalog_tag_name=catalog_tag_.name,
+            )
+
+        with pytest.raises(errors.RAILMissingRowCreateInputError):
+            await db.Model.create_row(
+                session,
+                name=f"model_{uuid_int}",
+                path="not/really/a/path",
+                algo_name=algorithm_.name,
+            )
+
+        with pytest.raises(errors.RAILFileNotFoundError):
+            await db.Model.create_row(
+                session,
+                name=f"model_{uuid_int}",
+                path="not/really/a/path",
+                algo_name=algorithm_.name,
+                catalog_tag_name=catalog_tag_.name,
+            )
 
         with pytest.raises(errors.RAILIntegrityError):
             await db.Model.create_row(
@@ -49,6 +77,7 @@ async def test_model_db(engine: AsyncEngine) -> None:
                 path="not/really/a/path",
                 algo_name=algorithm_.name,
                 catalog_tag_name=catalog_tag_.name,
+                validate_file=False,
             )
 
         rows = await db.Model.get_rows(session)
@@ -67,6 +96,7 @@ async def test_model_db(engine: AsyncEngine) -> None:
             path="not/really/a/path/2",
             algo_id=algorithm_.id,
             catalog_tag_id=catalog_tag_.id,
+            validate_file=False,
         )
 
         rows = await db.Model.get_rows(session)
@@ -74,3 +104,18 @@ async def test_model_db(engine: AsyncEngine) -> None:
 
         # cleanup
         await cleanup(session)
+
+
+@pytest.mark.asyncio()
+async def test_model_db(engine: AsyncEngine) -> None:
+    """Test `Estimator` db table."""
+    logger = structlog.get_logger(__name__)
+
+    async with engine.begin():
+        session = await create_async_session(engine, logger)
+    try:
+        await _test_model_db(session)
+    except Exception as e:
+        await session.rollback()
+        await cleanup(session)
+        raise e

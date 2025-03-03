@@ -22,6 +22,6 @@ async def get_index() -> dict:
     By convention, this endpoint returns only the application's metadata.
     """
     return {
-        "name": "rail-pz-service-server",
+        "name": "rail-pz-service",
         "version": __version__,
     }

@@ -84,14 +84,14 @@ class Estimator(Base, RowMixin):
             name = kwargs["name"]
             config = kwargs.get("config", {})
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Estimator: {e}") from e
 
         model_id = kwargs.get("model_id", None)
         if model_id is None:
             try:
                 model_name = kwargs["model_name"]
             except KeyError as e:
-                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+                raise RAILMissingRowCreateInputError(f"Missing input to create Estimator: {e}") from e
             model_ = await Model.get_row_by_name(session, model_name)
             model_id = model_.id
         else:

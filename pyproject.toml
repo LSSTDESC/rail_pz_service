@@ -104,6 +104,12 @@ parallel = true
 branch = true
 source = ["rail_pz_service"]
 concurrency = ['greenlet', 'thread']
+omit = [
+    # omit everything in web_app, worker and main
+    "web_app.py",
+    "worker.py",
+    "main.py",
+]
 
 [tool.coverage.paths]
 source = ["src"]
@@ -117,13 +123,17 @@ exclude_lines = [
     "if settings.DEBUG",
     "raise AssertionError",
     "raise NotImplementedError",
-    "except Exception as msg",
-    "except KeyError as msg",
-    "except IntegrityError as msg",
+    "except .* as msg",
+    "except .* as failed_import",
+    "except .* as failed_request",
+    "except .* as failed_read",
+    "except .* as missing_stage",
+    "except .* missing_key",
     "if 0:",
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
 
 [tool.ruff]
 exclude = [
@@ -180,7 +190,7 @@ asyncio_default_fixture_loop_scope="function"
 python_files = ["tests/*.py", "tests/*/*.py"]
 addopts = [
     "--cov=src",
-    "--cov-report=html"
+    "--cov-report=html",
 ]
 
 [tool.mypy]

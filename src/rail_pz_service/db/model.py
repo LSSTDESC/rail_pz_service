@@ -84,23 +84,32 @@ class Model(Base, RowMixin):
         except KeyError as e:
             raise RAILMissingRowCreateInputError(f"Missing input to create Model: {e}") from e
 
+        validate_file = kwargs.get("validate_file", True)
+
         algo_id = kwargs.get("algo_id", None)
         if algo_id is None:
             try:
                 algo_name = kwargs["algo_name"]
             except KeyError as e:
-                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+                raise RAILMissingRowCreateInputError(f"Missing input to create Model: {e}") from e
             algo_ = await Algorithm.get_row_by_name(session, algo_name)
             algo_id = algo_.id
+        else:
+            algo_ = await Algorithm.get_row(session, algo_id)
 
         catalog_tag_id = kwargs.get("catalog_tag_id", None)
         if catalog_tag_id is None:
             try:
                 catalog_tag_name = kwargs["catalog_tag_name"]
             except KeyError as e:
-                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+                raise RAILMissingRowCreateInputError(f"Missing input to create Model: {e}") from e
             catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
             catalog_tag_id = catalog_tag_.id
+        else:
+            catalog_tag_ = await CatalogTag.get_row(session, catalog_tag_id)
+
+        if validate_file:
+            cls.validate_model(path, algo_, catalog_tag_)
 
         return dict(
             name=name,

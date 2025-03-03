@@ -43,6 +43,11 @@ def test_catalog_tag_client(uvicorn: UvicornProcess, api_version: str, engine: A
     catalog_tags = check_and_parse_result(result, list[models.CatalogTag])
     entry = catalog_tags[0]
 
+    result = runner.invoke(top, f"catalog-tag get by-name --name {entry.name} --output json")
+    assert result.exit_code == 0
+    check_name = check_and_parse_result(result, models.CatalogTag)
+    assert check_name.name == entry.name
+
     # test other output cases
     result = runner.invoke(top, "catalog-tag list --output json")
     assert result.exit_code == 0

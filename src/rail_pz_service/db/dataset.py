@@ -73,7 +73,7 @@ class Dataset(Base, RowMixin):
             path = kwargs.get("path", None)
             data = kwargs.get("data", None)
         except KeyError as e:
-            raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+            raise RAILMissingRowCreateInputError(f"Missing input to create Dataset: {e}") from e
 
         validate_file = kwargs.get("validate_file", True)
 
@@ -82,7 +82,7 @@ class Dataset(Base, RowMixin):
             try:
                 catalog_tag_name = kwargs["catalog_tag_name"]
             except KeyError as e:
-                raise RAILMissingRowCreateInputError(f"Missing input to create Group: {e}") from e
+                raise RAILMissingRowCreateInputError(f"Missing input to create Dataset: {e}") from e
             catalog_tag_ = await CatalogTag.get_row_by_name(session, catalog_tag_name)
             catalog_tag_id = catalog_tag_.id
         else:

@@ -9,7 +9,7 @@ import click
 from click.decorators import FC
 
 
-class DictParamType(click.ParamType):
+class DictParamType(click.ParamType):  # pragma: no cover
     """Represents the dictionary type of a CLI parameter.
 
     Validates and converts values from the command line string or Python into
@@ -62,7 +62,7 @@ class DictParamType(click.ParamType):
         ------
             click.BadParameter: If the validation is failed.
         """
-        if isinstance(value, dict):  # pragma: no cover
+        if isinstance(value, dict):
             return value
         try:
             keyvalue_pairs = value.rstrip(";").split(";")

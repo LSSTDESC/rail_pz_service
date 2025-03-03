@@ -14,11 +14,17 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from safir.dependencies.db_session import db_session_dependency
 from safir.dependencies.http_client import http_client_dependency
+from safir.logging import configure_uvicorn_logging
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from .. import db, models
 from ..config import config
 from . import routers
+from .logging import LOGGER
+
+configure_uvicorn_logging(config.logging.level)
+
+logger = LOGGER.bind(module=__name__)
 
 
 @asynccontextmanager
@@ -151,7 +157,7 @@ async def _make_plot_context(
     request: Request,
     **kwargs: Any,
 ) -> dict:
-    cache = db.Cache.shared_cache()
+    cache = db.Cache.shared_cache(logger)
 
     request_ = kwargs["my_request"]
     qp_dist = await cache.get_qp_dist(session, request_.id)
@@ -239,9 +245,10 @@ async def _get_request_context(
     session: async_scoped_session,
     request: Request,
     *,
+    catalog_tag_id: int | None = None,
     use_form: bool = False,
 ) -> dict:
-    params = await _parse_request(session, request, use_form=use_form)
+    params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=use_form)
 
     extra_context = await _make_request_context(session, **params)
 
@@ -252,9 +259,10 @@ async def _get_request_context(
 
 async def _load_dataset(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     # Upload the file to the import area
     file_to_load = request_params["file_to_load"]
@@ -281,17 +289,18 @@ async def _load_dataset(
         )
         return dict(dataset=new_dataset)
     except Exception as e:
-        print(e)
-        print(f"Failed to load dataset, removing temp file {temp_filename}")
+        logger.info(e)
+        logger.warn(f"Failed to load dataset, removing temp file {temp_filename}")
         os.remove(temp_filename)
         raise e
 
 
 async def _load_dataset_from_values(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     dataset_name = request_params["dataset_name"]
     dataset_data = request_params["data"]
@@ -311,16 +320,19 @@ async def _load_dataset_from_values(
         )
         return dict(dataset=new_dataset)
     except Exception as e:
-        print(e)
-        print(f"Failed to load dataset {dataset_name}")
+        logger.info(e)
+        logger.warn(f"Failed to load dataset {dataset_name}")
         raise e
 
 
 async def _load_model(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _get_request_context(session, request, use_form=True)
+    request_params = await _get_request_context(
+        session, request, catalog_tag_id=catalog_tag_id, use_form=True
+    )
 
     # Upload the file to the import area
     file_to_load = request_params["file_to_load"]
@@ -361,8 +373,8 @@ async def _load_model(
             ret_dict["estimator"] = new_estimator
         return ret_dict
     except Exception as e:
-        print(e)
-        print(f"Failed to load model, removing temp file {temp_filename}")
+        logger.info(e)
+        logger.warn(f"Failed to load model, removing temp file {temp_filename}")
         os.remove(temp_filename)
         model_name = None
         raise e
@@ -370,9 +382,10 @@ async def _load_model(
 
 async def _load_estimator(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     model_ = request_params["model"]
     estimator_name = request_params["estimator_name"]
@@ -392,16 +405,17 @@ async def _load_estimator(
         )
         return dict(estimator=new_estimator)
     except Exception as e:
-        print(e)
-        print(f"Failed to load estimator {estimator_name}")
+        logger.info(e)
+        logger.warn(f"Failed to load estimator {estimator_name}")
         raise e
 
 
 async def _create_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     dataset_ = request_params["dataset"]
     estimator_ = request_params["estimator"]
@@ -418,16 +432,17 @@ async def _create_request(
         )
         return dict(my_request=new_request)
     except Exception as e:
-        print(e)
-        print(f"Failed to create_request {create_request_query}")
+        logger.info(e)
+        logger.warn(f"Failed to create_request {create_request_query}")
         raise e
 
 
 async def _run_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     request_ = request_params["my_request"]
 
@@ -438,16 +453,17 @@ async def _run_request(
         )
         return dict(my_request=check_request)
     except Exception as e:
-        print(e)
-        print(f"Failed to run_request {request_}")
+        logger.info(e)
+        logger.warn(f"Failed to run_request {request_}")
         raise e
 
 
 async def _explore_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    _request_params = await _parse_request(session, request, use_form=True)
+    _request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
     return dict(control_type="explore")
 
 
@@ -459,10 +475,9 @@ async def post_tree(
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     # get info from request
-    request_params = await _parse_request(session, request, use_form=True, catalog_tag_id=catalog_tag_id)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     form_keys = request_params["form_keys"]
-
     func_dict = dict(
         submit_model=_load_model,
         submit_estimator=_load_estimator,
@@ -481,12 +496,12 @@ async def post_tree(
         return templates.TemplateResponse(f"Cound not the a function to run {form_keys}")
 
     try:
-        update_pars = await the_func(request=request, session=session)
+        update_pars = await the_func(request=request, catalog_tag_id=catalog_tag_id, session=session)
         request_params.update(**update_pars)
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with post_tree:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with post_tree {func_name}:  {e}")
 
     try:
         extra_context = await _make_request_context(
@@ -497,8 +512,8 @@ async def post_tree(
         context.update(**extra_context)
 
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
         return templates.TemplateResponse(f"Something went wrong with post_tree:  {e}")
 
     try:
@@ -508,9 +523,9 @@ async def post_tree(
             context=context,
         )
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with template formating:  {e}")
 
 
 @web_app.get("/", response_class=HTMLResponse)
@@ -521,7 +536,7 @@ async def get_tree(
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     # get info from request
-    request_params = await _parse_request(session, request, use_form=False, catalog_tag_id=catalog_tag_id)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=False)
 
     context: dict = {}
 
@@ -564,9 +579,9 @@ async def get_tree(
         context.update(**request_params)
         context.update(**extra_context)
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with _make_request_context:  {e}")
 
     try:
         return templates.TemplateResponse(
@@ -575,9 +590,9 @@ async def get_tree(
             context=context,
         )
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with template formating:  {e}")
 
 
 @web_app.get("/layout/", response_class=HTMLResponse)

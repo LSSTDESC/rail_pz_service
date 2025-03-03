@@ -3,7 +3,7 @@ import uuid
 import pytest
 import structlog
 from safir.database import create_async_session
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_scoped_session
 
 from rail_pz_service import db
 from rail_pz_service.common import errors
@@ -13,15 +13,12 @@ from .util_functions import (
 )
 
 
-@pytest.mark.asyncio()
-async def test_algorithm_db(engine: AsyncEngine) -> None:
+async def _test_algorithm_db(session: async_scoped_session) -> None:
     """Test `job` db table."""
     # generate a uuid to avoid collisions
     uuid_int = uuid.uuid1().int
-    logger = structlog.get_logger(__name__)
-    async with engine.begin():
-        session = await create_async_session(engine, logger)
 
+    if session:
         await db.Algorithm.create_row(
             session,
             name=f"algo_{uuid_int}",
@@ -47,3 +44,18 @@ async def test_algorithm_db(engine: AsyncEngine) -> None:
 
         # cleanup
         await cleanup(session)
+
+
+@pytest.mark.asyncio()
+async def test_algorithm_db(engine: AsyncEngine) -> None:
+    """Test `Algorithm` db table."""
+    logger = structlog.get_logger(__name__)
+
+    async with engine.begin():
+        session = await create_async_session(engine, logger)
+    try:
+        await _test_algorithm_db(session)
+    except Exception as e:
+        await session.rollback()
+        await cleanup(session)
+        raise e

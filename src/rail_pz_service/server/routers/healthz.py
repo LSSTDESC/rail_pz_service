@@ -28,7 +28,7 @@ async def get_healthz(request: Request) -> dict:
     healthz_response: dict[str, Any] = dict(name=config.asgi.title, version=__version__)
 
     task: Task
-    for task in request.app.state.tasks:
+    for task in request.app.state.tasks:  # pragma: no cover
         task_response: dict[str, bool | str | None] = {"task_running": True, "task_exception": None}
         if task.done():
             server_ok = False
@@ -36,7 +36,7 @@ async def get_healthz(request: Request) -> dict:
             task_response["task_exception"] = str(task.exception())
         healthz_response[task.get_name()] = task_response
 
-    if not server_ok:
+    if not server_ok:  # pragma: no cover
         raise HTTPException(status_code=500, detail=healthz_response)
     else:
         return healthz_response

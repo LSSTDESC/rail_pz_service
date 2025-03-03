@@ -50,6 +50,7 @@ async def test_estimator_routes(
             path="not/really/a/path",
             algo_name=algorithm_.name,
             catalog_tag_name=catalog_tag_.name,
+            validate_file=False,
         )
 
         estimator_ = await db.Estimator.create_row(

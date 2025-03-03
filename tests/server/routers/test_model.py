@@ -50,6 +50,7 @@ async def test_model_routes(
             path="not/really/a/path",
             algo_name=algo_.name,
             catalog_tag_name=catalog_tag_.name,
+            validate_file=False,
         )
 
         response = await client.get(f"{config.asgi.prefix}/{api_version}/model/list")
@@ -70,6 +71,10 @@ async def test_model_routes(
         )
         check = check_and_parse_response(response, models.Model)
         assert check.id == model_.id
+
+        response = await client.get(f"{config.asgi.prefix}/{api_version}/catalog_tag/get/{entry.id}/models")
+        models_check = check_and_parse_response(response, list[models.Model])
+        assert models_check[0].id == entry.id
 
         # delete everything we just made in the session
         await cleanup(session)

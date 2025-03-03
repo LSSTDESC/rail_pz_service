@@ -50,6 +50,7 @@ async def test_request_routes(
             path="not/really/a/path",
             algo_name=algorithm_.name,
             catalog_tag_name=catalog_tag_.name,
+            validate_file=False,
         )
 
         estimator_ = await db.Estimator.create_row(
@@ -86,6 +87,16 @@ async def test_request_routes(
         check = check_and_parse_response(response, models.Request)
 
         assert check.id == request_.id
+
+        response = await client.delete(f"{config.asgi.prefix}/{api_version}/request/{request_.id}")
+        assert response.status_code == 204
+
+        response = await client.delete(f"{config.asgi.prefix}/{api_version}/request/13412")
+        assert response.status_code == 404
+
+        response = await client.get(f"{config.asgi.prefix}/{api_version}/request/list")
+        requests = check_and_parse_response(response, list[models.Request])
+        assert len(requests) == 0
 
         # delete everything we just made in the session
         await cleanup(session)
