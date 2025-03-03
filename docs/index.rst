@@ -59,7 +59,7 @@ guidance on citing RAIL and the underlying algorithms.
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 6
    :caption: API
 
    api/rail_pz_service

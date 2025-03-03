@@ -64,6 +64,23 @@ def get_list_function(
         limit: int = 100,
         session: async_scoped_session = Depends(db_session_dependency),
     ) -> Sequence[response_model_class]:
+        """Return all the rows
+
+        Parameters
+        ----------
+        skip
+            Number of rows to skip at the start
+
+        limit
+            Number of rows to list
+
+        session
+            Database session
+
+        Returns
+        -------
+        The rows in question
+        """
         try:
             async with session.begin():
                 return await db_class.get_rows(session, skip=skip, limit=limit)
