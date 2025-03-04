@@ -410,6 +410,19 @@ class Cache:
         ------
         RAILIntegrityError
             Rows already exist in database
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache = pz_rail_service.db.Cache.shared_cache(logger)
+            algos = await cache.load_algorithms_from_rail_env(
+                session,
+            )
+
         """
         algos_: list[Algorithm] = []
         RailEnv.import_all_packages(silent=True)
@@ -444,7 +457,7 @@ class Cache:
         self,
         session: async_scoped_session,
     ) -> list[CatalogTag]:
-        """Load all of the CatalogConfig tags from
+        """Load all of the CatalogTag from RAIL classes
 
         Parameters
         ----------
@@ -456,10 +469,18 @@ class Cache:
         list[CatalogTag]
             Newly created CatalogTag database rows
 
-        Raises
-        ------
-        RAILIntegrityError
-            Rows already exist in database
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache = pz_rail_service.db.Cache.shared_cache(logger)
+            catalog_tags = await cache.load_catalog_tags_from_rail_env(
+                session,
+            )
+
         """
         catalog_tags_: list[CatalogTag] = []
 
@@ -524,6 +545,23 @@ class Cache:
 
         RAILBadModelError
             Input file failed validation checks
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_model = await cache.load_model_from_file(
+                session,
+                name='my_gpz_com_cam_model',
+                path='local_version_of_file.pkl',
+                algo_name='GPZEstimator',
+                catalog_tag_name='com_cam',
+            )
+
         """
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
@@ -603,6 +641,22 @@ class Cache:
 
         RAILBadDatasetError
             Input file failed validation checks
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_dataset = await cache.load_dataset_from_file(
+                session,
+                name='my_com_cam_dataset',
+                path='local_version_of_file.hdf5',
+                catalog_tag_name='com_cam',
+            )
+
         """
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
@@ -669,6 +723,22 @@ class Cache:
         ------
         RAILIntegrityError
             Rows already exist in database
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_dataset = await cache.load_dataset_from_file(
+                session,
+                name='my_com_cam_dataset',
+                path='local_version_of_data_file.hdf5',
+                catalog_tag_name='com_cam',
+            )
+
         """
 
         model = await Model.get_row_by_name(session, model_name)
@@ -685,12 +755,59 @@ class Cache:
         except RAILIntegrityError as msg:
             raise RAILIntegrityError(msg) from msg
 
-    async def run_process_request(
+    async def create_request(
+        self,
+        session: async_scoped_session,
+        dataset_name: str,
+        estimator_name: str,
+    ) -> Request:
+        """Run a request
+
+        Parameters
+        ----------
+        session
+            DB session manager
+
+        dataset_name
+            Name of associated Dataset
+
+        estimator_name
+            Name of associated Estimator
+
+        Returns
+        -------
+        Request
+            Request in question
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_request = await cache.create_request(
+                session,
+                dataset_name='my_com_cam_dataset',
+                estimator_name='my_gpz_com_cam_estimaor',
+            )
+
+        """
+        request_ = await Request.create_row(
+            session,
+            dataset_name=dataset_name,
+            estimator_name=estimator_name,
+        )
+        await session.commit()
+        return request_
+
+    async def run_request(
         self,
         session: async_scoped_session,
         request_id: int,
     ) -> Request:
-        """Create a Request to process Dataset with a particular Estimator
+        """Run a request
 
         Parameters
         ----------
@@ -704,6 +821,25 @@ class Cache:
         -------
         Request
             Request in question
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_request = await cache.create_request(
+                session,
+                dataset_name='my_com_cam_dataset',
+                estimator_name='my_gpz_com_cam_estimaor',
+            )
+            await cache.run_request(
+                session,
+                new_request.id,
+            )
+
         """
         request_ = await Request.get_row(session, request_id)
         await self.get_qp_file(session, request_.id)

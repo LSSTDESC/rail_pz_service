@@ -21,7 +21,7 @@ From client CLI
 From python on server side
 --------------------------
 
-.. autofunction:: rail_pz_service.db.Cache.run_process_request
+.. autofunction:: rail_pz_service.db.Cache.run_request
     :noindex:
 
 

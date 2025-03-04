@@ -101,7 +101,7 @@ write_to = "src/rail_pz_service/_version.py"
 
 [tool.coverage.run]
 parallel = true
-branch = true
+#branch = true
 source = ["rail_pz_service"]
 concurrency = ['greenlet', 'thread']
 omit = [

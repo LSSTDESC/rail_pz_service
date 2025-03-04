@@ -37,7 +37,7 @@ async def worker_iteration(
 ) -> None:
     open_requests = await db.Request.get_open_requests(session)
     for open_request_ in open_requests:
-        await cache.run_process_request(session, open_request_.id)
+        await cache.run_request(session, open_request_.id)
 
 
 async def main_loop() -> None:

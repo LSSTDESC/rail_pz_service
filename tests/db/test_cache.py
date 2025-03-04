@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import pytest
 import structlog
@@ -37,7 +38,7 @@ async def _test_cache(session: async_scoped_session) -> None:
         the_model = await cache.load_model_from_file(
             session,
             name="com_cam_trainz_base",
-            path=os.path.join("tests", "temp_data", "inputs", "model_com_cam_trainz_base.pkl"),
+            path=pathlib.Path(os.path.join("tests", "temp_data", "inputs", "model_com_cam_trainz_base.pkl")),
             algo_name="TrainZEstimator",
             catalog_tag_name="com_cam",
         )
@@ -47,7 +48,7 @@ async def _test_cache(session: async_scoped_session) -> None:
         the_dataset = await cache.load_dataset_from_file(
             session,
             name="com_cam_test",
-            path=os.path.join("tests", "temp_data", "inputs", "minimal_gold_test.hdf5"),
+            path=pathlib.Path(os.path.join("tests", "temp_data", "inputs", "minimal_gold_test.hdf5")),
             catalog_tag_name="com_cam",
         )
 
@@ -68,7 +69,7 @@ async def _test_cache(session: async_scoped_session) -> None:
         cached_estim = await cache.get_estimator(session, estimators[0].id)
         assert cached_estim
 
-        check_request = await cache.run_process_request(session, request.id)
+        check_request = await cache.run_request(session, request.id)
 
         qp_file_path = await cache.get_qp_file(session, check_request.id)
         check_qp_file_path = await cache.get_qp_file(session, check_request.id)

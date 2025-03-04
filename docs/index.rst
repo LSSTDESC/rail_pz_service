@@ -39,6 +39,7 @@ guidance on citing RAIL and the underlying algorithms.
    :maxdepth: 2
    :caption: Uploading
 
+   source/initalizing_db
    source/uploading_a_model
    source/uploading_an_estimator
    source/uploading_a_dataset

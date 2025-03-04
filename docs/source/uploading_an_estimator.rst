@@ -2,17 +2,27 @@
 Uploading an Estimator
 **********************
 
+
+From Web-App
+------------
+
+You can easily load an estimator using the web app.
+
+You will first need to select a CatalogTag, Algorithm and Model.
+
+Use the `load` button in the `Algorithm` section of the sidebar and
+the use the control panel to provide a name, model and set any
+parameter overrides.
+
+The currently selected Algorithm, Model and CatalogTag will be
+associated with the Estimator.
+
+
 From python on client side
 --------------------------
 
 .. autofunction:: rail_pz_service.client.load.PZRailLoadClient.estimator
     :noindex:
-
-.. autoclass:: rail_pz_service.models.LoadEstimatorQuery
-    :noindex:
-    :members:
-    :member-order: bysource
-    :exclude-members: model_config
 
 
 From client CLI

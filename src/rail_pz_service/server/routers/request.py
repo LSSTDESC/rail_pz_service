@@ -51,7 +51,7 @@ async def run_request(
 ) -> db.Request:
     the_cache = db.Cache.shared_cache(logger)
     try:
-        request = await the_cache.run_process_request(
+        request = await the_cache.run_request(
             session,
             request_id=row_id,
         )

@@ -19,8 +19,10 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 
 from .. import db, models
 from ..config import config
-from . import routers
 from .logging import LOGGER
+from .routers.load import load_dataset, load_estimator, load_model
+from .routers.request import create as create_request
+from .routers.request import run_request
 
 configure_uvicorn_logging(config.logging.level)
 
@@ -283,7 +285,7 @@ async def _load_dataset(
         path=temp_filename,
     )
     try:
-        new_dataset = await routers.load.load_dataset(
+        new_dataset = await load_dataset(
             load_dataset_query,
             session,
         )
@@ -314,7 +316,7 @@ async def _load_dataset_from_values(
         data=dataset_data,
     )
     try:
-        new_dataset = await routers.load.load_dataset(
+        new_dataset = await load_dataset(
             load_dataset_query,
             session,
         )
@@ -355,7 +357,7 @@ async def _load_model(
         catalog_tag_name=catalog_tag_.name,
     )
     try:
-        new_model = await routers.load.load_model(
+        new_model = await load_model(
             load_model_query,
             session,
         )
@@ -366,7 +368,7 @@ async def _load_model(
                 name=model_name,
                 model_name=model_name,
             )
-            new_estimator = await routers.load.load_estimator(
+            new_estimator = await load_estimator(
                 load_estimator_query,
                 session,
             )
@@ -399,7 +401,7 @@ async def _load_estimator(
         model_name=model_.name,
     )
     try:
-        new_estimator = await routers.load.load_estimator(
+        new_estimator = await load_estimator(
             load_estimator_query,
             session,
         )
@@ -426,7 +428,7 @@ async def _create_request(
         estimator_name=estimator_.name,
     )
     try:
-        new_request = await routers.request.create(
+        new_request = await create_request(
             create_request_query,
             session,
         )
@@ -447,7 +449,7 @@ async def _run_request(
     request_ = request_params["my_request"]
 
     try:
-        check_request = await routers.request.run_request(
+        check_request = await run_request(
             request_.id,
             session,
         )

@@ -3,17 +3,30 @@ Uploading a Dataset
 *******************
 
 
+From Web-App
+------------
+
+You can easily load a dataset using the web app.
+
+You will first need to select a CatalogTag.
+
+Use the `load` button in the `Dataset` section of the sidebar and
+the use the control panel to provide a name and file to upload.
+
+The currently selected CatalogTag will be
+associated with the Dataset.
+
+Alternatively, you can use the `create` button in the `Dataset`
+section of the sidebar and the use the control panel to provide a
+name and data values.
+
+
 From python on client side
 --------------------------
 
 .. autofunction:: rail_pz_service.client.load.PZRailLoadClient.dataset
     :noindex:
 
-.. autoclass:: rail_pz_service.models.LoadDatasetQuery
-    :noindex:
-    :members:
-    :member-order: bysource
-    :exclude-members: model_config
 
 
 From client CLI

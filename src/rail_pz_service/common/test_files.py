@@ -1,6 +1,6 @@
 import os
 import subprocess
-import urllib
+from urllib.request import urlretrieve
 
 
 def setup_test_area() -> int:
@@ -20,7 +20,7 @@ def setup_test_area() -> int:
     """
 
     if not os.path.exists("tests/pz_rail_server.tgz"):
-        urllib.request.urlretrieve(
+        urlretrieve(
             "http://s3df.slac.stanford.edu/people/echarles/xfer/pz_rail_server.tgz",
             "tests/pz_rail_server.tgz",
         )

@@ -4,6 +4,9 @@
   <div>ID: {{ estimator.id }}</div>
   <div>Model: {{ model.name }}</div>
   <div>Algorithm: {{ algo.name }}</div>
+  {% if estimator.data %}
+  <div>estimator.data</div>
+  {% endif %}
   {% else %}
   No Estimator selected.  Use the buttons the left to select or load one.
   If you want to load a new Estimator you will need to select a Model first.<br>

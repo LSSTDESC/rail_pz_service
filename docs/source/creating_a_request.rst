@@ -22,10 +22,11 @@ From client CLI
     :nested: none
 
 
-
 From python on server side
 --------------------------
 
+.. autofunction:: rail_pz_service.db.cache.Cache.create_request
+    :noindex:
 
 
 From server CLI
