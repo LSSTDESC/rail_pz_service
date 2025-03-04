@@ -21,46 +21,58 @@ from .row import RowMixin
 
 
 class Request(Base, RowMixin):
-    """Database table to keep track of photo-z algorithms
-
-    Each `Request` refers to a particular instance of a
-    `Request`
-
-    """
+    pydantic_mode_class = models.Request
+    __doc__ = pydantic_mode_class.__doc__
 
     __tablename__ = "request"
     class_string = "request"
     __table_args__ = (UniqueConstraint("estimator_id", "dataset_id", name="request_constraint"),)
 
+    #: primary key
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    #: User who orginated this Request
     user: Mapped[str] = mapped_column(index=True)
+
+    #: foreign key into estimator table
     estimator_id: Mapped[int] = mapped_column(
         ForeignKey("estimator.id", ondelete="CASCADE"),
         index=True,
     )
+
+    #: foreign key into dataset table
     dataset_id: Mapped[int] = mapped_column(
         ForeignKey("dataset.id", ondelete="CASCADE"),
         index=True,
     )
+
+    #: path to the output file
     qp_file_path: Mapped[str | None] = mapped_column(default=None)
 
+    #: timestamp of when the request was created in the DB
     time_created: Mapped[datetime] = mapped_column(type_=DateTime)
+
+    #: timestamp of when the request processing started by an `Estimator`
     time_started: Mapped[datetime | None] = mapped_column(type_=DateTime, default=None)
+
+    #: timestamp of when the request processing was finished
     time_finished: Mapped[datetime | None] = mapped_column(type_=DateTime, default=None)
 
+    #: Access to associated `Estimator`
     estimator_: Mapped[Estimator] = relationship(
         "Estimator",
         primaryjoin="Request.estimator_id==Estimator.id",
         viewonly=True,
     )
+
+    #: Access to associated `Dataset`
     dataset_: Mapped[Dataset] = relationship(
         "Dataset",
         primaryjoin="Request.dataset_id==Dataset.id",
         viewonly=True,
     )
 
-    pydantic_mode_class = models.Request
-
+    #: column names to use when printing the table
     col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:

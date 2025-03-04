@@ -14,11 +14,13 @@ class DictParamType(click.ParamType):  # pragma: no cover
 
     Validates and converts values from the command line string or Python into
     a Python dict.
-        - All key-value pairs must be separated by one semicolon.
-        - Key and value must be separated by one colon
-        - Converts sequences separeted by dots into a list: list value items
-              must be separated by commas.
-        - Converts numbers to int.
+
+    - All key-value pairs must be separated by one semicolon.
+    - Key and value must be separated by one colon
+    - Converts sequences separeted by dots into a list: list value items
+        must be separated by commas.
+    - Converts numbers to int.
+
 
     Usage
         >>> @click.option("--param", default=None, type=DictParamType())

@@ -37,25 +37,35 @@ guidance on citing RAIL and the underlying algorithms.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Usage
-
-   source/pz_rail_service_admin_cli
-   source/pz_rail_service_client_cli
-   source/pz_rail_service_server
-   source/pz_rail_service_worker
-
-.. toctree::
-   :maxdepth: 2
    :caption: Uploading
 
    source/uploading_a_model
+   source/uploading_an_estimator
    source/uploading_a_dataset
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Requests
+
+   source/creating_a_request
+   source/running_a_request
+   source/exploring_request_results
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contributing
 
    source/contributing
+
+.. toctree::
+   :maxdepth: 2
+   :caption: CLI Usage
+
+   source/pz_rail_service_admin_cli
+   source/pz_rail_service_client_cli
+   source/pz_rail_service_server
+   source/pz_rail_service_worker
 
 
 .. toctree::

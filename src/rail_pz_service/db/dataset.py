@@ -25,38 +25,48 @@ if TYPE_CHECKING:
 
 
 class Dataset(Base, RowMixin):
-    """Database table to keep track of photo-z algorithms
-
-    Each `Dataset` refers to a particular instance of a
-    `CatEstimator`
-
-    """
+    pydantic_mode_class = models.Dataset
+    __doc__ = pydantic_mode_class.__doc__
 
     __tablename__ = "dataset"
     class_string = "dataset"
 
+    #: primary key
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    #: Name for this Dataset, unique
     name: Mapped[str] = mapped_column(index=True, unique=True)
+
+    #: Number of objects in the dataset
     n_objects: Mapped[int] = mapped_column()
+
+    #: Path to the relevant file (could be None)
     path: Mapped[str | None] = mapped_column(default=None)
+
+    #: Data for the dataset (could be None)
     data: Mapped[dict | None] = mapped_column(type_=JSON)
+
+    #: foreign key into catalog_tag table
     catalog_tag_id: Mapped[int] = mapped_column(
         ForeignKey("catalog_tag.id", ondelete="CASCADE"),
         index=True,
     )
+
+    #: Access to associated `CatalogTag`
     catalog_tag_: Mapped["CatalogTag"] = relationship(
         "CatalogTag",
         primaryjoin="Dataset.catalog_tag_id==CatalogTag.id",
         viewonly=True,
     )
+
+    #: Access to list of associated `Request`
     requests_: Mapped[list["Request"]] = relationship(
         "Request",
         primaryjoin="Dataset.id==Request.dataset_id",
         viewonly=True,
     )
 
-    pydantic_mode_class = models.Dataset
-
+    #: column names to use when printing the table
     col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:
