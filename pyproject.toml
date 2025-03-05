@@ -80,6 +80,12 @@ docs = [
     "sphinx-click", # Used for command line interface docs
 ]
 
+all = [
+    "pz-rail-service",
+    "pz-rail-service[server]",
+    "pz-rail-service[dev]",
+    "pz-rail-service[docs]",
+]
 
 [project.scripts]
 pz-rail-service-client = "rail_pz_service.client.cli.main:top"

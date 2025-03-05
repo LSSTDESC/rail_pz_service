@@ -19,23 +19,23 @@ services:
     environment: &railenv
       DB__HOST: postgresql
       DB__ECHO: true
-      DB__URL: postgresql://rail-pz-service@postgresql:5432/cm-service
+      DB__URL: postgresql://rail-pz-service@postgresql:5432/rail-pz-service
       DB__PASSWORD: INSECURE-PASSWORD
       DB__TABLE_SCHEMA: public
     networks:
-      - rail-pz-service
+      - rail_pz_service
     depends_on:
       postgresql:
         condition: service_healthy
 
-  pz-rail-admin:
+  pz-rail-service-admin:
     profiles:
       - full
       - admin
     build:
       context: .
       dockerfile: docker/Dockerfile
-      target: pz-rail-admin
+      target: pz-rail-service-admin
     env_file:
       - path: .env
         required: false
