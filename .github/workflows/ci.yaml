@@ -47,7 +47,7 @@ jobs:
         run: uv sync --dev --frozen
 
       - name: Run tests
-        run: uv run make typing
+        run: uv run --dev make typing
         continue-on-error: true
 
   test:
@@ -75,5 +75,5 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run make test-github-ci
+          uv run make --dev test-github-ci
         continue-on-error: true
