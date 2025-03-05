@@ -51,6 +51,26 @@ async def _test_cache(session: async_scoped_session) -> None:
             path=pathlib.Path(os.path.join("tests", "temp_data", "inputs", "minimal_gold_test.hdf5")),
             catalog_tag_name="com_cam",
         )
+        data = dict(
+            u_cModelMag=24.4,
+            g_cModelMag=24.4,
+            r_cModelMag=24.4,
+            i_cModelMag=24.4,
+            z_cModelMag=24.4,
+            y_cModelMag=24.4,
+            u_cModelMagErr=0.5,
+            g_cModelMagErr=0.5,
+            r_cModelMagErr=0.5,
+            i_cModelMagErr=0.5,
+            z_cModelMagErr=0.5,
+            y_cModelMagErr=0.5,
+        )
+        values_dataset = await cache.load_dataset_from_values(
+            session,
+            name="com_cam_values",
+            data=data,
+            catalog_tag_name="com_cam",
+        )
 
         the_estimator = await cache.load_estimator(
             session,
@@ -58,10 +78,10 @@ async def _test_cache(session: async_scoped_session) -> None:
             model_name="com_cam_trainz_base",
         )
 
-        request = await db.Request.create_row(
+        request = await cache.create_request(
             session,
-            dataset_id=the_dataset.id,
-            estimator_id=the_estimator.id,
+            dataset_name=the_dataset.name,
+            estimator_name=the_estimator.name,
         )
         await session.refresh(request)
 
@@ -83,6 +103,23 @@ async def _test_cache(session: async_scoped_session) -> None:
 
         qp_ens_check = await cache.get_qp_dist(session, check_request.id)
         assert qp_ens_check.npdf != 0
+
+        request2 = await cache.create_request(
+            session,
+            dataset_name=values_dataset.name,
+            estimator_name=the_estimator.name,
+        )
+        await session.refresh(request2)
+
+        check_request2 = await cache.run_request(session, request2.id)
+
+        qp_file_path2 = await cache.get_qp_file(session, check_request2.id)
+        check_qp_file_path2 = await cache.get_qp_file(session, check_request2.id)
+
+        assert qp_file_path2 == check_qp_file_path2
+        qp_ens2 = await cache.get_qp_dist(session, check_request2.id)
+
+        assert qp_ens2.npdf != 0
 
         # cleanup
         await cleanup(session)

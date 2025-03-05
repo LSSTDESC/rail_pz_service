@@ -56,6 +56,34 @@ async def _test_dataset_db(session: async_scoped_session) -> None:
                 catalog_tag_name=catalog_tag_.name,
             )
 
+        with pytest.raises(errors.RAILBadDatasetError):
+            await db.Dataset.create_row(
+                session,
+                name=f"dataset_{uuid_int}",
+                n_objects=2,
+                path=None,
+                data={},
+                catalog_tag_name=catalog_tag_.name,
+            )
+
+        with pytest.raises(errors.RAILBadDatasetError):
+            await db.Dataset.create_row(
+                session,
+                name=f"dataset_{uuid_int}",
+                path=None,
+                data={"a": "adf"},
+                catalog_tag_name=catalog_tag_.name,
+            )
+
+        with pytest.raises(errors.RAILBadDatasetError):
+            await db.Dataset.create_row(
+                session,
+                name=f"dataset_{uuid_int}",
+                path=None,
+                data={"a": [24.5], "b": [24.5, 24.5]},
+                catalog_tag_name=catalog_tag_.name,
+            )
+
         with pytest.raises(errors.RAILMissingRowCreateInputError):
             await db.Dataset.create_row(
                 session,

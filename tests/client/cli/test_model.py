@@ -79,4 +79,4 @@ def test_model_client(uvicorn: UvicornProcess, api_version: str, engine: AsyncEn
     assert result.exit_code == 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

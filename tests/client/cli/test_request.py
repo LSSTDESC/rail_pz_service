@@ -109,4 +109,4 @@ def test_request_client(uvicorn: UvicornProcess, api_version: str, engine: Async
     assert len(requests_) == 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

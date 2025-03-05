@@ -103,11 +103,8 @@ class Dataset(Base, RowMixin):
                 n_objects = cls.validate_data_for_path(path, catalog_tag_)
             else:
                 n_objects = kwargs.get("n_objects", 1)
-        elif data:
-            if validate_file:
-                n_objects = cls.validate_data(data, catalog_tag_)
-            else:
-                n_objects = kwargs.get("n_objects", 1)
+        elif data is not None:
+            n_objects, data = cls.validate_data(data, catalog_tag_)
         else:
             raise RAILMissingRowCreateInputError(
                 "When creating a Dataset either 'path' to a file must be set or "
@@ -136,18 +133,20 @@ class Dataset(Base, RowMixin):
             File with the data
 
         catalog_tag
-            Catalog tab in question
+            CatalogTag in question
 
         Returns
         -------
         int
             Size of the datset
         """
+        assert catalog_tag
         if not os.path.exists(path):
             raise RAILFileNotFoundError(f"Input file {path} not found")
-        n_objects = tables_io.io.getInputDataLength(path)
-        if n_objects == 0:
-            raise RAILBadDatasetError(f"Could not find data in input file {path}")
+        try:
+            n_objects = tables_io.io.getInputDataLength(path)
+        except Exception as msg:
+            raise RAILBadDatasetError(f"Could not read data from {path} because {msg}") from msg
         return n_objects
 
     @classmethod
@@ -155,7 +154,7 @@ class Dataset(Base, RowMixin):
         cls,
         data: dict,
         catalog_tag: CatalogTag,
-    ) -> int:
+    ) -> tuple[int, dict[str, list[float]]]:
         """Validate that these data are appropriate for the CatalogTag
 
         Parameters
@@ -168,7 +167,34 @@ class Dataset(Base, RowMixin):
 
         Returns
         -------
-        int
-            Size of the datset
+        tuple[int, dict[str, list[float]]]
+            Size of the datset, data formatted as strings
         """
-        raise NotImplementedError()
+        assert catalog_tag
+
+        n_objects: int | None = None
+
+        out_dict: dict[str, list[float]] = {}
+        for key, val in data.items():
+            try:
+                if isinstance(val, list):
+                    float_list: list[float] = []
+                    for vv in val:
+                        float_list.append(float(vv))
+                    out_dict[key] = float_list
+                    test_len = len(float_list)
+                else:
+                    out_dict[key] = [float(val)]
+                    test_len = 1
+            except ValueError as msg:
+                raise RAILBadDatasetError(f"Error parsing data for {key} {msg}") from msg
+            if n_objects is None:
+                n_objects = test_len
+            else:
+                if n_objects != test_len:
+                    raise RAILBadDatasetError(
+                        f"Lenghts of columns do not match {key} {test_len} != {n_objects}"
+                    )
+        if n_objects is None:
+            raise RAILBadDatasetError("No data")
+        return n_objects, out_dict

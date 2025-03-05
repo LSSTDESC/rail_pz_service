@@ -72,4 +72,4 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

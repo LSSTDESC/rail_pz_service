@@ -36,8 +36,8 @@ async def app_fixture() -> AsyncIterator[FastAPI]:
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
-    async with LifespanManager(main.app):
-        yield main.app
+    async with LifespanManager(main.the_app):
+        yield main.the_app
 
 
 @pytest_asyncio.fixture(name="client")

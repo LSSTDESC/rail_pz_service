@@ -21,6 +21,7 @@ def test_load_cli_db(engine: AsyncEngine, setup_test_area: int) -> None:
 
     runner = CliRunner()
 
+    runner.invoke(admin_top, "init --reset")
     runner.invoke(admin_top, "init")
 
     result = runner.invoke(admin_top, "load algos-from-env --output yaml")
@@ -77,5 +78,35 @@ def test_load_cli_db(engine: AsyncEngine, setup_test_area: int) -> None:
     qp_ens = qp.read(check_request.qp_file_path)
     assert qp_ens.npdf != 0
 
+    data: str = ""
+    data += "u_cModelMag:24.4;g_cModelMag:24.4;r_cModelMag:24.4;"
+    data += "i_cModelMag:24.4;z_cModelMag:24.4;y_cModelMag:24.4;"
+    data += "u_cModelMagErr:0.5;g_cModelMagErr:0.5;r_cModelMagErr:0.5;"
+    data += "i_cModelMagErr:0.5;z_cModelMagErr:0.5;y_cModelMagErr:0.5;"
+
+    result = runner.invoke(
+        admin_top,
+        f"load dataset --name custom_test --data {data} --catalog-tag-name com_cam --output yaml",
+    )
+    values_dataset = check_and_parse_result(result, models.Dataset)
+    assert values_dataset.name == "custom_test"
+
+    result = runner.invoke(
+        admin_top,
+        "request create "
+        f"--dataset-name {values_dataset.name} "
+        f"--estimator-name {the_estimator.name} "
+        "--output yaml",
+    )
+    the_request2 = check_and_parse_result(result, models.Request)
+
+    result = runner.invoke(admin_top, f"request run --row-id {the_request2.id} --output yaml")
+
+    result = runner.invoke(admin_top, f"request get all --row-id {the_request2.id} --output yaml")
+    check_request2 = check_and_parse_result(result, models.Request)
+
+    qp_ens2 = qp.read(check_request2.qp_file_path)
+    assert qp_ens2.npdf != 0
+
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

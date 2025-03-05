@@ -261,9 +261,6 @@ def get_row_attribute_list_function(
     db_class: TypeAlias = db.RowMixin
         Underlying database class
 
-    db_class: TypeAlias = db.RowMixin
-        Underlying database class
-
     attr_name
         Requested attribute
 
@@ -303,6 +300,7 @@ def get_row_attribute_list_function(
             await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
+    assert response_model_class
     return get_row_attribute_list
 
 

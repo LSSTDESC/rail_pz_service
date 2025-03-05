@@ -58,7 +58,5 @@ def delete_all_stuff(
 def cleanup(
     runner: CliRunner,
     client_top: BaseCommand,
-    *,
-    check_cascade: bool = False,
 ) -> None:
     delete_all_stuff(runner, client_top)

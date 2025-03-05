@@ -88,4 +88,4 @@ def test_load_client(
     assert qp_ens.npdf != 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

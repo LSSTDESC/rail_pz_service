@@ -29,8 +29,7 @@ class CustomJSONEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:  # pragma: no cover
         if isinstance(o, Enum):
             return {"name": o.name, "value": o.value}
-        else:
-            return super().default(o)
+        return super().default(o)
 
 
 def output_pydantic_object(

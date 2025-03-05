@@ -64,12 +64,14 @@ def catalog_tags_from_env_command(
 @admin_options.db_engine()
 @common_options.name()
 @common_options.path()
+@common_options.data()
 @common_options.catalog_tag_name()
 @common_options.output()
 def dataset_command(
     db_engine: Callable[[], AsyncEngine],
     name: str,
-    path: Path,
+    path: Path | None,
+    data: dict | None,
     catalog_tag_name: str,
     output: common_options.OutputEnum | None,
 ) -> None:
@@ -79,12 +81,22 @@ def dataset_command(
         engine = db_engine()
         session = await create_async_session(engine)
         the_cache = db.Cache()
-        new_dataset = await the_cache.load_dataset_from_file(
-            session,
-            name,
-            path=path,
-            catalog_tag_name=catalog_tag_name,
-        )
+        if path is not None:
+            new_dataset = await the_cache.load_dataset_from_file(
+                session,
+                name,
+                path=path,
+                catalog_tag_name=catalog_tag_name,
+            )
+        elif data is not None:
+            new_dataset = await the_cache.load_dataset_from_values(
+                session,
+                name,
+                data=data,
+                catalog_tag_name=catalog_tag_name,
+            )
+        else:  # pragma: no cover
+            raise ValueError("Either --path or --data must be used")
         wrappers.output_db_object(new_dataset, output, db.Dataset.col_names_for_table)
         await session.remove()
         await engine.dispose()

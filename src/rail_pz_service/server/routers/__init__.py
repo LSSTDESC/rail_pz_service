@@ -1,1 +1,1 @@
-""" Web routers and daemons for pz-rail-service """
+"""Web routers and daemons for pz-rail-service"""

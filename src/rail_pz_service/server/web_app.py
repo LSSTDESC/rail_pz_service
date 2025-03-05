@@ -34,8 +34,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator:
     """Hook FastAPI init/cleanups."""
     # Dependency inits before app starts running
     await db_session_dependency.initialize(config.db.url, config.db.password)
-    assert db_session_dependency._engine is not None
-    db_session_dependency._engine.echo = config.db.echo
+    assert db_session_dependency._engine is not None  # pylint: disable=protected-access
+    db_session_dependency._engine.echo = (  # pylint: disable=protected-access
+        config.db.echo
+    )
 
     # App runs here...
     yield
@@ -75,7 +77,13 @@ async def _parse_request(
         "request",
     ]
 
-    extra_properties = ["display_type", "control_type", "plot_type", "skip_estimator", "data"]
+    extra_properties = [
+        "display_type",
+        "control_type",
+        "plot_type",
+        "skip_estimator",
+        "data",
+    ]
 
     properties = []
     properties += extra_properties
@@ -174,7 +182,7 @@ async def _make_plot_context(
             hist_x_values=x_vals,
             hist_y_values=y_vals,
         )
-    elif plot_type == "pdf":
+    if plot_type == "pdf":
         index_param = request.query_params.get("index")
         assert index_param is not None
         index = int(index_param)
@@ -492,18 +500,17 @@ async def post_tree(
     the_func = None
     for func_name, a_func in func_dict.items():
         if func_name in form_keys:
-            the_func = a_func
-            break
+            try:
+                the_func = a_func
+                update_pars = await the_func(request=request, catalog_tag_id=catalog_tag_id, session=session)
+                request_params.update(**update_pars)
+                break
+            except Exception as e:
+                logger.warn(e)
+                logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+                return templates.TemplateResponse(f"Something went wrong with post_tree {func_name}:  {e}")
     if the_func is None:
         return templates.TemplateResponse(f"Cound not the a function to run {form_keys}")
-
-    try:
-        update_pars = await the_func(request=request, catalog_tag_id=catalog_tag_id, session=session)
-        request_params.update(**update_pars)
-    except Exception as e:
-        logger.warn(e)
-        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
-        return templates.TemplateResponse(f"Something went wrong with post_tree {func_name}:  {e}")
 
     try:
         extra_context = await _make_request_context(
@@ -512,11 +519,10 @@ async def post_tree(
         )
         context = request_params.copy()
         context.update(**extra_context)
-
     except Exception as e:
         logger.warn(e)
         logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
-        return templates.TemplateResponse(f"Something went wrong with post_tree:  {e}")
+        return templates.TemplateResponse(f"Something went wrong with post_tree _make_request_context:  {e}")
 
     try:
         return templates.TemplateResponse(
@@ -612,6 +618,8 @@ async def test_layout(request: Request) -> HTMLResponse:
 
 
 class ReadScriptLogRequest(BaseModel):
+    """Request to read a log file"""
+
     log_path: str
 
 
@@ -625,7 +633,7 @@ async def read_script_log(request: ReadScriptLogRequest) -> dict[str, str]:
 
     try:
         # Read the content of the file
-        content = file_path.read_text()
+        content = file_path.read_text(encoding="utf-8")
         return {"content": content}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}") from e

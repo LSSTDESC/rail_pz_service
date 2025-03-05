@@ -7,6 +7,8 @@ __all__ = ["ClientConfiguration", "client_config"]
 
 
 class ClientCookie(BaseModel):
+    """Pydantic model for cookies"""
+
     name: str
     value: str
 

@@ -29,7 +29,10 @@ async def get_healthz(request: Request) -> dict:
 
     task: Task
     for task in request.app.state.tasks:
-        task_response: dict[str, bool | str | None] = {"task_running": True, "task_exception": None}
+        task_response: dict[str, bool | str | None] = {
+            "task_running": True,
+            "task_exception": None,
+        }
         if task.done():
             server_ok = False
             task_response["task_running"] = False
@@ -38,5 +41,4 @@ async def get_healthz(request: Request) -> dict:
 
     if not server_ok:
         raise HTTPException(status_code=500, detail=healthz_response)
-    else:
-        return healthz_response
+    return healthz_response

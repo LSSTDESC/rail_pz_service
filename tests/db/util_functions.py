@@ -30,8 +30,6 @@ async def delete_all_stuff(
 
 async def cleanup(
     session: async_scoped_session,
-    *,
-    check_cascade: bool = False,
 ) -> None:
     await delete_all_stuff(session)
 
