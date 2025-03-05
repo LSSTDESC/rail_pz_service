@@ -84,6 +84,8 @@ def test_load_client(
     result = runner.invoke(top, f"request get all --row-id {the_request.id} --output yaml")
     check_request = check_and_parse_result(result, models.Request)
 
+    assert check_request.qp_file_path
+
     qp_path = os.path.abspath(check_request.qp_file_path)
     qp_ens = qp.read(qp_path)
     assert qp_ens.npdf != 0
