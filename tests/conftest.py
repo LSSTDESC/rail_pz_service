@@ -54,7 +54,7 @@ async def uvicorn_fixture(
     """Spawn and return a uvicorn process hosting the test app."""
     my_uvicorn = spawn_uvicorn(
         working_directory=tmp_path_factory.mktemp("uvicorn"),
-        app="rail_pz_service.server.main:app",
+        app="rail_pz_service.server.main:the_app",
         timeout=10,
     )
     yield my_uvicorn
