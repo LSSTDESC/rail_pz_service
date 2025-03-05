@@ -161,7 +161,7 @@ class Cache:
         )
 
         aliased_tag = estimator_instance.get_aliased_tag("output")
-        estimator_instance._outputs[aliased_tag] = output_path  # pylint: disable=protected-access
+        estimator_instance._outputs[aliased_tag] = os.path.abspath(output_path)  # pylint: disable=protected-access
 
         if dataset.path is not None:
             result_handle = PZFactory.run_cat_estimator_stage(estimator_instance, dataset.path)
@@ -174,8 +174,8 @@ class Cache:
             result_handle = estimator_instance.get_handle("output")
             result_handle.write()
 
-        if not os.path.exists(output_path):
-            raise RuntimeError(f"Output files {output_path}, {os.path.abspath(output_path)} not created")
+        if not os.path.exists(result_handle.path):
+            raise RuntimeError(f"Output files {output_path}, not created")
 
         now = datetime.now()
         await request.update_values(
@@ -350,8 +350,7 @@ class Cache:
         request_ = await Request.get_row(session, key)
 
         if request_.qp_file_path is not None:
-            full_path = os.path.join(global_config.storage.archive, request_.qp_file_path)
-            if os.path.exists(full_path):
+            if os.path.exists(request_.qp_file_path):
                 self._qp_files[key] = request_.qp_file_path
                 return request_.qp_file_path
 
