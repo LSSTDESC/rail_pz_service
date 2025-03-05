@@ -174,6 +174,9 @@ class Cache:
             result_handle = estimator_instance.get_handle("output")
             result_handle.write()
 
+        if not os.path.exists(output_path):
+            raise RuntimeError(f"Output files {output_path}, {os.path.abspath(output_path)} not created")
+
         now = datetime.now()
         await request.update_values(
             session,
