@@ -53,6 +53,11 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
     models_ = check_and_parse_result(result, list[models.Model])
     entry = models_[0]
 
+    # check that we can ask the catalog tag for the model
+    result = runner.invoke(admin_top, f"catalog-tag get models --row-id {catalog_tag_.id} --output yaml")
+    models_from_catalog = check_and_parse_result(result, list[models.Model])
+    assert models_from_catalog[0].id == entry.id
+
     # test other output cases
     result = runner.invoke(admin_top, "model list --output json")
     assert result.exit_code == 0
@@ -67,4 +72,4 @@ def test_model_cli_db(engine: AsyncEngine) -> None:
     assert result.exit_code == 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

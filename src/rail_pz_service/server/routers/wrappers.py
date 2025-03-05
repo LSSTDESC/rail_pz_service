@@ -64,11 +64,30 @@ def get_list_function(
         limit: int = 100,
         session: async_scoped_session = Depends(db_session_dependency),
     ) -> Sequence[response_model_class]:
+        """Return all the rows
+
+        Parameters
+        ----------
+        skip
+            Number of rows to skip at the start
+
+        limit
+            Number of rows to list
+
+        session
+            Database session
+
+        Returns
+        -------
+        The rows in question
+        """
         try:
             async with session.begin():
                 return await db_class.get_rows(session, skip=skip, limit=limit)
         except Exception as msg:
             logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return get_rows
@@ -113,9 +132,13 @@ def get_row_function(
                 return await db_class.get_row(session, row_id)
         except RAILMissingIDError as msg:
             logger.info(msg)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=404, detail=str(msg)) from msg
         except Exception as msg:
             logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return get_row
@@ -160,9 +183,13 @@ def get_row_by_name_function(
                 return await db_class.get_row_by_name(session, name)
         except RAILMissingNameError as msg:
             logger.info(msg)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=404, detail=str(msg)) from msg
         except Exception as msg:
             logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return get_row_by_name
@@ -190,7 +217,7 @@ def delete_row_function(
     """
 
     @router.delete(
-        "/delete/{row_id}",
+        "/{row_id}",
         status_code=204,
         summary=f"Delete a {db_class.class_string}",
     )
@@ -200,13 +227,19 @@ def delete_row_function(
     ) -> None:
         try:
             async with session.begin():
-                return await db_class.delete_row(session, row_id)
+                await db_class.delete_row(session, row_id)
+                await session.commit()
+                return
         except RAILMissingIDError as msg:
             logger.info(msg)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=404, detail=str(msg)) from msg
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            raise HTTPException(status_code=500, detail=str(e)) from e
+        except Exception as msg:
+            logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
+            raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return delete_row
 
@@ -228,9 +261,6 @@ def get_row_attribute_list_function(
     db_class: TypeAlias = db.RowMixin
         Underlying database class
 
-    db_class: TypeAlias = db.RowMixin
-        Underlying database class
-
     attr_name
         Requested attribute
 
@@ -242,7 +272,7 @@ def get_row_attribute_list_function(
     Callable
         Function that gets the collection names associated to a Node
     """
-    route_str = "/get/{row_id}/" + attr_name[:-1] + "/"
+    route_str = "/get/{row_id}/" + attr_name[:-1]
 
     @router.get(
         route_str,
@@ -261,11 +291,16 @@ def get_row_attribute_list_function(
             return the_list
         except RAILMissingIDError as msg:
             logger.info(msg)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=404, detail=str(msg)) from msg
         except Exception as msg:
             logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
+    assert response_model_class
     return get_row_attribute_list
 
 
@@ -310,9 +345,13 @@ def create_row_function(
     ) -> db_class:
         try:
             async with session.begin_nested():
-                return await db_class.create_row(session, **row_create.model_dump())
+                the_row = await db_class.create_row(session, **row_create.model_dump())
+                await session.commit()
+                return the_row
         except Exception as msg:
             logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return create_row

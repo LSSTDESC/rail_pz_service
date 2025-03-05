@@ -6,6 +6,7 @@ from safir.testing.uvicorn import UvicornProcess
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import models
+from rail_pz_service.client.cli.main import top
 from rail_pz_service.client.clientconfig import client_config
 from rail_pz_service.config import config
 from rail_pz_service.db.cli.admin import admin_top
@@ -79,23 +80,33 @@ def test_request_client(uvicorn: UvicornProcess, api_version: str, engine: Async
     )
     check_and_parse_result(result, models.Request)
 
-    result = runner.invoke(admin_top, "request list --output yaml")
+    result = runner.invoke(top, "request list --output yaml")
     requests_ = check_and_parse_result(result, list[models.Request])
     entry = requests_[0]
 
     # test other output cases
-    # result = runner.invoke(admin_top, "request list --output json")
+    # result = runner.invoke(top, "request list --output json")
     # assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, "request list")
+    result = runner.invoke(top, "request list")
     assert result.exit_code == 0
 
-    # result = runner.invoke(admin_top, f"request get all
+    # result = runner.invoke(top, f"request get all
     # --row_id {entry.id} --output json")
     # assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"request get all --row-id {entry.id}")
+    result = runner.invoke(top, f"request get all --row-id {entry.id}")
     assert result.exit_code == 0
 
+    result = runner.invoke(top, f"request get all --row-id {entry.id}")
+    assert result.exit_code == 0
+
+    result = runner.invoke(top, f"request delete --row-id {entry.id}")
+    assert result.exit_code == 0
+
+    result = runner.invoke(top, "request list --output yaml")
+    requests_ = check_and_parse_result(result, list[models.Request])
+    assert len(requests_) == 0
+
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

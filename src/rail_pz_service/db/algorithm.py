@@ -14,32 +14,36 @@ if TYPE_CHECKING:
 
 
 class Algorithm(Base, RowMixin):
-    """Database table to keep track of photo-z algorithms
-
-    Each `Algorithm` refers to a particular `CatEstimator`
-    subclass
-    """
+    pydantic_mode_class = models.Algorithm
+    __doc__ = pydantic_mode_class.__doc__
 
     __tablename__ = "algorithm"
     class_string = "algorithm"
 
+    #: primary key
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    #: Name for this Algorithm, unique
     name: Mapped[str] = mapped_column(index=True, unique=True)
+
+    #: Name for the python class implementing the algorithm
     class_name: Mapped[str] = mapped_column()
 
+    #: Access to list of associated `Estimator`
     estimators_: Mapped[list["Estimator"]] = relationship(
         "Estimator",
         primaryjoin="Algorithm.id==Estimator.algo_id",
         viewonly=True,
     )
+
+    #: Access to list of associated `Model`
     models_: Mapped[list["Model"]] = relationship(
         "Model",
         primaryjoin="Algorithm.id==Model.algo_id",
         viewonly=True,
     )
 
-    pydantic_mode_class = models.Algorithm
-
+    #: column names to use when printing the table
     col_names_for_table = pydantic_mode_class.col_names_for_table
 
     def __repr__(self) -> str:

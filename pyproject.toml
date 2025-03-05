@@ -29,6 +29,7 @@ dependencies = [
     "pydantic==2.10.*",
     "pydantic-settings==2.7.*",
     "python-multipart==0.0.*",
+    "psycopg2-binary",
     "structlog==24.4.*",
     "tabulate==0.9.*",
     "h5py",
@@ -46,6 +47,7 @@ server = [
     "greenlet==3.1.*",
     "jinja2==3.1.*",
     "rich==13.9.*",
+    "psycopg2-binary",
     "sqlalchemy[asyncio]==2.0.*",
     "safir[db]==7.0.*",
     "uvicorn",
@@ -70,6 +72,22 @@ dev = [
     "types-tabulate>=0.9.0.20240106",
 ]
 
+docs = [
+    "nbsphinx",
+    "sphinx", # Used to automatically generate documentation
+    "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme", # Used to render documentation
+    "sphinx-autoapi", # Used to automatically generate api documentation
+    "sphinx-tabs", # Used to create tabbed content within the docs
+    "sphinx-click", # Used for command line interface docs
+]
+
+all = [
+    "pz-rail-service",
+    "pz-rail-service[server]",
+    "pz-rail-service[dev]",
+    "pz-rail-service[docs]",
+]
 
 [project.scripts]
 pz-rail-service-client = "rail_pz_service.client.cli.main:top"
@@ -91,9 +109,19 @@ write_to = "src/rail_pz_service/_version.py"
 
 [tool.coverage.run]
 parallel = true
-branch = true
+#branch = true
 source = ["rail_pz_service"]
 concurrency = ['greenlet', 'thread']
+omit = [
+    # omit everything in web_app, worker, main
+    "web_app.py",
+    "worker.py",
+    "main.py",
+    # omit test_files
+    "test_files.py",
+    # omit healthz
+    "healthz.py",
+]
 
 [tool.coverage.paths]
 source = ["src"]
@@ -107,13 +135,17 @@ exclude_lines = [
     "if settings.DEBUG",
     "raise AssertionError",
     "raise NotImplementedError",
-    "except Exception as msg",
-    "except KeyError as msg",
-    "except IntegrityError as msg",
+    "except .* as msg",
+    "except .* as failed_import",
+    "except .* as failed_request",
+    "except .* as failed_read",
+    "except .* as missing_stage",
+    "except .* missing_key",
     "if 0:",
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
 
 [tool.ruff]
 exclude = [
@@ -170,7 +202,7 @@ asyncio_default_fixture_loop_scope="function"
 python_files = ["tests/*.py", "tests/*/*.py"]
 addopts = [
     "--cov=src",
-    "--cov-report=html"
+    "--cov-report=html",
 ]
 
 [tool.mypy]
@@ -205,3 +237,8 @@ add-ignore = [
     # To avoid all the pydantic config class giving errors
     "D106",
 ]
+
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 120
+disable = "W0718, C0116, C0114, C0103, R0902, R0903, R0912, R0913, R0917, R0914, R0915, R0801, R1735"

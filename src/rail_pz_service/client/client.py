@@ -24,16 +24,7 @@ class PZRailClient:
     def __init__(self) -> None:
         client_kwargs: dict[str, Any] = {}
         client_kwargs["base_url"] = client_config.service_url
-        if "auth_token" in client_config.model_fields_set:  # pragma: no cover
-            client_kwargs["headers"] = {"Authorization": f"Bearer {client_config.auth_token}"}
-        if "timeout" in client_config.model_fields_set:  # pragma: no cover
-            client_kwargs["timeout"] = client_config.timeout
-        if "cookies" in client_config.model_fields_set:  # pragma: no cover
-            cookies = httpx.Cookies()
-            if client_config.cookies:
-                for cookie in client_config.cookies:
-                    cookies.set(name=cookie.name, value=cookie.value)
-            client_kwargs["cookies"] = cookies
+        client_kwargs.update(**self._extra_client_kwargs())
         self._client = httpx.Client(**client_kwargs)
 
         self.algorithm = PZRailAlgorithmClient(self)
@@ -49,3 +40,17 @@ class PZRailClient:
     def client(self) -> httpx.Client:
         """Return the httpx.Client"""
         return self._client
+
+    def _extra_client_kwargs(self) -> dict:  # pragma: no cover
+        client_kwargs: dict[str, Any] = {}
+        if "auth_token" in client_config.model_fields_set:
+            client_kwargs["headers"] = {"Authorization": f"Bearer {client_config.auth_token}"}
+        if "timeout" in client_config.model_fields_set:
+            client_kwargs["timeout"] = client_config.timeout
+        if "cookies" in client_config.model_fields_set:
+            cookies = httpx.Cookies()
+            if client_config.cookies:
+                for cookie in client_config.cookies:
+                    cookies.set(name=cookie.name, value=cookie.value)
+            client_kwargs["cookies"] = cookies
+        return client_kwargs

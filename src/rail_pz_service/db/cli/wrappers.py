@@ -92,30 +92,6 @@ def output_db_obj_list(
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
 
 
-def output_dict(
-    the_dict: dict,
-    output: common_options.OutputEnum | None,
-) -> None:
-    """Render a python dict as requested
-
-    Parameters
-    ----------
-    the_dict:
-        The dict in question
-
-    output:
-        Output format
-    """
-    match output:
-        case common_options.OutputEnum.json:
-            pass
-        case common_options.OutputEnum.yaml:
-            click.echo(yaml.dump(the_dict))
-        case _:
-            for key, val in the_dict.items():
-                click.echo(f"{key}: {val}")
-
-
 def get_list_command(
     group_command: Callable,
     db_class: TypeAlias,
@@ -228,7 +204,7 @@ def get_row_by_name_command(
         Function that returns the row for the table in question
     """
 
-    @group_command(name="by_name")
+    @group_command(name="by-name")
     @admin_options.db_engine()
     @common_options.name()
     @common_options.output()
@@ -297,7 +273,7 @@ def get_row_attribute_list_command(
             session = await create_async_session(engine)
             result = await db_class.get_row(session, row_id)
             await session.refresh(result, attribute_names=[attribute])
-            the_list = getattr(result, attribute)
+            the_list = list(getattr(result, attribute))
             output_db_obj_list(the_list, output, output_db_class.col_names_for_table)
             await session.remove()
             await engine.dispose()

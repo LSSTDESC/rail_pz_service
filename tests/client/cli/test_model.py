@@ -6,6 +6,7 @@ from safir.testing.uvicorn import UvicornProcess
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rail_pz_service import models
+from rail_pz_service.client.cli.main import top
 from rail_pz_service.client.clientconfig import client_config
 from rail_pz_service.config import config
 from rail_pz_service.db.cli.admin import admin_top
@@ -55,22 +56,27 @@ def test_model_client(uvicorn: UvicornProcess, api_version: str, engine: AsyncEn
     )
     check_and_parse_result(result, models.Model)
 
-    result = runner.invoke(admin_top, "model list --output yaml")
+    result = runner.invoke(top, "model list --output yaml")
     models_ = check_and_parse_result(result, list[models.Model])
     entry = models_[0]
 
+    # check that we can ask the catalog tag for the model
+    result = runner.invoke(top, f"catalog-tag get models --row-id {catalog_tag_.id} --output yaml")
+    models_from_catalog = check_and_parse_result(result, list[models.Model])
+    assert models_from_catalog[0].id == entry.id
+
     # test other output cases
-    result = runner.invoke(admin_top, "model list --output json")
+    result = runner.invoke(top, "model list --output json")
     assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, "model list")
+    result = runner.invoke(top, "model list")
     assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"model get all --row-id {entry.id} --output json")
+    result = runner.invoke(top, f"model get all --row-id {entry.id} --output json")
     assert result.exit_code == 0
 
-    result = runner.invoke(admin_top, f"model get all --row-id {entry.id}")
+    result = runner.invoke(top, f"model get all --row-id {entry.id}")
     assert result.exit_code == 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

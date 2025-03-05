@@ -22,10 +22,17 @@ router = APIRouter(
 
 
 # Attach functions to the router
+
+#: geat all the rows
 get_rows = wrappers.get_list_function(router, ResponseModelClass, DbClass)
+
+#: get a row
 get_row = wrappers.get_row_function(router, ResponseModelClass, DbClass)
+
+#: get a row by name
 get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, DbClass)
 
+#: get all the requests associate to a row
 get_requests = wrappers.get_row_attribute_list_function(
     router, ResponseModelClass, DbClass, "requests_", models.Request
 )

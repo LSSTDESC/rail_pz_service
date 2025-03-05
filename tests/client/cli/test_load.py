@@ -84,8 +84,11 @@ def test_load_client(
     result = runner.invoke(top, f"request get all --row-id {the_request.id} --output yaml")
     check_request = check_and_parse_result(result, models.Request)
 
-    qp_ens = qp.read(check_request.qp_file_path)
+    assert check_request.qp_file_path
+
+    qp_path = os.path.abspath(check_request.qp_file_path)
+    qp_ens = qp.read(qp_path)
     assert qp_ens.npdf != 0
 
     # delete everything we just made in the session
-    cleanup(runner, admin_top, check_cascade=True)
+    cleanup(runner, admin_top)

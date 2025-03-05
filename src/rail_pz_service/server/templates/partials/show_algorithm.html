@@ -1,5 +1,11 @@
 <div>
+  {% if algo %}
   <div>Algorithm: {{ algo.name }}</div>
   <div>ID: {{ algo.id }}</div>
   <div>Python Class: {{ algo.class_name }}</div>
+  {% else %}
+  No Algorithm selected.  Use the buttons the left to select one.
+  {% endif %}
+  <br>
+  An Algorithm is a specific ML algorithm.<br>
 </div>

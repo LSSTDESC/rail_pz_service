@@ -1,15 +1,22 @@
 {% if catalog_tag %}
-{% if model %}
 <form>
+  {% if model %}
   <input type="submit" value="Model: {{ model.name }}" name="show_model">
+  {% else %}
+  <input type="submit" value="No Model Selected" name="show_model">
+  {% endif %}
   <input type="hidden" id="display_type" value="show_model" name="display_type">
+  {% if control_type %}
+  <input type="hidden" id="control_type" value="{{ control_type }}" name="control_type">
+  {% endif %}
 {% include "partials/hidden_fields.html" %}
 </form>
-{% else %}
-<div>No Model Selected </div><br>
-{% endif %}
 <form>
   <input type="submit" value="Select" name="select_model">
+  {% if display_type %}
+  <input type="hidden" id="display_type" value="{{ display_type }}" name="display_type">
+  {% endif %}
+
   {% if algo %}
   <input type="submit" value="Load" name="load_model">
   {% endif %}

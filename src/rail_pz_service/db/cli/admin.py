@@ -39,7 +39,7 @@ def init(*, reset: bool) -> None:
         try:
             await conn.start()
 
-            if db.Base.metadata.schema is not None:
+            if db.Base.metadata.schema is not None:  # pragma: no cover
                 await conn.execute(CreateSchema(db.Base.metadata.schema, if_not_exists=True))
             if reset:
                 await conn.run_sync(db.Base.metadata.drop_all)

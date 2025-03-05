@@ -1,9 +1,9 @@
 import os
 import subprocess
-import urllib
+from urllib.request import urlretrieve
 
 
-def setup_test_area() -> int:  # pragma: no cover
+def setup_test_area() -> int:
     """Download test files to setup a project testsing area
 
     Returns
@@ -20,7 +20,7 @@ def setup_test_area() -> int:  # pragma: no cover
     """
 
     if not os.path.exists("tests/pz_rail_server.tgz"):
-        urllib.request.urlretrieve(
+        urlretrieve(
             "http://s3df.slac.stanford.edu/people/echarles/xfer/pz_rail_server.tgz",
             "tests/pz_rail_server.tgz",
         )
@@ -38,7 +38,7 @@ def setup_test_area() -> int:  # pragma: no cover
     return 0
 
 
-def teardown_test_area() -> None:  # pragma: no cover
+def teardown_test_area() -> None:
     if not os.environ.get("NO_TEARDOWN"):
         os.system("\\rm -rf tests/temp_data")
         try:

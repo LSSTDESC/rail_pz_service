@@ -1,14 +1,17 @@
 {% if catalog_tag %}
 {% if dataset %}
-{% if my_request %}
 <form>
+  {% if my_request %}
   <input type="submit" value="Request: {{ my_request.id }}" name="show_request">
+  {% else %}
+  <input type="submit" value="No Request Selected" name="show_request">
+  {% endif %}
   <input type="hidden" id="display_type" value="show_request" name="display_type">
+  {% if control_type %}
+  <input type="hidden" id="control_type" value="{{ control_type }}" name="control_type">
+  {% endif %}
 {% include "partials/hidden_fields.html" %}
 </form>
-{% else %}
-<div>No Request Selected </div><br>
-{% endif %}  <!-- closes my_request -->
 <form>
   <input type="submit" value="Select" name="select_request">
   {% if dataset %}
@@ -16,12 +19,15 @@
   <input type="submit" value="Run" name="run_request">
   {% endif %}
   {% endif %}
+  {% if display_type %}
+  <input type="hidden" id="display_type" value="{{ display_type }}" name="display_type">
+  {% endif %}
   <input type="hidden" id="control_type" value="request_form" name="control_type">
 {% include "partials/hidden_fields.html" %}
 </form>
 {% else %}
 <div>Selected a dataset before selecting an request</div>
-{% endif %} <!-- closes dataset -->
+{% endif %}
 {% else %}
 <div>Selected a catalog before selecting an request</div>
-{% endif %} <!-- closes catalog_tag -->
+{% endif %}

@@ -44,8 +44,38 @@ class PZRailRequestClient:
     )
 
     create = wrappers.create_row_function(ResponseModelClass, models.RequestCreate, f"{router_string}/create")
+    delete = wrappers.delete_row_function(f"{router_string}")
 
     def run(self, row_id: int) -> models.Request:
+        """Run a request
+
+        Parameters
+        ----------
+        request_id
+            Id of the request in the Request table
+
+        Returns
+        -------
+        Request
+            Request in question
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            client = RZRailClient()
+
+            new_request = client.request.create(
+                dataset_name='my_com_cam_dataset',
+                estimator_name='my_gpz_com_cam_estimaor',
+            )
+            updated_request = client.request.run(
+                new_request.id,
+            )
+
+        """
+
         full_query = f"{router_string}/run/{row_id}"
         results = self.client.post(full_query).raise_for_status().json()
         return TypeAdapter(ResponseModelClass).validate_python(results)

@@ -37,6 +37,7 @@ get_row = wrappers.get_row_function(router, ResponseModelClass, DbClass)
 get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, DbClass)
 
 create = wrappers.create_row_function(router, ResponseModelClass, models.RequestCreate, DbClass)
+delete = wrappers.delete_row_function(router, DbClass)
 
 
 @router.post(
@@ -48,12 +49,13 @@ async def run_request(
     row_id: int,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> db.Request:
-    the_cache = db.Cache.shared_cache()
+    the_cache = db.Cache.shared_cache(logger)
     try:
-        request = await the_cache.run_process_request(
+        request = await the_cache.run_request(
             session,
             request_id=row_id,
         )
+        await session.commit()
         return request
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)

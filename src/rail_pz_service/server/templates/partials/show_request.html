@@ -1,4 +1,5 @@
 <div>
+  {% if my_request %}
   <div>Request: {{ my_request.id }}</div>
   <div>User: {{ my_request.user }}</div>
   <div>estimator_id: {{ my_request.estimator_id }}</div>
@@ -7,4 +8,12 @@
   <div>time_started {{ my_request.time_started }}</div>
   <div>time_finished {{ my_request.time_finished }}</div>
   <div>qp_file_path: {{ my_request.qp_file_path }}</div>
+  {% else %}
+  No Request selected.  Use the buttons the left to select or run one.
+  If you want to run a new Request you will need to select a Dataset and an Estimator first.<br>
+  {% endif %}
+  <br>
+  An Request is a request to process a particular Dataset with a specific Estimator,<br>
+  Once the processing is completed, the output will be stored on the server in a "qp" file,<br>
+  which you will be able to explore.
 </div>

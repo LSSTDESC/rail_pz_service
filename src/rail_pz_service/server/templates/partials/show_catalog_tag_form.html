@@ -1,9 +1,12 @@
-{% if catalog_tag %}
 <form>
+  {% if catalog_tag %}
   <input type="submit" value="Catalog Tag: {{ catalog_tag.name }}" name="show_catalog_tag">
+  {% else %}
+  <input type="submit" value="No CatalogTag Selected" name="show_catalog_tag">
+  {% endif %}
   <input type="hidden" id="display_type" value="show_catalog_tag" name="display_type">
+  {% if control_type %}
+  <input type="hidden" id="control_type" value="{{ control_type }}" name="control_type">
+  {% endif %}
 {% include "partials/hidden_fields.html" %}
 </form>
-{% else %}
-<div>No CatalogTag Selected </div>
-{% endif %}

@@ -13,6 +13,8 @@
     {% else %}
     <input type="submit" value="Create" name="create_request">
     {% endif %}
+    <input type="hidden" id="display_type" value="show_request" name="display_type">
+    <input type="hidden" id="control_type" value="run_request" name="control_type">
     {% include "partials/hidden_fields.html" %}
   </div>
 </form>
@@ -20,6 +22,7 @@
 <form>
   <input type="submit" value="Show" name="show_request">
   <input type="hidden" id="display_type" value="show_request" name="display_type">
+  <input type="hidden" id="control_type" value="run_request" name="control_type">
   {% include "partials/hidden_fields.html" %}
 </form>
 {% endif %}

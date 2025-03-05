@@ -33,7 +33,7 @@ async def load_dataset(
     query: models.LoadDatasetQuery,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> db.Dataset:
-    the_cache = db.Cache.shared_cache()
+    the_cache = db.Cache.shared_cache(logger)
     try:
         new_dataset = await the_cache.load_dataset_from_file(
             session,
@@ -57,7 +57,7 @@ async def load_model(
     query: models.LoadModelQuery,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> db.Model:
-    the_cache = db.Cache.shared_cache()
+    the_cache = db.Cache.shared_cache(logger)
     try:
         new_model = await the_cache.load_model_from_file(
             session,
@@ -81,7 +81,7 @@ async def load_estimator(
     query: models.LoadEstimatorQuery,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> db.Estimator:
-    the_cache = db.Cache.shared_cache()
+    the_cache = db.Cache.shared_cache(logger)
     try:
         new_estimator = await the_cache.load_estimator(
             session,

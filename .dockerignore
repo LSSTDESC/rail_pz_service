@@ -5,5 +5,5 @@
 !pyproject.toml
 !uv.lock
 !alembic.ini
-!src/rail/
+!src/rail_pz_service/
 !alembic/

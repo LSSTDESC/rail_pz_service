@@ -1,1 +1,1 @@
-"""Common files for pz-rail-service """
+"""Common files for pz-rail-service"""

@@ -1,1 +1,1 @@
-"""Web server and daemons for pz-rail-service """
+"""Web server and daemons for pz-rail-service"""

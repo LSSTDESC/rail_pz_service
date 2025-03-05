@@ -3,8 +3,9 @@
   <hr>
   <form>
     <input type="hidden" id="display_type" value="show_dataset" name="display_type">
+    <input type="hidden" id="control_type" value="select_dataset" name="control_type">
     {% for dataset_ in selected_datasets %}
-    <input type="radio" id="{{ dataset_.name }}" name="dataset_id" value="{{ dataset_.id }}">
+    <input type="radio" id="{{ dataset_.name }}" name="dataset_id" value="{{ dataset_.id }}" required>
     <label for="{{ dataset_.name }}">{{ dataset_.name }}</label><br>
     {% endfor %}
     {% if estimator %}

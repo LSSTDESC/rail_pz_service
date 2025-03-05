@@ -14,11 +14,19 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from safir.dependencies.db_session import db_session_dependency
 from safir.dependencies.http_client import http_client_dependency
+from safir.logging import configure_uvicorn_logging
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from .. import db, models
 from ..config import config
-from . import routers
+from .logging import LOGGER
+from .routers.load import load_dataset, load_estimator, load_model
+from .routers.request import create as create_request
+from .routers.request import run_request
+
+configure_uvicorn_logging(config.logging.level)
+
+logger = LOGGER.bind(module=__name__)
 
 
 @asynccontextmanager
@@ -26,8 +34,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator:
     """Hook FastAPI init/cleanups."""
     # Dependency inits before app starts running
     await db_session_dependency.initialize(config.db.url, config.db.password)
-    assert db_session_dependency._engine is not None
-    db_session_dependency._engine.echo = config.db.echo
+    assert db_session_dependency._engine is not None  # pylint: disable=protected-access
+    db_session_dependency._engine.echo = (  # pylint: disable=protected-access
+        config.db.echo
+    )
 
     # App runs here...
     yield
@@ -67,7 +77,13 @@ async def _parse_request(
         "request",
     ]
 
-    extra_properties = ["display_type", "control_type", "plot_type", "skip_estimator", "data"]
+    extra_properties = [
+        "display_type",
+        "control_type",
+        "plot_type",
+        "skip_estimator",
+        "data",
+    ]
 
     properties = []
     properties += extra_properties
@@ -151,7 +167,7 @@ async def _make_plot_context(
     request: Request,
     **kwargs: Any,
 ) -> dict:
-    cache = db.Cache.shared_cache()
+    cache = db.Cache.shared_cache(logger)
 
     request_ = kwargs["my_request"]
     qp_dist = await cache.get_qp_dist(session, request_.id)
@@ -166,7 +182,7 @@ async def _make_plot_context(
             hist_x_values=x_vals,
             hist_y_values=y_vals,
         )
-    elif plot_type == "pdf":
+    if plot_type == "pdf":
         index_param = request.query_params.get("index")
         assert index_param is not None
         index = int(index_param)
@@ -239,9 +255,10 @@ async def _get_request_context(
     session: async_scoped_session,
     request: Request,
     *,
+    catalog_tag_id: int | None = None,
     use_form: bool = False,
 ) -> dict:
-    params = await _parse_request(session, request, use_form=use_form)
+    params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=use_form)
 
     extra_context = await _make_request_context(session, **params)
 
@@ -252,9 +269,10 @@ async def _get_request_context(
 
 async def _load_dataset(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     # Upload the file to the import area
     file_to_load = request_params["file_to_load"]
@@ -275,23 +293,24 @@ async def _load_dataset(
         path=temp_filename,
     )
     try:
-        new_dataset = await routers.load.load_dataset(
+        new_dataset = await load_dataset(
             load_dataset_query,
             session,
         )
         return dict(dataset=new_dataset)
     except Exception as e:
-        print(e)
-        print(f"Failed to load dataset, removing temp file {temp_filename}")
+        logger.info(e)
+        logger.warn(f"Failed to load dataset, removing temp file {temp_filename}")
         os.remove(temp_filename)
         raise e
 
 
 async def _load_dataset_from_values(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     dataset_name = request_params["dataset_name"]
     dataset_data = request_params["data"]
@@ -305,22 +324,25 @@ async def _load_dataset_from_values(
         data=dataset_data,
     )
     try:
-        new_dataset = await routers.load.load_dataset(
+        new_dataset = await load_dataset(
             load_dataset_query,
             session,
         )
         return dict(dataset=new_dataset)
     except Exception as e:
-        print(e)
-        print(f"Failed to load dataset {dataset_name}")
+        logger.info(e)
+        logger.warn(f"Failed to load dataset {dataset_name}")
         raise e
 
 
 async def _load_model(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _get_request_context(session, request, use_form=True)
+    request_params = await _get_request_context(
+        session, request, catalog_tag_id=catalog_tag_id, use_form=True
+    )
 
     # Upload the file to the import area
     file_to_load = request_params["file_to_load"]
@@ -343,26 +365,26 @@ async def _load_model(
         catalog_tag_name=catalog_tag_.name,
     )
     try:
-        new_model = await routers.load.load_model(
+        new_model = await load_model(
             load_model_query,
             session,
         )
-        ret_dict = dict(model=new_model)
+        ret_dict: dict[str, Any] = dict(model=new_model)
         skip_estimator = request_params.get("skip_estimator", None)
         if skip_estimator is None:
             load_estimator_query = models.LoadEstimatorQuery(
                 name=model_name,
                 model_name=model_name,
             )
-            new_estimator = await routers.load.load_estimator(
+            new_estimator = await load_estimator(
                 load_estimator_query,
                 session,
             )
             ret_dict["estimator"] = new_estimator
         return ret_dict
     except Exception as e:
-        print(e)
-        print(f"Failed to load model, removing temp file {temp_filename}")
+        logger.info(e)
+        logger.warn(f"Failed to load model, removing temp file {temp_filename}")
         os.remove(temp_filename)
         model_name = None
         raise e
@@ -370,9 +392,10 @@ async def _load_model(
 
 async def _load_estimator(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     model_ = request_params["model"]
     estimator_name = request_params["estimator_name"]
@@ -386,22 +409,23 @@ async def _load_estimator(
         model_name=model_.name,
     )
     try:
-        new_estimator = await routers.load.load_estimator(
+        new_estimator = await load_estimator(
             load_estimator_query,
             session,
         )
         return dict(estimator=new_estimator)
     except Exception as e:
-        print(e)
-        print(f"Failed to load estimator {estimator_name}")
+        logger.info(e)
+        logger.warn(f"Failed to load estimator {estimator_name}")
         raise e
 
 
 async def _create_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     dataset_ = request_params["dataset"]
     estimator_ = request_params["estimator"]
@@ -412,57 +436,58 @@ async def _create_request(
         estimator_name=estimator_.name,
     )
     try:
-        new_request = await routers.request.create(
+        new_request = await create_request(
             create_request_query,
             session,
         )
         return dict(my_request=new_request)
     except Exception as e:
-        print(e)
-        print(f"Failed to create_request {create_request_query}")
+        logger.info(e)
+        logger.warn(f"Failed to create_request {create_request_query}")
         raise e
 
 
 async def _run_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    request_params = await _parse_request(session, request, use_form=True)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     request_ = request_params["my_request"]
 
     try:
-        check_request = await routers.request.run_request(
+        check_request = await run_request(
             request_.id,
             session,
         )
         return dict(my_request=check_request)
     except Exception as e:
-        print(e)
-        print(f"Failed to run_request {request_}")
+        logger.info(e)
+        logger.warn(f"Failed to run_request {request_}")
         raise e
 
 
 async def _explore_request(
     request: Request,
+    catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> dict:
-    _request_params = await _parse_request(session, request, use_form=True)
+    _request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
     return dict(control_type="explore")
 
 
-@web_app.post("/tree/", response_class=HTMLResponse)
-@web_app.post("/tree/{catalog_tag_id:int}", response_class=HTMLResponse)
+@web_app.post("/", response_class=HTMLResponse)
+@web_app.post("/{catalog_tag_id:int}", response_class=HTMLResponse)
 async def post_tree(
     request: Request,
     catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     # get info from request
-    request_params = await _parse_request(session, request, use_form=True, catalog_tag_id=catalog_tag_id)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=True)
 
     form_keys = request_params["form_keys"]
-
     func_dict = dict(
         submit_model=_load_model,
         submit_estimator=_load_estimator,
@@ -475,18 +500,17 @@ async def post_tree(
     the_func = None
     for func_name, a_func in func_dict.items():
         if func_name in form_keys:
-            the_func = a_func
-            break
+            try:
+                the_func = a_func
+                update_pars = await the_func(request=request, catalog_tag_id=catalog_tag_id, session=session)
+                request_params.update(**update_pars)
+                break
+            except Exception as e:
+                logger.warn(e)
+                logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+                return templates.TemplateResponse(f"Something went wrong with post_tree {func_name}:  {e}")
     if the_func is None:
         return templates.TemplateResponse(f"Cound not the a function to run {form_keys}")
-
-    try:
-        update_pars = await the_func(request=request, session=session)
-        request_params.update(**update_pars)
-    except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with post_tree:  {e}")
 
     try:
         extra_context = await _make_request_context(
@@ -495,11 +519,10 @@ async def post_tree(
         )
         context = request_params.copy()
         context.update(**extra_context)
-
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with post_tree:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with post_tree _make_request_context:  {e}")
 
     try:
         return templates.TemplateResponse(
@@ -508,20 +531,20 @@ async def post_tree(
             context=context,
         )
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with template formating:  {e}")
 
 
-@web_app.get("/tree/", response_class=HTMLResponse)
-@web_app.get("/tree/{catalog_tag_id:int}", response_class=HTMLResponse)
+@web_app.get("/", response_class=HTMLResponse)
+@web_app.get("/{catalog_tag_id:int}", response_class=HTMLResponse)
 async def get_tree(
     request: Request,
     catalog_tag_id: int | None = None,
     session: async_scoped_session = Depends(db_session_dependency),
 ) -> HTMLResponse:
     # get info from request
-    request_params = await _parse_request(session, request, use_form=False, catalog_tag_id=catalog_tag_id)
+    request_params = await _parse_request(session, request, catalog_tag_id=catalog_tag_id, use_form=False)
 
     context: dict = {}
 
@@ -564,9 +587,9 @@ async def get_tree(
         context.update(**request_params)
         context.update(**extra_context)
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong with get_catalog_tag_tree:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with _make_request_context:  {e}")
 
     try:
         return templates.TemplateResponse(
@@ -575,9 +598,9 @@ async def get_tree(
             context=context,
         )
     except Exception as e:
-        print(e)
-        traceback.print_tb(e.__traceback__)
-        return templates.TemplateResponse(f"Something went wrong:  {e}")
+        logger.warn(e)
+        logger.warn("\n".join(traceback.format_tb(e.__traceback__)))
+        return templates.TemplateResponse(f"Something went wrong with template formating:  {e}")
 
 
 @web_app.get("/layout/", response_class=HTMLResponse)
@@ -595,6 +618,8 @@ async def test_layout(request: Request) -> HTMLResponse:
 
 
 class ReadScriptLogRequest(BaseModel):
+    """Request to read a log file"""
+
     log_path: str
 
 
@@ -608,7 +633,7 @@ async def read_script_log(request: ReadScriptLogRequest) -> dict[str, str]:
 
     try:
         # Read the content of the file
-        content = file_path.read_text()
+        content = file_path.read_text(encoding="utf-8")
         return {"content": content}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}") from e

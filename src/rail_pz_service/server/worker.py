@@ -37,7 +37,7 @@ async def worker_iteration(
 ) -> None:
     open_requests = await db.Request.get_open_requests(session)
     for open_request_ in open_requests:
-        await cache.run_process_request(session, open_request_.id)
+        await cache.run_request(session, open_request_.id)
 
 
 async def main_loop() -> None:
@@ -48,7 +48,7 @@ async def main_loop() -> None:
     """
     engine = create_database_engine(config.db.url, config.db.password)
     sleep_time = config.daemon.processing_interval
-    cache = db.Cache()
+    cache = db.Cache.shared_cache(logger)
 
     async with engine.begin():
         session = await create_async_session(engine, logger)

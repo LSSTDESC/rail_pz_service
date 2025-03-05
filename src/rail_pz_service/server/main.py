@@ -79,8 +79,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     app.state.tasks = set()
     # Dependency inits before app starts running
     await db_session_dependency.initialize(config.db.url, config.db.password)
-    assert db_session_dependency._engine is not None
-    db_session_dependency._engine.echo = config.db.echo
+    assert db_session_dependency._engine is not None  # pylint: disable=protected-access
+    db_session_dependency._engine.echo = (  # pylint: disable=protected-access
+        config.db.echo
+    )
 
     # App runs here...
     yield
@@ -90,7 +92,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     await http_client_dependency.aclose()
 
 
-app = FastAPI(
+the_app = FastAPI(
     lifespan=lifespan,
     title=config.asgi.title,
     version=__version__,
@@ -100,20 +102,20 @@ app = FastAPI(
     redoc_url=None,
 )
 
-app.add_middleware(XForwardedMiddleware)
+the_app.add_middleware(XForwardedMiddleware)
 
-app.include_router(healthz.health_router, prefix="")
-app.include_router(index.router, prefix="")
-app.include_router(v1.router, prefix=config.asgi.prefix)
+the_app.include_router(healthz.health_router, prefix="")
+the_app.include_router(index.router, prefix="")
+the_app.include_router(v1.router, prefix=config.asgi.prefix)
 
 # Start the frontend web application.
-app.mount(config.asgi.frontend_prefix, web_app)
+the_app.mount(config.asgi.frontend_prefix, web_app)
 
 
 def main() -> None:
     logger.info(f"Server starting {config.asgi.host}:{config.asgi.port}{config.asgi.frontend_prefix}")
     uvicorn.run(
-        "rail_pz_service.server.main:app",
+        "rail_pz_service.server.main:the_app",
         host=config.asgi.host,
         port=config.asgi.port,
         reload=config.asgi.reload,

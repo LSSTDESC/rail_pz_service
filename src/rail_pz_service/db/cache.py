@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 import qp
+import structlog
 from ceci.errors import StageNotFound
 from ceci.stage import PipelineStage
 from rail.core import RailEnv, RailStage
@@ -21,7 +22,7 @@ from ..common.errors import (
     RAILIntegrityError,
     RAILRequestError,
 )
-from ..config import config
+from ..config import config as global_config
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
 from .dataset import Dataset
@@ -35,7 +36,8 @@ class Cache:
 
     _shared_cache: Cache | None = None
 
-    def __init__(self) -> None:
+    def __init__(self, logger: structlog.BoundLogger | None = None) -> None:
+        self._logger = logger
         self._algorithms: dict[int, type[CatEstimator] | None] = {}
         self._catalog_tags: dict[int, type[CatalogConfigBase] | None] = {}
         self._estimators: dict[int, CatEstimator | None] = {}
@@ -51,9 +53,9 @@ class Cache:
         self._qp_dists = {}
 
     @classmethod
-    def shared_cache(cls) -> Cache:
+    def shared_cache(cls, logger: structlog.BoundLogger) -> Cache:
         if cls._shared_cache is None:
-            cls._shared_cache = Cache()
+            cls._shared_cache = Cache(logger)
         return cls._shared_cache
 
     def _load_algorithm_class(
@@ -130,15 +132,15 @@ class Cache:
         CatalogConfigBase.apply(catalog_tag_class.tag)
         model = await Model.get_row(session, estimator.model_id)
         if estimator.config is None:
-            config = {}
+            the_config = {}
         else:
-            config = estimator.config.copy()
+            the_config = estimator.config.copy()
 
         estimator_instance = PZFactory.build_stage_instance(
             estimator.name,
             algo_class,
             model.path,
-            **config,
+            **the_config,
         )
         return estimator_instance
 
@@ -151,10 +153,15 @@ class Cache:
         estimator_instance = await self.get_estimator(session, request.estimator_id)
         dataset = await Dataset.get_row(session, request.dataset_id)
 
-        output_path = os.path.join(config.storage.archive, "qp_files", dataset.name, f"{estimator.name}.hdf5")
+        output_path = os.path.join(
+            global_config.storage.archive,
+            "qp_files",
+            dataset.name,
+            f"{estimator.name}.hdf5",
+        )
 
         aliased_tag = estimator_instance.get_aliased_tag("output")
-        estimator_instance._outputs[aliased_tag] = output_path
+        estimator_instance._outputs[aliased_tag] = os.path.abspath(output_path)  # pylint: disable=protected-access
 
         if dataset.path is not None:
             result_handle = PZFactory.run_cat_estimator_stage(estimator_instance, dataset.path)
@@ -167,12 +174,17 @@ class Cache:
             result_handle = estimator_instance.get_handle("output")
             result_handle.write()
 
+        if not os.path.exists(result_handle.path):
+            raise RuntimeError(f"Output files {output_path}, not created")
+
         now = datetime.now()
         await request.update_values(
             session,
             qp_file_path=result_handle.path,
             time_finished=now,
         )
+        await session.commit()
+        self._qp_files[request.id] = result_handle.path
 
         return result_handle.path
 
@@ -204,17 +216,16 @@ class Cache:
         RAILMissingIDError
             ID not found in database
         """
-        if key in self._algorithms:
-            algo_class = self._algorithms[key]
-            if algo_class is None:
-                algo_ = await Algorithm.get_row(session, key)
-                raise RAILImportError(f"Failed to load alogrithm {algo_}")
+        algo_class = self._algorithms.get(key)
+        if algo_class is not None:
             return algo_class
 
         algo_ = await Algorithm.get_row(session, key)
         try:
             algo_class = self._load_algorithm_class(algo_)
+            self._algorithms[key] = algo_class
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._algorithms[key] = None
             raise RAILImportError(f"Import of Algorithm failed because {failed_import}") from failed_import
 
@@ -248,17 +259,16 @@ class Cache:
         RAILMissingIDError
             ID not found in database
         """
-        if key in self._catalog_tags:
-            catalog_tag_class = self._catalog_tags[key]
-            if catalog_tag_class is None:
-                catalog_tag_ = await CatalogTag.get_row(session, key)
-                raise RAILImportError(f"Failed to load catalog_tags {catalog_tag_}")
+        catalog_tag_class = self._catalog_tags.get(key)
+        if catalog_tag_class is not None:
             return catalog_tag_class
 
         catalog_tag_ = await CatalogTag.get_row(session, key)
         try:
             catalog_tag_class = self._load_catalog_tag_class(catalog_tag_)
+            self._catalog_tags[key] = catalog_tag_class
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._catalog_tags[key] = None
             raise RAILImportError(f"Import of CatalogTag failed because {failed_import}") from failed_import
         return catalog_tag_class
@@ -292,17 +302,16 @@ class Cache:
             ID not found in database
         """
 
-        if key in self._estimators:
-            estimator = self._estimators[key]
-            if estimator is None:
-                estimator_ = await Estimator.get_row(session, key)
-                raise RAILImportError(f"Failed to load Estimator {estimator_}")
+        estimator = self._estimators.get(key)
+        if estimator is not None:
             return estimator
 
         estimator_ = await Estimator.get_row(session, key)
         try:
             estimator = await self._build_estimator(session, estimator_)
+            self._estimators[key] = estimator
         except RAILImportError as failed_import:
+            # Set the value to None, allowing to retry later
             self._estimators[key] = None
             raise RAILImportError(f"Import of Estimator failed because {failed_import}") from failed_import
 
@@ -334,17 +343,22 @@ class Cache:
             Requsts failed for some reason
         """
 
-        if key in self._qp_files:
-            qp_file = self._qp_files[key]
-            if qp_file is None:
-                request_ = await Request.get_row(session, key)
-                raise RAILRequestError(f"Request failed {request_}")
+        qp_file = self._qp_files.get(key)
+        if qp_file is not None:
             return qp_file
 
         request_ = await Request.get_row(session, key)
+
+        if request_.qp_file_path is not None:
+            if os.path.exists(request_.qp_file_path):
+                self._qp_files[key] = request_.qp_file_path
+                return request_.qp_file_path
+
         try:
             qp_file = await self._process_request(session, request_)
+            self._qp_files[key] = qp_file
         except RAILRequestError as failed_request:
+            # Set the value to None, allowing to retry later
             self._qp_files[key] = None
             raise RAILRequestError(f"Request failed because {failed_request}") from failed_request
 
@@ -403,6 +417,19 @@ class Cache:
         ------
         RAILIntegrityError
             Rows already exist in database
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache = pz_rail_service.db.Cache.shared_cache(logger)
+            algos = await cache.load_algorithms_from_rail_env(
+                session,
+            )
+
         """
         algos_: list[Algorithm] = []
         RailEnv.import_all_packages(silent=True)
@@ -421,22 +448,23 @@ class Cache:
                     name=stage_name,
                     class_name=full_name,
                 )
+                await session.refresh(new_algo)
+                check_class = await self.get_algo_class(session, new_algo.id)
+                if check_class != the_class:  # pragma: no cover
+                    raise RAILIntegrityError(f"{the_class.__name__} != {check_class.__name__}")
+                algos_.append(new_algo)
 
-            except RAILIntegrityError:
-                continue
+            except RAILIntegrityError as msg:
+                if self._logger:
+                    self._logger.info(msg)
 
-            await session.refresh(new_algo)
-            check_class = await self.get_algo_class(session, new_algo.id)
-            if check_class != the_class:
-                raise RAILIntegrityError(f"{the_class.__name__} != {check_class.__name__}")
-            algos_.append(new_algo)
         return algos_
 
     async def load_catalog_tags_from_rail_env(
         self,
         session: async_scoped_session,
     ) -> list[CatalogTag]:
-        """Load all of the CatalogConfig tags from
+        """Load all of the CatalogTag from RAIL classes
 
         Parameters
         ----------
@@ -448,10 +476,18 @@ class Cache:
         list[CatalogTag]
             Newly created CatalogTag database rows
 
-        Raises
-        ------
-        RAILIntegrityError
-            Rows already exist in database
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache = pz_rail_service.db.Cache.shared_cache(logger)
+            catalog_tags = await cache.load_catalog_tags_from_rail_env(
+                session,
+            )
+
         """
         catalog_tags_: list[CatalogTag] = []
 
@@ -463,13 +499,15 @@ class Cache:
                     name=tag,
                     class_name=f"{a_class.__module__}.{a_class.__name__}",
                 )
-            except RAILIntegrityError:
-                pass
-            await session.refresh(new_catalog_tag)
-            check_class = await self.get_catalog_tag_class(session, new_catalog_tag.id)
-            if check_class != a_class:
-                raise RAILIntegrityError(f"{a_class.__name__} != {check_class.__name__}")
-            catalog_tags_.append(new_catalog_tag)
+                await session.refresh(new_catalog_tag)
+                check_class = await self.get_catalog_tag_class(session, new_catalog_tag.id)
+                if check_class != a_class:  # pragma: no cover
+                    raise RAILIntegrityError(f"{a_class.__name__} != {check_class.__name__}")
+                catalog_tags_.append(new_catalog_tag)
+            except RAILIntegrityError as msg:
+                if self._logger:
+                    self._logger.info(msg)
+
         return catalog_tags_
 
     async def load_model_from_file(
@@ -514,6 +552,23 @@ class Cache:
 
         RAILBadModelError
             Input file failed validation checks
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_model = await cache.load_model_from_file(
+                session,
+                name='my_gpz_com_cam_model',
+                path='local_version_of_file.pkl',
+                algo_name='GPZEstimator',
+                catalog_tag_name='com_cam',
+            )
+
         """
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
@@ -524,7 +579,7 @@ class Cache:
         # File looks ok, move it to the archive area
         suffix = os.path.splitext(path)[1]
         output_name = os.path.join(
-            config.storage.archive,
+            global_config.storage.archive,
             "models",
             algo_name,
             catalog_tag_name,
@@ -547,7 +602,11 @@ class Cache:
             await session.refresh(new_model)
             return new_model
         except RAILIntegrityError as msg:
-            print(f"Model ingest failed: removing file {output_abspath}")
+            msg_str = f"Model ingest failed: removing file {output_abspath} {str(msg)}"
+            if self._logger:
+                self._logger.warn(msg_str)
+            else:
+                print(msg_str)
             os.unlink(output_abspath)
             raise RAILIntegrityError(msg) from msg
 
@@ -589,6 +648,22 @@ class Cache:
 
         RAILBadDatasetError
             Input file failed validation checks
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_dataset = await cache.load_dataset_from_file(
+                session,
+                name='my_com_cam_dataset',
+                path='local_version_of_file.hdf5',
+                catalog_tag_name='com_cam',
+            )
+
         """
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
@@ -596,7 +671,12 @@ class Cache:
 
         # File looks ok, move it to the archive area
         suffix = os.path.splitext(path)[1]
-        output_name = os.path.join(config.storage.archive, "datasets", catalog_tag_name, f"{name}{suffix}")
+        output_name = os.path.join(
+            global_config.storage.archive,
+            "datasets",
+            catalog_tag_name,
+            f"{name}{suffix}",
+        )
         output_abspath = os.path.abspath(output_name)
         output_dir = os.path.dirname(output_abspath)
         os.makedirs(output_dir, exist_ok=True)
@@ -615,8 +695,96 @@ class Cache:
             await session.refresh(new_dataset)
             return new_dataset
         except RAILIntegrityError as msg:
-            print(f"Dataset ingest failed: removing file {output_abspath}")
+            msg_str = f"Dataset ingest failed: removing file {output_abspath}: {str(msg)}"
+            if self._logger:
+                self._logger.warn(msg_str)
+            else:
+                print(msg_str)
             os.unlink(output_abspath)
+            raise RAILIntegrityError(msg) from msg
+
+    async def load_dataset_from_values(
+        self,
+        session: async_scoped_session,
+        name: str,
+        data: dict,
+        catalog_tag_name: str,
+    ) -> Dataset:
+        """Import a data file to the archive area and add a Dataset row
+
+        Parameters
+        ----------
+        session
+            DB session manager
+
+        name
+            Name for new Dataset
+
+        data
+            Data to input
+
+        catalog_tag_name
+            Name of CatalogTag that described contents of file
+
+        Returns
+        -------
+        Dataset
+            Newly created Dataset
+
+        Raises
+        ------
+        RAILIntegrityError
+            Rows already exist in database
+
+        RAILFileNotFoundError
+            Input file not found
+
+        RAILBadDatasetError
+            Input file failed validation checks
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+
+            data = dict(
+                u_cModelMag=24.4, g_cModelMag=24.4, r_cModelMag=24.4,
+                i_cModelMag=24.4, z_cModelMag=24.4, y_cModelMag=24.4,
+                u_cModelMagErr=0.5, g_cModelMagErr=0.5, r_cModelMagErr=0.5,
+                i_cModelMagErr=0.5, z_cModelMagErr=0.5, y_cModelMagErr=0.5,
+            )
+            new_dataset = await cache.load_dataset_from_file(
+                session,
+                name='my_com_cam_dataset',
+                data=data,
+                catalog_tag_name='com_cam',
+            )
+
+        """
+        # Validate the input file
+        catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
+
+        # Make a new Dataset row
+        try:
+            new_dataset = await Dataset.create_row(
+                session,
+                name=name,
+                path=None,
+                data=data,
+                catalog_tag_id=catalog_tag.id,
+            )
+            await session.refresh(new_dataset)
+            return new_dataset
+        except RAILIntegrityError as msg:
+            msg_str = f"Dataset ingest failed: {str(msg)}"
+            if self._logger:
+                self._logger.warn(msg_str)
+            else:
+                print(msg_str)
             raise RAILIntegrityError(msg) from msg
 
     async def load_estimator(
@@ -651,6 +819,22 @@ class Cache:
         ------
         RAILIntegrityError
             Rows already exist in database
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_dataset = await cache.load_dataset_from_file(
+                session,
+                name='my_com_cam_dataset',
+                path='local_version_of_data_file.hdf5',
+                catalog_tag_name='com_cam',
+            )
+
         """
 
         model = await Model.get_row_by_name(session, model_name)
@@ -667,12 +851,59 @@ class Cache:
         except RAILIntegrityError as msg:
             raise RAILIntegrityError(msg) from msg
 
-    async def run_process_request(
+    async def create_request(
+        self,
+        session: async_scoped_session,
+        dataset_name: str,
+        estimator_name: str,
+    ) -> Request:
+        """Run a request
+
+        Parameters
+        ----------
+        session
+            DB session manager
+
+        dataset_name
+            Name of associated Dataset
+
+        estimator_name
+            Name of associated Estimator
+
+        Returns
+        -------
+        Request
+            Request in question
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_request = await cache.create_request(
+                session,
+                dataset_name='my_com_cam_dataset',
+                estimator_name='my_gpz_com_cam_estimaor',
+            )
+
+        """
+        request_ = await Request.create_row(
+            session,
+            dataset_name=dataset_name,
+            estimator_name=estimator_name,
+        )
+        await session.commit()
+        return request_
+
+    async def run_request(
         self,
         session: async_scoped_session,
         request_id: int,
     ) -> Request:
-        """Create a Request to process Dataset with a particular Estimator
+        """Run a request
 
         Parameters
         ----------
@@ -686,6 +917,25 @@ class Cache:
         -------
         Request
             Request in question
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            from structlog import get_logger
+            logger = get_logger(__name__)
+            cache  = pz_rail_service.db.Cache.shared_cache(logger)
+            new_request = await cache.create_request(
+                session,
+                dataset_name='my_com_cam_dataset',
+                estimator_name='my_gpz_com_cam_estimaor',
+            )
+            await cache.run_request(
+                session,
+                new_request.id,
+            )
+
         """
         request_ = await Request.get_row(session, request_id)
         await self.get_qp_file(session, request_.id)

@@ -44,6 +44,8 @@ get_rows = wrappers.get_list_command(group_command, sub_client, ModelClass)
 
 create = wrappers.get_create_command(group_command, sub_client, ModelClass, create_options)
 
+delete = wrappers.get_delete_command(group_command, sub_client)
+
 get_row = wrappers.get_row_command(get_command, sub_client, ModelClass)
 
 get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, ModelClass)

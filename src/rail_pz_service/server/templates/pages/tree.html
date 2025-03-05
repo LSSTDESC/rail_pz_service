@@ -1,14 +1,6 @@
 {% extends "pages/standard.html" %}
-{% block catalog_tags %}
-  {% include "partials/catalog_tag_tree.html" %}
-{% endblock %}
-
-{% block datasets %}
-  {% include "partials/dataset_tree.html" %}
-{% endblock %}
-
-{% block estimators %}
-  {% include "partials/estimator_tree.html" %}
+{% block sidebar %}
+  {% include "partials/select_bar.html" %}
 {% endblock %}
 
 {% block control %}
@@ -34,16 +26,15 @@
     {% include "partials/run_request.html" %}
   {% elif control_type == "explore" %}
     {% include "partials/explore_controls.html" %}
-
   {% else %}
-    <img src="{{ url_for('static', path='/images/horse.png') }}" alt="A horse">
+    {% include "partials/welcome.html" %}
   {% endif %}
 {% endblock %}
 
 {% block display %}
   {% if display_type == "show_catalog_tag" %}
     {% include "partials/show_catalog_tag.html" %}
-  {% elif display_type == "show_algorithm" %}
+  {% elif display_type == "show_algo" %}
     {% include "partials/show_algorithm.html" %}
   {% elif display_type == "show_dataset" %}
     {% include "partials/show_dataset.html" %}

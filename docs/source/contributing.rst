@@ -18,10 +18,10 @@ algorithms or similar analysis tools, please visit
 Contributing to ``rail_projects``
 =================================
 
-If you're interested in contributing to `rail_projects`, but don't know where to start, take a look
+If you're interested in contributing to `rail_pz_service`, but don't know where to start, take a look
 at the
-`list of issues <https://github.com/LSSTDESC/rail_projects/issues>`_.
-Or, `create a new issue <https://github.com/LSSTDESC/rail_projects/issues/new>`_ to
+`list of issues <https://github.com/LSSTDESC/rail_pz_service/issues>`_.
+Or, `create a new issue <https://github.com/LSSTDESC/rail_pz_service/issues/new>`_ to
 suggest a change.
 
 In addition to GitHub, the RAIL team uses the LSSTC Slack workspace for organization.
@@ -49,7 +49,7 @@ In all cases, begin by following the developer installation instructions
 Contribution workflow
 =====================
 
-The ``rail_projects`` repository use an issue-branch-review workflow,
+The ``rail_pz_service`` repository use an issue-branch-review workflow,
 similar to the standard `GitHub Flow <https://docs.github.com/en/get-started/quickstart/github-flow>`_.
 We typically use ``git`` as our version control tool, there are many resources
 available online, but here is a `nice cheat sheet <https://education.github.com/git-cheat-sheet-education.pdf>`_
@@ -59,7 +59,7 @@ created by GitHub.
 Issue
 -----
 
-When you identify something that should be done, `make an issue <https://github.com/LSSTDESC/rail_projects/issues/new>`_
+When you identify something that should be done, `make an issue <https://github.com/LSSTDESC/rail_pz_service/issues/new>`_
 for it.
 
 ------
@@ -135,16 +135,3 @@ Classes
 ^^^^^^^
 
 Python classes and so should use the CapWords convention.
-
-
-==================
-Contribution Types
-==================
-
-We anticipate a few types of contributions, and provide separate instructions
-for those workflows:
-
-* :ref:`Fix an Issue` in the codebase
-* :ref:`Adding a new RailDataset type`
-* :ref:`Adding a new RailPlotter`
-* :ref:`Adding a new RailDatasetHolder`

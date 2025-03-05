@@ -8,10 +8,10 @@ from pydantic import BaseModel, ConfigDict
 class AlgorithmBase(BaseModel):
     """Algorithm parameters that are in DB tables and also used to create new rows"""
 
-    # Name for this Algorithm, unique
+    #: Name for this Algorithm, unique
     name: str
 
-    # Name for the python class implementing the algorithm
+    #: Name for the python class implementing the algorithm
     class_name: str
 
 
@@ -20,11 +20,19 @@ class AlgorithmCreate(AlgorithmBase):
 
 
 class Algorithm(AlgorithmBase):
-    """Algorithm Parameters that are in DB tables and not used to create new rows"""
+    """Algorithm is wrapper for a specific RAIL class
+    that implements a particular p(z) estimation algorithm.
+
+    This just defines the particular python class implementing
+    the algorithm.  The selection of a particular instance of the
+    training `Model` and any non-default a parameters used to
+    initialze an `Estimator` are handled in their own classes.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
+    #: column names to use when printing the table
     col_names_for_table: ClassVar[list[str]] = ["id", "name", "class_name"]
 
-    # primary key
+    #: primary key
     id: int

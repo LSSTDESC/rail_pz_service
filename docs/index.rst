@@ -6,8 +6,7 @@ rail_projects: a toolkit for managing `RAIL`-based data analysis projects
 Description
 ***********
 
-`rail_projects` is a tool-kit to manage RAIL-baseed data analysis
-projects.
+`rail_pz_serivce` is a web service to manage produce redshift estimates with RAIL.
 
 
 RAIL is a flexible open-source software library providing tools to produce at-scale photometric redshift data products, including uncertainties and summary statistics, and stress-test them under realistically complex systematics.
@@ -34,46 +33,44 @@ guidance on citing RAIL and the underlying algorithms.
    :maxdepth: 2
    :caption: Concepts
 
-   source/rail_project
-   source/pipelines
-   source/flavors
-   source/components
-
+   source/concepts
 
 .. toctree::
    :maxdepth: 2
-   :caption: Details
+   :caption: Uploading
 
-   source/analysis_components
-   source/factories
-
+   source/initalizing_db
+   source/uploading_a_model
+   source/uploading_an_estimator
+   source/uploading_a_dataset
 
 .. toctree::
    :maxdepth: 2
-   :caption: Usage
+   :caption: Requests
 
-   source/rail_project_cli
-   source/rail_plot_cli
-   source/interactive
+   source/creating_a_request
+   source/running_a_request
+   source/exploring_request_results
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contributing
 
    source/contributing
-   source/fix_an_issue
-   source/new_dataset
-   source/new_plotter
-   source/new_dataset_holder
 
 .. toctree::
    :maxdepth: 2
-   :caption: Demonstrations
+   :caption: CLI Usage
 
-   demos
+   source/pz_rail_service_admin_cli
+   source/pz_rail_service_client_cli
+   source/pz_rail_service_server
+   source/pz_rail_service_worker
+
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 6
    :caption: API
 
-   api/rail
+   api/rail_pz_service

@@ -11,7 +11,6 @@ from .request import Request
 from .row import RowMixin
 
 __all__ = [
-    "__version__",
     "Algorithm",
     "Base",
     "Cache",

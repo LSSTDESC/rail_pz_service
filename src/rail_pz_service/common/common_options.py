@@ -9,16 +9,18 @@ import click
 from click.decorators import FC
 
 
-class DictParamType(click.ParamType):
+class DictParamType(click.ParamType):  # pragma: no cover
     """Represents the dictionary type of a CLI parameter.
 
     Validates and converts values from the command line string or Python into
     a Python dict.
-        - All key-value pairs must be separated by one semicolon.
-        - Key and value must be separated by one colon
-        - Converts sequences separeted by dots into a list: list value items
-              must be separated by commas.
-        - Converts numbers to int.
+
+    - All key-value pairs must be separated by one semicolon.
+    - Key and value must be separated by one colon
+    - Converts sequences separeted by dots into a list: list value items
+        must be separated by commas.
+    - Converts numbers to int.
+
 
     Usage
         >>> @click.option("--param", default=None, type=DictParamType())
@@ -62,7 +64,7 @@ class DictParamType(click.ParamType):
         ------
             click.BadParameter: If the validation is failed.
         """
-        if isinstance(value, dict):  # pragma: no cover
+        if isinstance(value, dict):
             return value
         try:
             keyvalue_pairs = value.rstrip(";").split(";")

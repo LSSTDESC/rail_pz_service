@@ -26,11 +26,10 @@ from . import client_options
 class CustomJSONEncoder(json.JSONEncoder):
     """A custom JSON decoder that can serialize Enums."""
 
-    def default(self, o: Any) -> Any:
+    def default(self, o: Any) -> Any:  # pragma: no cover
         if isinstance(o, Enum):
             return {"name": o.name, "value": o.value}
-        else:
-            return super().default(o)
+        return super().default(o)
 
 
 def output_pydantic_object(
@@ -97,30 +96,6 @@ def output_pydantic_list(
             click.echo(yaml.dump(yaml_list))
         case _:
             click.echo(tabulate(the_table, headers=col_names, tablefmt="plain"))
-
-
-def output_dict(
-    the_dict: dict,
-    output: common_options.OutputEnum | None,
-) -> None:
-    """Render a python dict as requested
-
-    Parameters
-    ----------
-    the_dict: dict
-        The dict in question
-
-    output: options.OutputEnum | None
-        Output format
-    """
-    match output:
-        case common_options.OutputEnum.json:
-            click.echo(json.dumps(the_dict, cls=CustomJSONEncoder, indent=4))
-        case common_options.OutputEnum.yaml:
-            click.echo(yaml.dump(the_dict))
-        case _:
-            for key, val in the_dict.items():
-                click.echo(f"{key}: {val}")
 
 
 def get_list_command(
@@ -233,7 +208,7 @@ def get_row_by_name_command(
         Function that returns the row for the table in question
     """
 
-    @group_command(name="by_name")
+    @group_command(name="by-name")
     @client_options.pz_client()
     @common_options.name()
     @common_options.output()
