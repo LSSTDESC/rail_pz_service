@@ -44,10 +44,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install packages for testing
-        run: uv sync --dev --frozen
+        run: uv sync --all-extras --frozen
 
       - name: Run tests
-        run: uv run --dev make typing
+        run: uv run --all-extras --frozen make typing
         continue-on-error: true
 
   test:
@@ -71,9 +71,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install packages for testing
-        run: uv sync --dev --frozen
+        run: uv sync --all-extras --frozen
 
       - name: Run tests
         run: |
-          uv run make --dev test-github-ci
+          uv run --all-extras make test-github-ci
         continue-on-error: true
