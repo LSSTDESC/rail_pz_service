@@ -78,8 +78,8 @@ ENDRUN
 
 
 #==============================================================================
-# RUNTIME IMAGE - pz-rail-service
-FROM base-image AS pz-rail-service
+# RUNTIME IMAGE - CLIENT
+FROM build-image AS pz-rail-service-client
 
 # Make sure frontend output won't go into the layer store
 VOLUME /archive
@@ -88,37 +88,44 @@ VOLUME /archive
 COPY --from=build-image /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+
 # Switch to NONROOT user
 USER lsstsvc1
 
 WORKDIR /home/lsstsvc1
 
-# Copy the application and examples
-COPY src/rail_pz_service ./rail_pz_service
-COPY alembic ./alembic
-COPY alembic.ini .
+# Copy the core stuff
+COPY src/rail_pz_service/__init__.py ./rail_pz_service/__init__.py
+COPY src/rail_pz_service/_version.py ./rail_pz_service/_version.py
+COPY src/rail_pz_service/config.py ./rail_pz_service/config.py
+COPY src/rail_pz_service/common ./rail_pz_service/common
+COPY src/rail_pz_service/models ./rail_pz_service/models
+COPY src/rail_pz_service/client ./rail_pz_service/client
+
+CMD ["rail_pz_service.db.cli.main"]
 
 ENTRYPOINT ["/opt/venv/bin/python3", "-m"]
 
 #==============================================================================
-# RUNTIME IMAGE - ADMIN
-FROM pz-rail-service AS pz-rail-service-admin
+# RUNTIME IMAGE - SERVER
+FROM pz-rail-service-client AS pz-rail-service-server
+
+WORKDIR /workdir
+COPY . .
+
+# Install project production dependency graph in /opt/venv
+RUN --mount=type=cache,target=/root/.cache/uv <<ENDRUN
+    set -e
+    /bin/uv sync --group dev --no-install-project --no-editable
+ENDRUN
 
 USER lsstsvc1
+
+COPY src/rail_pz_service/db ./rail_pz_service/db
+COPY src/rail_pz_service/server ./rail_pz_service/server
+COPY alembic ./alembic
+COPY alembic.ini .
+
 CMD ["rail_pz_service.db.cli.admin"]
-
-
-#==============================================================================
-# RUNTIME IMAGE - CLIENT
-FROM pz-rail-service AS pz-rail-service-client
-
-USER lsstsvc1
-CMD ["rail_pz_service.client.cli.main"]
-
-
-#==============================================================================
-# RUNTIME IMAGE - CLIENT
-FROM pz-rail-service AS pz-rail-service-server
-
-USER lsstsvc1
 CMD ["rail_pz_service.server.main"]
+CMD ["rail_pz_service.server.worker"]

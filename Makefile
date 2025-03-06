@@ -49,7 +49,7 @@ update: update-deps init
 .PHONY: build
 build: export BUILDKIT_PROGRESS=plain
 build:
-	docker compose build pz-rail-service-admin
+	docker compose build pz-rail-service-server
 
 
 
