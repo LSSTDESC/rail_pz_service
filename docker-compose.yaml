@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-      target: rail-pz-service
+      target: pz-rail-service-client
     entrypoint:
       - alembic
     command:
@@ -28,14 +28,34 @@ services:
       postgresql:
         condition: service_healthy
 
-  pz-rail-service-admin:
+  pz-rail-service-client:
     profiles:
       - full
       - admin
     build:
       context: .
       dockerfile: docker/Dockerfile
-      target: pz-rail-service-admin
+      target: pz-rail-service-client
+    env_file:
+      - path: .env
+        required: false
+    environment: *railenv
+    ports:
+      - "8080:8080"
+    networks:
+      - pz-rail-service
+    depends_on:
+      migratedb:
+        condition: service_completed_successfully
+
+  pz-rail-service-server:
+    profiles:
+      - full
+      - admin
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: pz-rail-service-server
     env_file:
       - path: .env
         required: false
