@@ -1,7 +1,6 @@
 import os
 
 import pytest
-import qp
 import structlog
 from httpx import AsyncClient
 from safir.database import create_async_session
@@ -84,8 +83,29 @@ async def test_load_routes(
         response = await client.post(f"{config.asgi.prefix}/{api_version}/request/run/{the_request.id}")
         check_request = check_and_parse_response(response, models.Request)
 
-        qp_ens = qp.read(check_request.qp_file_path)
-        assert qp_ens.npdf != 0
+        params = models.DownloadQuery(filename="tests/temp_data/model_check.pkl").model_dump()
+        response = await client.get(
+            f"{config.asgi.prefix}/{api_version}/model/download/{the_model.id}",
+            params=params,
+        )
+        filename = response.headers["content-disposition"].split("=")[1].replace('"', "")
+        assert filename == "tests/temp_data/model_check.pkl"
+
+        params = models.DownloadQuery(filename="tests/temp_data/dataset_check.hdf5").model_dump()
+        response = await client.get(
+            f"{config.asgi.prefix}/{api_version}/dataset/download/{the_dataset.id}",
+            params=params,
+        )
+        filename = response.headers["content-disposition"].split("=")[1].replace('"', "")
+        assert filename == "tests/temp_data/dataset_check.hdf5"
+
+        params = models.DownloadQuery(filename="tests/temp_data/qp_out.hdf5").model_dump()
+        response = await client.get(
+            f"{config.asgi.prefix}/{api_version}/request/download/{check_request.id}",
+            params=params,
+        )
+        filename = response.headers["content-disposition"].split("=")[1].replace('"', "")
+        assert filename == "tests/temp_data/qp_out.hdf5"
 
         # delete everything we just made in the session
         await cleanup(session)

@@ -46,6 +46,8 @@ class PZRailRequestClient:
     create = wrappers.create_row_function(ResponseModelClass, models.RequestCreate, f"{router_string}/create")
     delete = wrappers.delete_row_function(f"{router_string}")
 
+    download = wrappers.download_file_function(f"{router_string}/download")
+
     def run(self, row_id: int) -> models.Request:
         """Run a request
 

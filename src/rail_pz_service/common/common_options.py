@@ -189,6 +189,13 @@ catalog_tag_name = PartialOption(
 )
 
 
+filename = PartialOption(
+    "--filename",
+    type=click.Path(),
+    help="Filename for downloaded files",
+)
+
+
 model_name = PartialOption(
     "--model-name",
     type=str,

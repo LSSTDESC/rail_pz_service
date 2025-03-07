@@ -53,3 +53,5 @@ class PZRailDatasetClient:
     get_requests = wrappers.get_row_attribute_list_function(
         ResponseModelClass, f"{router_string}/get", "requests"
     )
+
+    download = wrappers.download_file_function(f"{router_string}/download")

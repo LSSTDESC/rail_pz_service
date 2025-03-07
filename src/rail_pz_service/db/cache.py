@@ -18,6 +18,7 @@ from rail.utils.catalog_utils import CatalogConfigBase
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from ..common.errors import (
+    RAILBadInputError,
     RAILImportError,
     RAILIntegrityError,
     RAILRequestError,
@@ -173,6 +174,10 @@ class Cache:
             )
             result_handle = estimator_instance.get_handle("output")
             result_handle.write()
+            estimator_instance.finalize()
+
+        aliased_tag = estimator_instance.get_aliased_tag("output")
+        final_name = estimator_instance.get_output(aliased_tag, final_name=True)
 
         if not os.path.exists(result_handle.path):
             raise RuntimeError(f"Output files {output_path}, not created")
@@ -180,11 +185,11 @@ class Cache:
         now = datetime.now()
         await request.update_values(
             session,
-            qp_file_path=result_handle.path,
+            qp_file_path=final_name,
             time_finished=now,
         )
         await session.commit()
-        self._qp_files[request.id] = result_handle.path
+        self._qp_files[request.id] = final_name
 
         return result_handle.path
 
@@ -616,6 +621,7 @@ class Cache:
         name: str,
         path: Path,
         catalog_tag_name: str,
+        data: dict | None = None,
     ) -> Dataset:
         """Import a data file to the archive area and add a Dataset row
 
@@ -665,6 +671,9 @@ class Cache:
             )
 
         """
+        if data is not None:
+            raise RAILBadInputError("data should be set to None when calling load_dataset_from_file")
+
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
         n_objects = Dataset.validate_data_for_path(path, catalog_tag)
@@ -709,6 +718,7 @@ class Cache:
         name: str,
         data: dict,
         catalog_tag_name: str,
+        path: str | None = None,
     ) -> Dataset:
         """Import a data file to the archive area and add a Dataset row
 
@@ -765,6 +775,9 @@ class Cache:
             )
 
         """
+        if path is not None:
+            raise RAILBadInputError("path should be set to None when calling load_dataset_from_values")
+
         # Validate the input file
         catalog_tag = await CatalogTag.get_row_by_name(session, catalog_tag_name)
 

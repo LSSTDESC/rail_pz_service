@@ -38,6 +38,7 @@ get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, 
 
 create = wrappers.create_row_function(router, ResponseModelClass, models.RequestCreate, DbClass)
 delete = wrappers.delete_row_function(router, DbClass)
+download = wrappers.download_file_function(router, DbClass, "qp_file_path")
 
 
 @router.post(

@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeAlias
 
+from httpx import Response
 from pydantic import BaseModel, TypeAdapter
 
 from .. import models
@@ -210,3 +211,35 @@ def create_row_function(
         return TypeAdapter(response_model_class).validate_python(results)
 
     return row_create
+
+
+def download_file_function(
+    query: str = "",
+) -> Callable:
+    """Download a file associated to DB object.
+
+    Parameters
+    ----------
+    query
+        http query
+
+    Returns
+    -------
+    Callable
+        Function that downloads a file associated to DB object
+    """
+
+    def download_file(
+        obj: PZRailClient,
+        row_id: int,
+        filename: str,
+    ) -> Response:
+        full_query = f"{query}/{row_id}"
+        params = models.DownloadQuery(filename=filename).model_dump()
+        results = obj.client.get(full_query, params=params).raise_for_status()
+        filename = results.headers["content-disposition"].split("=")[1].replace('"', "")
+        with open(filename, mode="wb") as fout:
+            fout.write(results.content)
+        return results
+
+    return download_file

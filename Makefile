@@ -126,3 +126,8 @@ test-sqlite:
 test-github-ci: export DB__URL=sqlite+aiosqlite:////${PWD}/tests/test_pz_rail_service.db
 test-github-ci:
 	pytest -vvv --asyncio-mode=auto --cov=rail_pz_service --cov-branch --cov-report=term --cov-report=xml ${PYTEST_ARGS}
+
+.PHONY: run-sqlite
+run-sqlite: export DB__URL=sqlite+aiosqlite:////${PWD}/tests/test_pz_rail_service.db
+run-sqlite:
+	pz-rail-service-server
