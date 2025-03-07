@@ -61,7 +61,6 @@ def test_request_cli_db(engine: AsyncEngine) -> None:
         f"--name data_{uuid_int} "
         "--n-objects 2 "
         "--path not/really/a/path "
-        "--class-name not.really.a.class "
         f"--catalog-tag-name {catalog_tag_.name} "
         "--output yaml",
     )

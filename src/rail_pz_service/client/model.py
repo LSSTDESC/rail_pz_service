@@ -44,3 +44,5 @@ class PZRailModelClient:
     get_estimators = wrappers.get_row_attribute_list_function(
         ResponseModelClass, f"{router_string}/get/estimators"
     )
+
+    download = wrappers.download_file_function(f"{router_string}/download")

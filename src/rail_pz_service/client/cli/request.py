@@ -56,6 +56,8 @@ get_estimators = wrappers.get_row_attribute_list_command(
 
 get_models = wrappers.get_row_attribute_list_command(get_command, sub_client, models.Model, "_models")
 
+download_command = wrappers.download_command(group_command, sub_client)
+
 
 @group_command(name="run")
 @client_options.pz_client()

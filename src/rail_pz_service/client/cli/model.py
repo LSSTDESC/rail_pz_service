@@ -40,3 +40,5 @@ get_row_by_name = wrappers.get_row_by_name_command(get_command, sub_client, Mode
 get_estimators = wrappers.get_row_attribute_list_command(
     get_command, sub_client, models.Estimator, "estimators"
 )
+
+download_command = wrappers.download_command(group_command, sub_client)

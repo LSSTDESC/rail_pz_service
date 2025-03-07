@@ -12,6 +12,7 @@ from collections.abc import Callable, Sequence
 from typing import TypeAlias
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from safir.dependencies.db_session import db_session_dependency
 from sqlalchemy.ext.asyncio import async_scoped_session
@@ -355,3 +356,56 @@ def create_row_function(
             raise HTTPException(status_code=500, detail=str(msg)) from msg
 
     return create_row
+
+
+def download_file_function(
+    router: APIRouter,
+    db_class: TypeAlias = db.RowMixin,
+    attr_name: str = "",
+) -> Callable:
+    """Return a function gets collection names associated to a Node.
+
+    Parameters
+    ----------
+    router: APIRouter
+        Router to attach the function to
+
+    db_class: TypeAlias = db.RowMixin
+        Underlying database class
+
+    attr_name
+        Requested attribute
+
+    Returns
+    -------
+    Callable
+        Function that gets the collection names associated to a Node
+    """
+
+    @router.get(
+        "/download/{row_id}",
+        summary="Downlaod a file",
+    )
+    async def download_file(
+        row_id: int,
+        filename: str,
+        session: async_scoped_session = Depends(db_session_dependency),
+    ) -> FileResponse:
+        try:
+            async with session.begin():
+                the_node = await db_class.get_row(session, row_id)
+                await session.refresh(the_node, attribute_names=[attr_name])
+                the_path = getattr(the_node, attr_name)
+            return FileResponse(path=the_path, filename=filename)
+        except RAILMissingIDError as msg:
+            logger.info(msg)
+            await session.close()
+            await session.remove()
+            raise HTTPException(status_code=404, detail=str(msg)) from msg
+        except Exception as msg:
+            logger.error(msg, exc_info=True)
+            await session.close()
+            await session.remove()
+            raise HTTPException(status_code=500, detail=str(msg)) from msg
+
+    return download_file

@@ -35,10 +35,16 @@ async def load_dataset(
 ) -> db.Dataset:
     the_cache = db.Cache.shared_cache(logger)
     try:
-        new_dataset = await the_cache.load_dataset_from_file(
-            session,
-            **query.model_dump(),
-        )
+        if query.path is not None:
+            new_dataset = await the_cache.load_dataset_from_file(
+                session,
+                **query.model_dump(),
+            )
+        else:
+            new_dataset = await the_cache.load_dataset_from_values(
+                session,
+                **query.model_dump(),
+            )
         return new_dataset
     except (RAILMissingNameError, RAILMissingIDError) as msg:
         logger.info(msg)

@@ -11,6 +11,7 @@ apply to all RowMixin, NodeMixin and ElementMixin classes.
 import json
 from collections.abc import Callable, Sequence
 from enum import Enum
+from pathlib import Path
 from typing import Any, TypeAlias
 
 import click
@@ -345,3 +346,39 @@ def get_create_command(
 
     create = group_command(name="create")(create)
     return create
+
+
+def download_command(
+    group_command: Callable,
+    sub_client_name: str,
+) -> Callable:
+    """Return a function downloads a file
+
+    Parameters
+    ----------
+    group_command
+        CLI decorator from the CLI group to attach to
+
+    sub_client_name
+        Name of python API sub-client to use
+
+    Returns
+    -------
+    Callable
+        Function that downloads a file
+    """
+
+    @group_command(name="download")
+    @client_options.pz_client()
+    @common_options.row_id()
+    @common_options.filename()
+    def download(
+        pz_client: PZRailClient,
+        row_id: int,
+        filename: Path,
+    ) -> None:
+        """Get the data_dict parameters for a partiuclar node"""
+        sub_client = getattr(pz_client, sub_client_name)
+        _result = sub_client.download(row_id, filename)
+
+    return download

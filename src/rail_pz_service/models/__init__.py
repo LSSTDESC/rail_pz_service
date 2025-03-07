@@ -3,6 +3,7 @@
 from .algorithm import Algorithm
 from .catalog_tag import CatalogTag
 from .dataset import Dataset
+from .download import DownloadQuery
 from .estimator import Estimator
 from .model import Model
 from .request import Request, RequestCreate
@@ -12,6 +13,7 @@ __all__ = [
     "Algorithm",
     "CatalogTag",
     "Dataset",
+    "DownloadQuery",
     "Estimator",
     "Model",
     "Request",

@@ -29,3 +29,5 @@ get_row_by_name = wrappers.get_row_by_name_function(router, ResponseModelClass, 
 get_estimators = wrappers.get_row_attribute_list_function(
     router, ResponseModelClass, DbClass, "_estimators", models.Estimator
 )
+
+download = wrappers.download_file_function(router, DbClass, "path")

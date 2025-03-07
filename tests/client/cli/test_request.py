@@ -68,7 +68,6 @@ def test_request_client(uvicorn: UvicornProcess, api_version: str, engine: Async
         f"--name data_{uuid_int} "
         "--n-objects 2 "
         "--path not/really/a/path "
-        "--class-name not.really.a.class "
         f"--catalog-tag-name {catalog_tag_.name} "
         "--output yaml",
     )

@@ -17,7 +17,10 @@ class LoadDatasetQuery(BaseModel):
     name: str
 
     #: Path to the input file
-    path: str
+    path: str | None
+
+    #: Data for input
+    data: dict | None = None
 
     # " Associated catalog tag name
     catalog_tag_name: str
